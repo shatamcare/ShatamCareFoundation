@@ -137,10 +137,17 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-br from-lavender-100 to-lavender-200 rounded-xl">
-                <Heart className="h-8 w-8 text-lavender-600" />
-              </div>
-              <div>
+              <img 
+                src="/images/SC_LOGO-removebg-preview.png" 
+                alt="Shatam Care Foundation" 
+                className="h-16 w-auto object-contain"
+                onError={(e) => {
+                  // Fallback to text if logo fails to load
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <div className="hidden">
                 <span className="text-xl font-bold text-gray-800 font-lora">Shatam Care Foundation</span>
                 <p className="text-sm text-lavender-600 font-medium">Because Every Memory Deserves Care</p>
               </div>
@@ -188,7 +195,7 @@ const Index = () => {
       <section id="home" className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-        backgroundImage: 'url("https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&h=1080&fit=crop")'
+        backgroundImage: 'url("/images/sessions.jpg")'
       }}></div>
         <div className="relative z-20 py-32 lg:py-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -520,7 +527,17 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 bg-gradient-to-br from-lavender-500 to-sage-500 rounded-xl">
+                <img 
+                  src="/images/SC_LOGO-removebg-preview.png" 
+                  alt="Shatam Care Foundation" 
+                  className="h-12 w-auto object-contain brightness-0 invert"
+                  onError={(e) => {
+                    // Fallback to icon if logo fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden p-3 bg-gradient-to-br from-lavender-500 to-sage-500 rounded-xl">
                   <Heart className="h-8 w-8 text-white" />
                 </div>
                 <div>
