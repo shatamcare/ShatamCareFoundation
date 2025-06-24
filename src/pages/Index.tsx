@@ -50,10 +50,26 @@ const Index = () => {
   ];
 
   const donationOptions = [
-    { amount: "₹1,200", purpose: "for Brain Bridge Kit" },
-    { amount: "₹2,000", purpose: "for a Support Group session" },
-    { amount: "₹15,000", purpose: "to train a caregiver" },
-    { amount: "₹50,000", purpose: "toward building the dementia care home" }
+    { 
+      amount: "₹1,200", 
+      purpose: "for Brain Bridge Kit",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop"
+    },
+    { 
+      amount: "₹2,000", 
+      purpose: "for a Support Group session",
+      image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=300&h=200&fit=crop"
+    },
+    { 
+      amount: "₹15,000", 
+      purpose: "to train a caregiver",
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=200&fit=crop"
+    },
+    { 
+      amount: "₹50,000", 
+      purpose: "toward building the dementia care home",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop"
+    }
   ];
 
   return (
@@ -142,8 +158,7 @@ const Index = () => {
                 </Button>
                 <Button 
                   size="lg" 
-                  variant="outline" 
-                  className="border-2 border-white text-white hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full text-lg backdrop-blur-sm transition-all duration-300"
+                  className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full text-lg backdrop-blur-sm transition-all duration-300"
                   onClick={() => document.getElementById('donate')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   Support Our Mission
@@ -303,10 +318,18 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
               {donationOptions.map((option, index) => (
-                <Card key={index} className="bg-white/95 backdrop-blur-sm text-gray-800 hover:bg-white hover:shadow-2xl transition-all duration-300 border-0 animate-fade-in-up group" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <CardContent className="p-8 text-center">
-                    <div className="text-3xl lg:text-4xl font-bold text-lavender-600 mb-3 font-lora group-hover:scale-110 transition-transform">{option.amount}</div>
-                    <p className="text-gray-700 mb-6 leading-relaxed">{option.purpose}</p>
+                <Card key={index} className="bg-white/95 backdrop-blur-sm text-gray-800 hover:bg-white hover:shadow-2xl transition-all duration-300 border-0 animate-fade-in-up group overflow-hidden" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <div className="relative h-32 overflow-hidden">
+                    <img 
+                      src={option.image} 
+                      alt={option.purpose}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <div className="absolute bottom-2 left-2 text-white font-bold text-xl">{option.amount}</div>
+                  </div>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-gray-700 mb-4 leading-relaxed font-medium">{option.purpose}</p>
                     <Button className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white w-full font-medium rounded-full shadow-lg hover:shadow-xl transition-all">
                       Donate Now
                     </Button>
@@ -319,7 +342,7 @@ const Index = () => {
               <Button size="lg" className="bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all">
                 Volunteer with Us
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full backdrop-blur-sm transition-all">
+              <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full backdrop-blur-sm transition-all">
                 Partner with Shatam
               </Button>
             </div>
@@ -436,7 +459,7 @@ const Index = () => {
       {/* WhatsApp Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button 
-          className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 animate-pulse"
+          className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300"
           onClick={() => window.open('https://wa.me/919158566665', '_blank')}
         >
           <MessageCircle className="h-6 w-6" />
