@@ -195,12 +195,12 @@ const Index = () => {
       </section>
 
       {/* Impact Section */}
-      <section className="py-24 bg-gradient-to-r from-lavender-600 to-sage-600 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-r from-lavender-600 to-sage-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="animate-fade-in-up">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 font-lora">Our Impact Since 2018</h2>
-            <p className="text-xl mb-16 opacity-90">Building a network of care across India</p>
+            <p className="text-xl mb-12 opacity-90">Building a network of care across India</p>
             
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16">
               {impactStats.map((stat, index) => <div key={index} className="text-center animate-fade-in-up" style={{
@@ -211,20 +211,36 @@ const Index = () => {
                 </div>)}
             </div>
             
-            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 animate-fade-in-up">
-              <h3 className="text-2xl font-semibold mb-8 font-lora">Our Partners</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors px-[6px] py-[6px]">
-                  <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=80&fit=crop&crop=center" alt="Government of Maharashtra" className="h-12 w-auto object-contain" />
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-4xl mx-auto animate-fade-in-up">
+              <h3 className="text-2xl font-semibold mb-8 font-lora text-center">Trusted Partners</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
+                  <img 
+                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" 
+                    alt="Government of Maharashtra" 
+                    className="max-h-12 w-auto object-contain"
+                  />
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
-                  <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&crop=center" alt="Johnson & Johnson Foundation" className="h-12 w-auto object-contain" />
+                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
+                  <img 
+                    src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center" 
+                    alt="Johnson & Johnson Foundation" 
+                    className="max-h-12 w-auto object-contain"
+                  />
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
-                  <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=200&h=80&fit=crop&crop=center" alt="The Better India" className="h-12 w-auto object-contain" />
+                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
+                  <img 
+                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center" 
+                    alt="The Better India" 
+                    className="max-h-12 w-auto object-contain"
+                  />
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
-                  <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=200&h=80&fit=crop&crop=center" alt="L'Oréal Paris" className="h-12 w-auto object-contain" />
+                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
+                  <img 
+                    src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center" 
+                    alt="L'Oréal Paris" 
+                    className="max-h-12 w-auto object-contain"
+                  />
                 </div>
               </div>
             </div>
