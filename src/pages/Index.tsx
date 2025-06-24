@@ -10,31 +10,31 @@ const Index = () => {
 
   const programs = [
     {
-      icon: "🏡",
+      image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop",
       title: "Residential & Day Care for Elderly",
       description: "Safe, supportive spaces for elder well-being",
       details: "Our residential and day care programs provide a nurturing environment where elderly individuals receive comprehensive care, engaging activities, and social interaction in a home-like setting."
     },
     {
-      icon: "🎓",
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=300&fit=crop",
       title: "Caregiver Certificate Course",
       description: "Empowering underserved individuals with skills & jobs",
       details: "We train caregivers from underserved communities, providing them with professional skills and certification to create dignified employment opportunities while addressing the growing need for elderly care."
     },
     {
-      icon: "🧠",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
       title: "Brain Bridge Cognitive Therapy",
       description: "Engaging therapy kits to stimulate memory & connection",
       details: "Our innovative therapy kits use evidence-based activities to stimulate cognitive function, improve memory, and maintain connections for individuals with dementia and Alzheimer's."
     },
     {
-      icon: "🤝",
+      image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=400&h=300&fit=crop",
       title: "Dementia Support Groups",
       description: "Healing communities for caregivers & families",
       details: "Support groups provide emotional support, practical advice, and community connection for families and caregivers navigating the challenges of dementia care."
     },
     {
-      icon: "🏥",
+      image: "https://images.unsplash.com/photo-1586105251261-72a756497a11?w=400&h=300&fit=crop",
       title: "Care Home & Training Centre",
       description: "A model dementia care facility in Maharashtra (Upcoming)",
       details: "Our upcoming facility will serve as a model for dementia care in India, combining residential care with training programs to scale our impact nationwide."
@@ -178,9 +178,16 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {programs.map((program, index) => (
-              <Card key={index} className="bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-lg animate-fade-in-up group" style={{ animationDelay: `${index * 0.1}s` }}>
+              <Card key={index} className="bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-lg animate-fade-in-up group overflow-hidden" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={program.image} 
+                    alt={program.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
                 <CardContent className="p-8">
-                  <div className="text-4xl mb-6 group-hover:scale-110 transition-transform duration-300">{program.icon}</div>
                   <h3 className="text-xl font-semibold text-gray-800 mb-4 font-lora group-hover:text-lavender-600 transition-colors">{program.title}</h3>
                   <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
                   <button
