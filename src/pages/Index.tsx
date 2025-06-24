@@ -245,10 +245,37 @@ const Index = () => {
             </div>
             
             <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-8 animate-fade-in-up">
-              <h3 className="text-2xl font-semibold mb-6 font-lora">Our Partners</h3>
-              <p className="text-lg opacity-90">
-                Govt of Maharashtra • J&J Foundation • The Better India • L'Oréal Paris
-              </p>
+              <h3 className="text-2xl font-semibold mb-8 font-lora">Our Partners</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
+                  <img 
+                    src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200&h=80&fit=crop&crop=center" 
+                    alt="Government of Maharashtra" 
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
+                  <img 
+                    src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&crop=center" 
+                    alt="Johnson & Johnson Foundation" 
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
+                  <img 
+                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=200&h=80&fit=crop&crop=center" 
+                    alt="The Better India" 
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 hover:bg-white transition-colors">
+                  <img 
+                    src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=200&h=80&fit=crop&crop=center" 
+                    alt="L'Oréal Paris" 
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
