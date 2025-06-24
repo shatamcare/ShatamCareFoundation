@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle } from 'lucide-react';
+import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 const Index = () => {
@@ -64,6 +64,73 @@ const Index = () => {
     purpose: "toward building the dementia care home",
     image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=300&h=200&fit=crop"
   }];
+
+  const upcomingEvents = [{
+    id: 1,
+    title: "Caregiver Training Workshop",
+    date: "2025-07-15",
+    time: "10:00 AM - 4:00 PM",
+    location: "Mumbai Community Center",
+    type: "Workshop",
+    description: "Comprehensive training session for aspiring caregivers focusing on elderly care techniques and dementia support.",
+    registrationLink: "#",
+    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=200&fit=crop"
+  }, {
+    id: 2,
+    title: "Family Support Group Meeting",
+    date: "2025-07-20",
+    time: "2:00 PM - 4:00 PM",
+    location: "Pune Center",
+    type: "Support Group",
+    description: "Monthly gathering for families dealing with dementia. Share experiences, get support, and learn coping strategies.",
+    registrationLink: "#",
+    image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=400&h=200&fit=crop"
+  }, {
+    id: 3,
+    title: "Brain Bridge Therapy Session",
+    date: "2025-08-05",
+    time: "11:00 AM - 1:00 PM",
+    location: "Nashik Branch",
+    type: "Therapy",
+    description: "Interactive cognitive therapy session using our Brain Bridge kits. Open to elderly participants and their families.",
+    registrationLink: "#",
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop"
+  }, {
+    id: 4,
+    title: "Fundraising Gala Dinner",
+    date: "2025-08-25",
+    time: "7:00 PM - 10:00 PM",
+    location: "Grand Ballroom, Mumbai",
+    type: "Fundraiser",
+    description: "Annual gala dinner to raise funds for our dementia care home project. Join us for an evening of hope and community.",
+    registrationLink: "#",
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=200&fit=crop"
+  }];
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const getEventTypeColor = (type: string) => {
+    switch (type) {
+      case 'Workshop':
+        return 'bg-lavender-100 text-lavender-700';
+      case 'Support Group':
+        return 'bg-sage-100 text-sage-700';
+      case 'Therapy':
+        return 'bg-blue-100 text-blue-700';
+      case 'Fundraiser':
+        return 'bg-rose-100 text-rose-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  };
   return <div className="min-h-screen bg-gradient-to-b from-lavender-50 to-white">
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-lavender-100">
@@ -84,6 +151,7 @@ const Index = () => {
               <a href="#home" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Home</a>
               <a href="#mission" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Our Mission</a>
               <a href="#programs" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Programs</a>
+              <a href="#events" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Events</a>
               <a href="#donate" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Donate</a>
               <a href="#get-involved" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Get Involved</a>
               <a href="#contact" className="text-gray-700 hover:text-lavender-600 transition-colors font-medium">Contact</a>
@@ -107,6 +175,7 @@ const Index = () => {
                 <a href="#home" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Home</a>
                 <a href="#mission" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Our Mission</a>
                 <a href="#programs" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Programs</a>
+                <a href="#events" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Events</a>
                 <a href="#donate" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Donate</a>
                 <a href="#get-involved" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Get Involved</a>
                 <a href="#contact" className="block px-4 py-3 text-gray-700 hover:text-lavender-600 hover:bg-lavender-50 rounded-lg">Contact</a>
@@ -282,6 +351,99 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Events Calendar Section */}
+      <section id="events" className="py-24 bg-gradient-to-b from-white to-lavender-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 animate-fade-in-up">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-6 font-lora">Upcoming Events</h2>
+            <div className="w-24 h-1 bg-gradient-to-r from-lavender-400 to-sage-400 mx-auto mb-6"></div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Join us for workshops, support groups, and community events designed to strengthen our care network
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {upcomingEvents.map((event, index) => (
+              <Card key={event.id} className="bg-white hover:shadow-2xl transition-all duration-300 border-0 shadow-lg animate-fade-in-up group overflow-hidden" style={{
+                animationDelay: `${index * 0.1}s`
+              }}>
+                <div className="flex flex-col md:flex-row">
+                  <div className="relative h-48 md:h-auto md:w-1/3 overflow-hidden">
+                    <img 
+                      src={event.image} 
+                      alt={event.title} 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>
+                        {event.type}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-8 md:w-2/3 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-800 mb-4 font-lora group-hover:text-lavender-600 transition-colors">
+                        {event.title}
+                      </h3>
+                      <p className="text-gray-600 mb-6 leading-relaxed">
+                        {event.description}
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center text-gray-700">
+                        <Calendar className="h-5 w-5 text-lavender-500 mr-3 flex-shrink-0" />
+                        <span className="font-medium">{formatDate(event.date)}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <Clock className="h-5 w-5 text-sage-500 mr-3 flex-shrink-0" />
+                        <span>{event.time}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <MapPinIcon className="h-5 w-5 text-rose-500 mr-3 flex-shrink-0" />
+                        <span>{event.location}</span>
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button 
+                          className="w-full bg-gradient-to-r from-lavender-500 to-sage-500 hover:from-lavender-600 hover:to-sage-600 text-white font-semibold py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                          onClick={() => window.open(event.registrationLink, '_blank')}
+                        >
+                          Register Now
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </div>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="text-center mt-16 animate-fade-in-up">
+            <Card className="bg-gradient-to-r from-lavender-100 to-sage-100 border-0 shadow-lg inline-block">
+              <CardContent className="p-8">
+                <div className="flex items-center justify-center space-x-4">
+                  <div className="p-3 bg-gradient-to-br from-lavender-500 to-sage-500 rounded-full">
+                    <Calendar className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-lora">Want to Stay Updated?</h3>
+                    <p className="text-gray-600 mb-4">Subscribe to our newsletter for event notifications and updates</p>
+                    <Button 
+                      className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                      onClick={() => window.open('mailto:shatamcare@gmail.com?subject=Newsletter Subscription', '_blank')}
+                    >
+                      Subscribe Now
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Donation CTA Section */}
       <section id="donate" className="py-24 bg-gradient-to-br from-lavender-500 via-lavender-600 to-sage-500 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -389,6 +551,7 @@ const Index = () => {
               <h3 className="text-xl font-semibold mb-6 font-lora">Quick Links</h3>
               <ul className="space-y-4 text-gray-300">
                 <li><a href="#programs" className="hover:text-lavender-300 transition-colors text-lg">Programs</a></li>
+                <li><a href="#events" className="hover:text-lavender-300 transition-colors text-lg">Events</a></li>
                 <li><a href="#donate" className="hover:text-lavender-300 transition-colors text-lg">Donate</a></li>
                 <li><a href="#mission" className="hover:text-lavender-300 transition-colors text-lg">About Us</a></li>
                 <li><a href="#contact" className="hover:text-lavender-300 transition-colors text-lg">Contact</a></li>
