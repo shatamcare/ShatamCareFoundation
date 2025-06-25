@@ -57,7 +57,7 @@ export const initAnimations = () => {
 
 // Memory Glow Effect for Hero Background
 const initMemoryGlowEffect = () => {
-  const heroOverlay = document.querySelector('.hero-overlay');
+  const heroOverlay = document.querySelector('.hero-overlay') as HTMLElement;
   if (!heroOverlay) return;
 
   // Create gentle pulsing memory glow
@@ -75,7 +75,7 @@ const initMemoryGlowEffect = () => {
 
 // Floating memories particles
 const createFloatingMemories = () => {
-  const hero = document.querySelector('#home');
+  const hero = document.querySelector('#home') as HTMLElement;
   if (!hero) return;
 
   for (let i = 0; i < 6; i++) {
@@ -153,7 +153,7 @@ const initFloatingHeroAnimation = () => {
 
 // Soft Section Transitions with Emotional Flow
 const initSoftSectionTransitions = () => {
-  const sections = gsap.utils.toArray("section");
+  const sections = gsap.utils.toArray("section") as HTMLElement[];
   
   sections.forEach((section, index) => {
     const elements = section.querySelectorAll("h2, h3, p, .card, img");
@@ -194,9 +194,11 @@ const initCareCardAnimations = () => {
   const cards = document.querySelectorAll(".program-card, .donation-card, .event-card");
   
   cards.forEach((card, index) => {
+    const cardElement = card as HTMLElement;
+    
     // Healing glow on hover
-    card.addEventListener("mouseenter", () => {
-      gsap.to(card, {
+    cardElement.addEventListener("mouseenter", () => {
+      gsap.to(cardElement, {
         scale: 1.05,
         y: -12,
         boxShadow: "0 25px 50px rgba(147, 51, 234, 0.15)",
@@ -205,15 +207,15 @@ const initCareCardAnimations = () => {
       });
       
       // Inner glow effect
-      gsap.to(card, {
+      gsap.to(cardElement, {
         background: "linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(147, 51, 234, 0.05))",
         duration: 0.4,
         ease: "power2.out"
       });
     });
     
-    card.addEventListener("mouseleave", () => {
-      gsap.to(card, {
+    cardElement.addEventListener("mouseleave", () => {
+      gsap.to(cardElement, {
         scale: 1,
         y: 0,
         boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
@@ -224,7 +226,7 @@ const initCareCardAnimations = () => {
     });
     
     // Scroll reveal with memory-like delay
-    gsap.from(card, {
+    gsap.from(cardElement, {
       opacity: 0,
       y: 60,
       scale: 0.95,
@@ -232,7 +234,7 @@ const initCareCardAnimations = () => {
       ease: config.gentle.ease,
       delay: index * 0.1,
       scrollTrigger: {
-        trigger: card,
+        trigger: cardElement,
         start: "top 90%",
         toggleActions: "play none none reverse"
       }
@@ -245,6 +247,8 @@ const initTestimonialEmotions = () => {
   const testimonials = document.querySelectorAll('.testimonial, blockquote');
   
   testimonials.forEach(testimonial => {
+    const testimonialElement = testimonial as HTMLElement;
+    
     // Create quote mark animation
     const quoteMark = document.createElement('div');
     quoteMark.innerHTML = '"';
@@ -257,8 +261,8 @@ const initTestimonialEmotions = () => {
       font-family: serif;
       pointer-events: none;
     `;
-    testimonial.style.position = 'relative';
-    testimonial.appendChild(quoteMark);
+    testimonialElement.style.position = 'relative';
+    testimonialElement.appendChild(quoteMark);
     
     gsap.from(quoteMark, {
       scale: 0,
@@ -267,19 +271,19 @@ const initTestimonialEmotions = () => {
       duration: 1.5,
       ease: "back.out(1.7)",
       scrollTrigger: {
-        trigger: testimonial,
+        trigger: testimonialElement,
         start: "top 85%"
       }
     });
     
     // Emotional text reveal
-    gsap.from(testimonial, {
+    gsap.from(testimonialElement, {
       opacity: 0,
       y: 40,
       duration: config.emotional.duration,
       ease: config.emotional.ease,
       scrollTrigger: {
-        trigger: testimonial,
+        trigger: testimonialElement,
         start: "top 85%"
       }
     });
@@ -291,8 +295,10 @@ const initDonationHeartbeat = () => {
   const donateButtons = document.querySelectorAll('.cta-button, [class*="donate"]');
   
   donateButtons.forEach(button => {
+    const buttonElement = button as HTMLElement;
+    
     // Gentle heartbeat pulse
-    gsap.to(button, {
+    gsap.to(buttonElement, {
       scale: 1.03,
       duration: 2.5,
       ease: "sine.inOut",
@@ -311,10 +317,10 @@ const initDonationHeartbeat = () => {
       opacity: 0;
       pointer-events: none;
     `;
-    button.style.position = 'relative';
-    button.appendChild(glowRing);
+    buttonElement.style.position = 'relative';
+    buttonElement.appendChild(glowRing);
     
-    button.addEventListener('mouseenter', () => {
+    buttonElement.addEventListener('mouseenter', () => {
       gsap.to(glowRing, {
         opacity: 1,
         scale: 1.1,
@@ -323,7 +329,7 @@ const initDonationHeartbeat = () => {
       });
     });
     
-    button.addEventListener('mouseleave', () => {
+    buttonElement.addEventListener('mouseleave', () => {
       gsap.to(glowRing, {
         opacity: 0,
         scale: 1,
@@ -364,7 +370,7 @@ const initBackgroundMagic = () => {
 
 // Enhanced Footer Gentleness
 const initFooterGentleness = () => {
-  const footer = document.querySelector('footer');
+  const footer = document.querySelector('footer') as HTMLElement;
   if (!footer) return;
   
   // Gentle reveal from bottom
@@ -426,7 +432,7 @@ const initScrollStorytelling = () => {
   });
   
   // Section-based color transitions
-  const sections = gsap.utils.toArray("section");
+  const sections = gsap.utils.toArray("section") as HTMLElement[];
   sections.forEach((section, index) => {
     ScrollTrigger.create({
       trigger: section,
@@ -453,19 +459,20 @@ export const initStatsAnimations = () => {
   const stats = document.querySelectorAll(".stat-number");
   
   stats.forEach(stat => {
-    const finalNumber = stat.textContent || "0";
+    const statElement = stat as HTMLElement;
+    const finalNumber = statElement.textContent || "0";
     const numericValue = parseInt(finalNumber.replace(/\D/g, '')) || 0;
     
     // Create heartbeat effect during counting
-    gsap.set(stat, { scale: 1 });
+    gsap.set(statElement, { scale: 1 });
     
-    gsap.from(stat, {
+    gsap.from(statElement, {
       textContent: 0,
       duration: 3,
       ease: "gentleFlow",
       snap: { textContent: 1 },
       scrollTrigger: {
-        trigger: stat,
+        trigger: statElement,
         start: "top 80%",
         toggleActions: "play none none reverse"
       },
@@ -474,7 +481,7 @@ export const initStatsAnimations = () => {
         
         // Gentle pulse during counting
         if (currentValue % 100 === 0 && currentValue > 0) {
-          gsap.to(stat, {
+          gsap.to(statElement, {
             scale: 1.1,
             duration: 0.2,
             ease: "power2.out",
@@ -485,11 +492,11 @@ export const initStatsAnimations = () => {
         
         // Format the number display
         if (finalNumber.includes('+')) {
-          stat.textContent = currentValue + '+';
+          statElement.textContent = currentValue + '+';
         } else if (finalNumber.includes('₹')) {
-          stat.textContent = '₹' + currentValue.toLocaleString();
+          statElement.textContent = '₹' + currentValue.toLocaleString();
         } else {
-          stat.textContent = currentValue.toString();
+          statElement.textContent = currentValue.toString();
         }
       }
     });
