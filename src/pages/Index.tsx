@@ -229,8 +229,8 @@ const Index = () => {
       <section id="home" className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-        backgroundImage: 'url("/images/sessions.jpg")'
-      }}></div>
+          backgroundImage: 'url("/images/sessions.jpg")'
+        }}></div>
         <div className="relative z-20 py-32 lg:py-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
