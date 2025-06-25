@@ -4,7 +4,7 @@
 @tailwind utilities;
 @import './styles/animations.css';
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Enhanced Design System with Emotional Intelligence */
 
 @layer base {
   :root {
@@ -37,6 +37,24 @@
     --ring: 262 52% 47%;
 
     --radius: 0.75rem;
+
+    /* Enhanced emotional color palette */
+    --lavender-50: 250 100% 98%;
+    --lavender-100: 249 56% 95%;
+    --lavender-200: 251 52% 88%;
+    --lavender-300: 252 56% 79%;
+    --lavender-400: 253 55% 69%;
+    --lavender-500: 262 52% 47%;
+    --lavender-600: 262 52% 42%;
+    --lavender-700: 262 52% 37%;
+    
+    --sage-50: 138 25% 97%;
+    --sage-100: 140 20% 93%;
+    --sage-200: 139 15% 85%;
+    --sage-300: 140 12% 76%;
+    --sage-400: 140 10% 67%;
+    --sage-500: 140 8% 58%;
+    --sage-600: 140 8% 49%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -94,36 +112,86 @@
 
   body {
     @apply bg-background text-foreground font-poppins;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-lora;
+    font-feature-settings: "kern" 1, "liga" 1;
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* Custom Tailwind utilities for GSAP animations */
+/* Enhanced Custom Colors for Emotional Appeal */
 @layer utilities {
+  .text-lavender-50 { color: hsl(var(--lavender-50)); }
+  .text-lavender-100 { color: hsl(var(--lavender-100)); }
+  .text-lavender-200 { color: hsl(var(--lavender-200)); }
+  .text-lavender-300 { color: hsl(var(--lavender-300)); }
+  .text-lavender-400 { color: hsl(var(--lavender-400)); }
+  .text-lavender-500 { color: hsl(var(--lavender-500)); }
+  .text-lavender-600 { color: hsl(var(--lavender-600)); }
+  .text-lavender-700 { color: hsl(var(--lavender-700)); }
+  
+  .bg-lavender-50 { background-color: hsl(var(--lavender-50)); }
+  .bg-lavender-100 { background-color: hsl(var(--lavender-100)); }
+  .bg-lavender-200 { background-color: hsl(var(--lavender-200)); }
+  .bg-lavender-300 { background-color: hsl(var(--lavender-300)); }
+  .bg-lavender-400 { background-color: hsl(var(--lavender-400)); }
+  .bg-lavender-500 { background-color: hsl(var(--lavender-500)); }
+  .bg-lavender-600 { background-color: hsl(var(--lavender-600)); }
+  .bg-lavender-700 { background-color: hsl(var(--lavender-700)); }
+  
+  .text-sage-50 { color: hsl(var(--sage-50)); }
+  .text-sage-100 { color: hsl(var(--sage-100)); }
+  .text-sage-200 { color: hsl(var(--sage-200)); }
+  .text-sage-300 { color: hsl(var(--sage-300)); }
+  .text-sage-400 { color: hsl(var(--sage-400)); }
+  .text-sage-500 { color: hsl(var(--sage-500)); }
+  .text-sage-600 { color: hsl(var(--sage-600)); }
+  
+  .bg-sage-50 { background-color: hsl(var(--sage-50)); }
+  .bg-sage-100 { background-color: hsl(var(--sage-100)); }
+  .bg-sage-200 { background-color: hsl(var(--sage-200)); }
+  .bg-sage-300 { background-color: hsl(var(--sage-300)); }
+  .bg-sage-400 { background-color: hsl(var(--sage-400)); }
+  .bg-sage-500 { background-color: hsl(var(--sage-500)); }
+  .bg-sage-600 { background-color: hsl(var(--sage-600)); }
+
+  /* Enhanced GSAP Animation Utilities */
   .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: fadeInUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
   
   .animate-fade-in-left {
-    animation: fadeInLeft 0.6s ease-out forwards;
+    animation: fadeInLeft 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
   
   .animate-fade-in-right {
-    animation: fadeInRight 0.6s ease-out forwards;
+    animation: fadeInRight 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
   
   .animate-scale-in {
-    animation: scaleIn 0.6s ease-out forwards;
+    animation: scaleIn 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .animate-memory-glow {
+    animation: memoryGlow 4s ease-in-out infinite;
+  }
+
+  .animate-gentle-float {
+    animation: gentleFloat 6s ease-in-out infinite;
   }
 }
 
+/* Enhanced Keyframes for Emotional Appeal */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(60px);
   }
   to {
     opacity: 1;
@@ -134,7 +202,7 @@
 @keyframes fadeInLeft {
   from {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateX(-60px);
   }
   to {
     opacity: 1;
@@ -145,7 +213,7 @@
 @keyframes fadeInRight {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(60px);
   }
   to {
     opacity: 1;
@@ -156,10 +224,28 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.85);
   }
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes memoryGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+  }
+}
+
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }

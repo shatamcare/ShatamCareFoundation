@@ -9,7 +9,7 @@ const Index = () => {
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   
-  // Initialize animations on component mount
+  // Initialize enhanced emotional animations on component mount
   useEffect(() => {
     // Initialize loading animation first
     initLoadingAnimation();
@@ -226,11 +226,11 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-          backgroundImage: 'url("/images/sessions.jpg")'
-        }}></div>
+      <section id="home" className="relative overflow-hidden" ref={heroRef}>
+        <div className="hero-overlay absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" style={{
+        backgroundImage: 'url("/images/sessions.jpg")'
+      }}></div>
         <div className="relative z-20 py-32 lg:py-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
@@ -242,7 +242,7 @@ const Index = () => {
                 Empowering caregivers, supporting elders, and building an inclusive dementia care ecosystem across India with compassion and dignity.
               </p>
               <div className="hero-buttons flex flex-col sm:flex-row gap-6 justify-center">
-                <Button size="lg" className="btn bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105" onClick={() => document.getElementById('programs')?.scrollIntoView({
+                <Button size="lg" className="btn cta-button bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105" onClick={() => document.getElementById('programs')?.scrollIntoView({
                 behavior: 'smooth'
               })}>
                   Join Our Support Group
@@ -273,7 +273,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Programs Section */}
+      {/* Enhanced Programs Section */}
       <section id="programs" className="py-24 bg-gradient-to-b from-lavender-50 to-sage-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -302,7 +302,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Impact Section */}
+      {/* Enhanced Impact Section with Emotional Stats */}
       <section className="py-20 bg-gradient-to-r from-lavender-600 to-sage-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -319,18 +319,18 @@ const Index = () => {
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-4xl mx-auto">
               <h3 className="text-2xl font-semibold mb-8 font-lora text-center">Trusted Partners</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
-                  <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" alt="Government of Maharashtra" className="max-h-10 w-auto object-contain" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
+                  <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" alt="Government of Maharashtra" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                 </div>
-                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
-                  <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center" alt="Johnson & Johnson Foundation" className="max-h-10 w-auto object-contain" />
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
+                  <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center" alt="Johnson & Johnson Foundation" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                 </div>
-                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
-                  <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center" alt="The Better India" className="max-h-10 w-auto object-contain" />
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
+                  <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center" alt="The Better India" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                 </div>
-                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
-                  <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center" alt="L'Oréal Paris" className="max-h-10 w-auto object-contain" />
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
+                  <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center" alt="L'Oréal Paris" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                 </div>
               </div>
             </div>
@@ -338,7 +338,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Real Stories Section */}
+      {/* Enhanced Real Stories Section with Testimonial Emotions */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -351,7 +351,7 @@ const Index = () => {
               <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop" alt="Therapy session with elderly participants" className="parallax-image rounded-2xl shadow-2xl w-full h-96 object-cover" />
             </div>
             <div className="space-y-8">
-              <Card className="bg-gradient-to-br from-sage-50 to-sage-100 border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <Card className="testimonial bg-gradient-to-br from-sage-50 to-sage-100 border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-8">
                   <div className="flex items-start space-x-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-sage-200 to-sage-300 rounded-full flex items-center justify-center flex-shrink-0">
@@ -367,7 +367,7 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              <Card className="bg-gradient-to-br from-lavender-50 to-lavender-100 border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <Card className="testimonial bg-gradient-to-br from-lavender-50 to-lavender-100 border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-8">
                   <div className="flex items-start space-x-4">
                     <div className="w-16 h-16 bg-gradient-to-br from-lavender-200 to-lavender-300 rounded-full flex items-center justify-center flex-shrink-0">
@@ -375,9 +375,9 @@ const Index = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-gray-800 mb-3 font-lora">Family Testimonial</h3>
-                      <p className="text-gray-700 leading-relaxed italic mb-4">
+                      <blockquote className="text-gray-700 leading-relaxed italic mb-4">
                         "After joining the Brain Bridge program, my mother who had stopped engaging with us completely, now smiles, reads, and remembers family moments again. It's given us our mother back."
-                      </p>
+                      </blockquote>
                       <p className="text-sm text-gray-500 font-medium">— Priya S., Mumbai</p>
                     </div>
                   </div>
@@ -479,7 +479,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Donation CTA Section */}
+      {/* Enhanced Donation CTA Section with Heartbeat */}
       <section id="donate" className="py-24 bg-gradient-to-br from-lavender-500 via-lavender-600 to-sage-500 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
@@ -496,7 +496,7 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 text-center">
                     <p className="text-gray-700 mb-4 leading-relaxed font-medium">{option.purpose}</p>
-                    <Button className="btn bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white w-full font-medium rounded-full shadow-lg hover:shadow-xl transition-all">
+                    <Button className="btn cta-button bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white w-full font-medium rounded-full shadow-lg hover:shadow-xl transition-all">
                       Donate Now
                     </Button>
                   </CardContent>
@@ -515,7 +515,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Founder Section */}
+      {/* Enhanced Founder Section */}
       <section className="py-24 bg-gradient-to-b from-sage-50 to-lavender-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -528,7 +528,7 @@ const Index = () => {
               </div>
             </div>
             <div className="space-y-8">
-              <blockquote className="text-3xl lg:text-4xl font-medium text-gray-800 leading-relaxed font-lora">
+              <blockquote className="testimonial text-3xl lg:text-4xl font-medium text-gray-800 leading-relaxed font-lora">
                 "We are committed to building an ecosystem that empowers caregivers and supports the elderly."
               </blockquote>
               <div>
@@ -636,4 +636,5 @@ const Index = () => {
       </div>
     </div>;
 };
+
 export default Index;
