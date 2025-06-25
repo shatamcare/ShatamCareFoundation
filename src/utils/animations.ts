@@ -33,35 +33,67 @@ const config = {
   mobile: window.innerWidth < 768
 };
 
-// Initialize all enhanced animations
+// Performance and accessibility checks
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isLowEndDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2;
+
+// Initialize all enhanced animations with performance considerations
 export const initAnimations = () => {
+  // Skip complex animations for users who prefer reduced motion
+  if (prefersReducedMotion) {
+    initBasicAnimations();
+    return;
+  }
+
   // Set initial loading state
   document.body.classList.add('loading');
   
-  // Initialize sophisticated animations
-  initMemoryGlowEffect();
-  initFloatingHeroAnimation();
-  initSoftSectionTransitions();
-  initCareCardAnimations();
-  initTestimonialEmotions();
-  initDonationHeartbeat();
-  initBackgroundMagic();
-  initFooterGentleness();
-  initScrollStorytelling();
-  initStatsAnimations(); // Add this line to activate stats animations
-  
-  // Remove loading state after animations are ready
-  setTimeout(() => {
+  try {
+    // Initialize core animations
+    initFloatingHeroAnimation();
+    initSoftSectionTransitions();
+    initCareCardAnimations();
+    initTestimonialEmotions();
+    initDonationHeartbeat();
+    initFooterGentleness();
+    initScrollStorytelling();
+    initStatsAnimations();
+    
+    // Initialize performance-intensive animations only on capable devices
+    if (!isLowEndDevice && !config.mobile) {
+      initMemoryGlowEffect();
+      initBackgroundMagic();
+    }
+    
+    // Remove loading state after animations are ready
+    setTimeout(() => {
+      document.body.classList.remove('loading');
+    }, 500);
+  } catch (error) {
+    console.warn('Animation initialization failed:', error);
+    // Fallback to basic animations
+    initBasicAnimations();
     document.body.classList.remove('loading');
-  }, 500);
+  }
 };
 
-// Memory Glow Effect for Hero Background
+// Basic animations for reduced motion or fallback
+const initBasicAnimations = () => {
+  const sections = document.querySelectorAll("section");
+  sections.forEach(section => {
+    gsap.set(section, { opacity: 1, y: 0 });
+  });
+  
+  // Basic stats animation
+  initStatsAnimations();
+};
+
+// Memory Glow Effect for Hero Background (optimized)
 const initMemoryGlowEffect = () => {
   const heroOverlay = document.querySelector('.hero-overlay') as HTMLElement;
   if (!heroOverlay) return;
 
-  // Create gentle pulsing memory glow
+  // Simplified glow effect
   gsap.to(heroOverlay, {
     background: "linear-gradient(45deg, rgba(147, 51, 234, 0.7), rgba(139, 92, 246, 0.5), rgba(167, 139, 250, 0.6))",
     duration: 4,
@@ -70,26 +102,32 @@ const initMemoryGlowEffect = () => {
     yoyo: true
   });
 
-  // Add floating light particles effect
-  createFloatingMemories();
+  // Reduced particle count for performance
+  if (!config.mobile) {
+    createFloatingMemories();
+  }
 };
 
-// Floating memories particles
+// Optimized floating memories particles
 const createFloatingMemories = () => {
   const hero = document.querySelector('#home') as HTMLElement;
   if (!hero) return;
 
-  for (let i = 0; i < 6; i++) {
+  // Reduced particle count for better performance
+  const particleCount = config.mobile ? 2 : 4;
+  
+  for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div');
     particle.className = 'memory-particle';
     particle.style.cssText = `
       position: absolute;
-      width: 8px;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.3);
+      width: 6px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 50%;
       pointer-events: none;
       z-index: 15;
+      will-change: transform;
     `;
     hero.appendChild(particle);
 
@@ -99,70 +137,81 @@ const createFloatingMemories = () => {
     });
 
     gsap.to(particle, {
-      y: "-=100",
-      x: "+=50",
+      y: "-=80",
+      x: "+=30",
       opacity: 0.1,
-      duration: 8 + Math.random() * 4,
+      duration: 6 + Math.random() * 3,
       ease: "none",
       repeat: -1,
-      delay: Math.random() * 4
+      delay: Math.random() * 3
     });
   }
 };
 
-// Enhanced Hero Animation with Emotional Intelligence
+// Enhanced Hero Animation with error handling
 const initFloatingHeroAnimation = () => {
+  const heroTitle = document.querySelector(".hero-title");
+  const heroSubtitle = document.querySelector(".hero-subtitle");
+  const heroButtons = document.querySelectorAll(".hero-buttons .btn");
+  
+  if (!heroTitle) return;
+
   const tl = gsap.timeline();
   
   // Memory-inspired text reveal
-  tl.from(".hero-title", {
-    y: 120,
+  tl.from(heroTitle, {
+    y: 80,
     opacity: 0,
-    duration: config.emotional.duration,
+    duration: config.emotional.duration * 0.7, // Reduced duration for performance
     ease: config.emotional.ease,
     transformOrigin: "center bottom"
-  })
-  
-  // Gentle subtitle flow
-  .from(".hero-subtitle", {
-    y: 60,
-    opacity: 0,
-    duration: config.gentle.duration,
-    ease: config.gentle.ease
-  }, "-=1.5")
-  
-  // Floating button animation
-  .from(".hero-buttons .btn", {
-    y: 40,
-    opacity: 0,
-    scale: 0.9,
-    duration: config.primary.duration,
-    stagger: config.primary.stagger,
-    ease: config.primary.ease
-  }, "-=1.2");
-
-  // Add continuous floating motion to buttons
-  gsap.to(".hero-buttons .btn", {
-    y: -8,
-    duration: 3,
-    ease: "sine.inOut",
-    repeat: -1,
-    yoyo: true,
-    delay: 2
   });
+  
+  if (heroSubtitle) {
+    tl.from(heroSubtitle, {
+      y: 40,
+      opacity: 0,
+      duration: config.gentle.duration * 0.8,
+      ease: config.gentle.ease
+    }, "-=1.2");
+  }
+  
+  if (heroButtons.length > 0) {
+    tl.from(heroButtons, {
+      y: 30,
+      opacity: 0,
+      scale: 0.95,
+      duration: config.primary.duration,
+      stagger: config.primary.stagger,
+      ease: config.primary.ease
+    }, "-=1.0");
+
+    // Reduced floating motion intensity
+    gsap.to(heroButtons, {
+      y: -4,
+      duration: 2.5,
+      ease: "sine.inOut",
+      repeat: -1,
+      yoyo: true,
+      delay: 1.5
+    });
+  }
 };
 
-// Soft Section Transitions with Emotional Flow
+// Optimized Section Transitions
 const initSoftSectionTransitions = () => {
   const sections = gsap.utils.toArray("section") as HTMLElement[];
   
   sections.forEach((section, index) => {
+    if (!section) return;
+    
     const elements = section.querySelectorAll("h2, h3, p, .card, img");
+    if (elements.length === 0) return;
     
     gsap.from(elements, {
-      y: 80,
+      y: 50, // Reduced movement for performance
       opacity: 0,
-      duration: config.gentle.duration,
+      duration: config.gentle.duration * 0.8,
       stagger: config.gentle.stagger,
       ease: config.gentle.ease,
       scrollTrigger: {
@@ -172,68 +221,49 @@ const initSoftSectionTransitions = () => {
         toggleActions: "play none none reverse"
       }
     });
-
-    // Add section background color transitions
-    if (index % 2 === 0) {
-      gsap.to(section, {
-        background: "linear-gradient(135deg, rgba(147, 51, 234, 0.02), rgba(255, 255, 255, 1))",
-        duration: 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top center",
-          end: "bottom center",
-          scrub: 1
-        }
-      });
-    }
   });
 };
 
-// Care Cards with Healing Energy
+// Optimized Care Cards Animation
 const initCareCardAnimations = () => {
   const cards = document.querySelectorAll(".program-card, .donation-card, .event-card");
   
   cards.forEach((card, index) => {
     const cardElement = card as HTMLElement;
+    if (!cardElement) return;
     
-    // Healing glow on hover
-    cardElement.addEventListener("mouseenter", () => {
+    // Simplified hover effects
+    const handleMouseEnter = () => {
       gsap.to(cardElement, {
-        scale: 1.05,
-        y: -12,
-        boxShadow: "0 25px 50px rgba(147, 51, 234, 0.15)",
-        duration: 0.6,
-        ease: "heartbeat"
-      });
-      
-      // Inner glow effect
-      gsap.to(cardElement, {
-        background: "linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(147, 51, 234, 0.05))",
+        scale: 1.03, // Reduced scale for subtlety
+        y: -8,
+        boxShadow: "0 20px 40px rgba(147, 51, 234, 0.12)",
         duration: 0.4,
         ease: "power2.out"
       });
-    });
+    };
     
-    cardElement.addEventListener("mouseleave", () => {
+    const handleMouseLeave = () => {
       gsap.to(cardElement, {
         scale: 1,
         y: 0,
         boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-        background: "rgba(255, 255, 255, 0.95)",
-        duration: 0.6,
+        duration: 0.4,
         ease: "power2.out"
       });
-    });
+    };
     
-    // Scroll reveal with memory-like delay
+    cardElement.addEventListener("mouseenter", handleMouseEnter);
+    cardElement.addEventListener("mouseleave", handleMouseLeave);
+    
+    // Scroll reveal
     gsap.from(cardElement, {
       opacity: 0,
-      y: 60,
-      scale: 0.95,
-      duration: config.gentle.duration,
+      y: 40,
+      scale: 0.98,
+      duration: config.gentle.duration * 0.8,
       ease: config.gentle.ease,
-      delay: index * 0.1,
+      delay: index * 0.08,
       scrollTrigger: {
         trigger: cardElement,
         start: "top 90%",
@@ -243,45 +273,18 @@ const initCareCardAnimations = () => {
   });
 };
 
-// Testimonial Emotions with Heart
+// Simplified Testimonial Emotions
 const initTestimonialEmotions = () => {
   const testimonials = document.querySelectorAll('.testimonial, blockquote');
   
   testimonials.forEach(testimonial => {
     const testimonialElement = testimonial as HTMLElement;
+    if (!testimonialElement) return;
     
-    // Create quote mark animation
-    const quoteMark = document.createElement('div');
-    quoteMark.innerHTML = '"';
-    quoteMark.style.cssText = `
-      font-size: 120px;
-      color: rgba(147, 51, 234, 0.1);
-      position: absolute;
-      top: -20px;
-      left: -10px;
-      font-family: serif;
-      pointer-events: none;
-    `;
-    testimonialElement.style.position = 'relative';
-    testimonialElement.appendChild(quoteMark);
-    
-    gsap.from(quoteMark, {
-      scale: 0,
-      rotation: -45,
-      opacity: 0,
-      duration: 1.5,
-      ease: "back.out(1.7)",
-      scrollTrigger: {
-        trigger: testimonialElement,
-        start: "top 85%"
-      }
-    });
-    
-    // Emotional text reveal
     gsap.from(testimonialElement, {
       opacity: 0,
-      y: 40,
-      duration: config.emotional.duration,
+      y: 30,
+      duration: config.emotional.duration * 0.7,
       ease: config.emotional.ease,
       scrollTrigger: {
         trigger: testimonialElement,
@@ -291,57 +294,26 @@ const initTestimonialEmotions = () => {
   });
 };
 
-// Donation Section Heartbeat
+// Optimized Donation Section
 const initDonationHeartbeat = () => {
   const donateButtons = document.querySelectorAll('.cta-button, [class*="donate"]');
   
   donateButtons.forEach(button => {
     const buttonElement = button as HTMLElement;
+    if (!buttonElement) return;
     
-    // Gentle heartbeat pulse
+    // Subtle heartbeat pulse
     gsap.to(buttonElement, {
-      scale: 1.03,
-      duration: 2.5,
+      scale: 1.02,
+      duration: 2,
       ease: "sine.inOut",
       repeat: -1,
       yoyo: true
     });
-    
-    // Healing glow ring
-    const glowRing = document.createElement('div');
-    glowRing.style.cssText = `
-      position: absolute;
-      inset: -4px;
-      border-radius: inherit;
-      background: linear-gradient(45deg, rgba(147, 51, 234, 0.3), rgba(139, 92, 246, 0.2));
-      z-index: -1;
-      opacity: 0;
-      pointer-events: none;
-    `;
-    buttonElement.style.position = 'relative';
-    buttonElement.appendChild(glowRing);
-    
-    buttonElement.addEventListener('mouseenter', () => {
-      gsap.to(glowRing, {
-        opacity: 1,
-        scale: 1.1,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-    });
-    
-    buttonElement.addEventListener('mouseleave', () => {
-      gsap.to(glowRing, {
-        opacity: 0,
-        scale: 1,
-        duration: 0.6,
-        ease: "power2.out"
-      });
-    });
   });
 };
 
-// Background Magic - Subtle Memory Waves
+// Simplified Background Magic
 const initBackgroundMagic = () => {
   const body = document.body;
   
@@ -353,15 +325,16 @@ const initBackgroundMagic = () => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.02) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.015) 0%, transparent 70%);
     pointer-events: none;
     z-index: 1;
+    will-change: transform;
   `;
   body.appendChild(waveOverlay);
   
   // Gentle wave motion
   gsap.to(waveOverlay, {
-    background: "radial-gradient(circle at 30% 70%, rgba(147, 51, 234, 0.03) 0%, transparent 70%)",
+    background: "radial-gradient(circle at 30% 70%, rgba(147, 51, 234, 0.02) 0%, transparent 70%)",
     duration: 8,
     ease: "sine.inOut",
     repeat: -1,
@@ -369,16 +342,15 @@ const initBackgroundMagic = () => {
   });
 };
 
-// Enhanced Footer Gentleness
+// Enhanced Footer Animation
 const initFooterGentleness = () => {
   const footer = document.querySelector('footer') as HTMLElement;
   if (!footer) return;
   
-  // Gentle reveal from bottom
   gsap.from(footer, {
-    y: 100,
+    y: 60,
     opacity: 0,
-    duration: config.gentle.duration,
+    duration: config.gentle.duration * 0.8,
     ease: config.gentle.ease,
     scrollTrigger: {
       trigger: footer,
@@ -387,22 +359,23 @@ const initFooterGentleness = () => {
     }
   });
   
-  // Animate contact info with care
   const contactItems = footer.querySelectorAll('[class*="contact"], .flex:has(svg)');
-  gsap.from(contactItems, {
-    x: -30,
-    opacity: 0,
-    duration: 1.2,
-    stagger: 0.2,
-    ease: "gentleFlow",
-    scrollTrigger: {
-      trigger: footer,
-      start: "top 90%"
-    }
-  });
+  if (contactItems.length > 0) {
+    gsap.from(contactItems, {
+      x: -20,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.15,
+      ease: "gentleFlow",
+      scrollTrigger: {
+        trigger: footer,
+        start: "top 90%"
+      }
+    });
+  }
 };
 
-// Scroll-based Storytelling
+// Optimized Scroll Storytelling
 const initScrollStorytelling = () => {
   // Create progress indicator
   const progressBar = document.createElement('div');
@@ -411,10 +384,10 @@ const initScrollStorytelling = () => {
     top: 0;
     left: 0;
     width: 0%;
-    height: 3px;
+    height: 2px;
     background: linear-gradient(90deg, rgba(147, 51, 234, 1), rgba(139, 92, 246, 1));
     z-index: 1000;
-    transition: width 0.3s ease;
+    will-change: width;
   `;
   document.body.appendChild(progressBar);
   
@@ -424,58 +397,32 @@ const initScrollStorytelling = () => {
     start: "top top",
     end: "bottom bottom",
     onUpdate: self => {
-      gsap.to(progressBar, {
-        width: `${self.progress * 100}%`,
-        duration: 0.3,
-        ease: "power2.out"
+      gsap.set(progressBar, {
+        width: `${self.progress * 100}%`
       });
     }
   });
-  
-  // Section-based color transitions
-  const sections = gsap.utils.toArray("section") as HTMLElement[];
-  sections.forEach((section, index) => {
-    ScrollTrigger.create({
-      trigger: section,
-      start: "top center",
-      end: "bottom center",
-      onEnter: () => {
-        const colors = [
-          "linear-gradient(90deg, rgba(147, 51, 234, 1), rgba(139, 92, 246, 1))",
-          "linear-gradient(90deg, rgba(139, 92, 246, 1), rgba(167, 139, 250, 1))",
-          "linear-gradient(90deg, rgba(167, 139, 250, 1), rgba(196, 181, 253, 1))"
-        ];
-        gsap.to(progressBar, {
-          background: colors[index % colors.length],
-          duration: 0.6,
-          ease: "power2.out"
-        });
-      }
-    });
-  });
 };
 
-// Impact Stats with Emotional Counter
+// Optimized Impact Stats Animation
 export const initStatsAnimations = () => {
   const stats = document.querySelectorAll(".stat-number");
   
   stats.forEach(stat => {
     const statElement = stat as HTMLElement;
-    const finalText = statElement.textContent || "0";
+    if (!statElement) return;
     
-    // Extract the number from the text (handle cases like "7", "3600+", "₹1,200")
+    const finalText = statElement.textContent || "0";
     const numericValue = parseInt(finalText.replace(/\D/g, '')) || 0;
     
-    // Create heartbeat effect during counting
-    gsap.set(statElement, { scale: 1 });
+    if (numericValue === 0) return;
     
-    // Set initial value to 0
     gsap.set(statElement, { textContent: "0" });
     
     gsap.to(statElement, {
       textContent: numericValue,
-      duration: 2.5,
-      ease: "gentleFlow",
+      duration: 2,
+      ease: "power2.out",
       snap: { textContent: 1 },
       scrollTrigger: {
         trigger: statElement,
@@ -485,11 +432,11 @@ export const initStatsAnimations = () => {
       onUpdate: function() {
         const currentValue = Math.round(this.targets()[0].textContent);
         
-        // Gentle pulse during counting
-        if (currentValue % 100 === 0 && currentValue > 0) {
+        // Gentle pulse effect
+        if (currentValue % Math.max(1, Math.floor(numericValue / 10)) === 0 && currentValue > 0) {
           gsap.to(statElement, {
-            scale: 1.1,
-            duration: 0.2,
+            scale: 1.05,
+            duration: 0.15,
             ease: "power2.out",
             yoyo: true,
             repeat: 1
@@ -509,33 +456,34 @@ export const initStatsAnimations = () => {
   });
 };
 
-// Enhanced smooth scroll with emotional intelligence
+// Enhanced smooth scroll
 export const initSmoothScroll = () => {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href') || '');
+      const targetId = this.getAttribute('href');
+      const target = targetId ? document.querySelector(targetId) : null;
       if (target) {
         gsap.to(window, {
-          duration: 2,
+          duration: 1.5,
           scrollTo: {
             y: target,
             offsetY: 80
           },
-          ease: "gentleFlow"
+          ease: "power2.out"
         });
       }
     });
   });
 };
 
-// Mobile optimizations for emotional animations
+// Mobile optimizations
 export const initMobileOptimizations = () => {
   const isMobile = window.innerWidth < 768;
   
   if (isMobile) {
     // Reduce animation complexity for better performance
-    gsap.globalTimeline.timeScale(1.3);
+    gsap.globalTimeline.timeScale(1.2);
     
     // Disable resource-intensive effects
     const memoryParticles = document.querySelectorAll('.memory-particle');
@@ -550,31 +498,47 @@ export const initMobileOptimizations = () => {
   }
 };
 
-// Loading animation with memory theme
+// Optimized loading animation
 export const initLoadingAnimation = () => {
-  const tl = gsap.timeline();
-  
-  // Create memory-inspired loading
   gsap.set("body", { 
     opacity: 0,
-    background: "linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(255, 255, 255, 1))"
+    background: "linear-gradient(135deg, rgba(147, 51, 234, 0.05), rgba(255, 255, 255, 1))"
   });
   
-  tl.to("body", {
+  gsap.to("body", {
     opacity: 1,
-    duration: 1.5,
-    ease: "gentleFlow"
-  })
-  .to("body", {
-    background: "linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 1))",
     duration: 1,
     ease: "power2.out"
-  }, "-=0.8");
+  });
 };
 
-// Refresh ScrollTrigger with care
+// Cleanup function for better memory management
+export const cleanupAnimations = () => {
+  ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+  gsap.killTweensOf("*");
+  
+  // Remove created elements
+  const particles = document.querySelectorAll('.memory-particle');
+  particles.forEach(particle => particle.remove());
+  
+  const progressBar = document.querySelector('[style*="position: fixed"][style*="top: 0"]');
+  if (progressBar) progressBar.remove();
+};
+
+// Refresh ScrollTrigger with optimization
 export const refreshScrollTrigger = () => {
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     ScrollTrigger.refresh();
-  }, 100);
+  });
+};
+
+// Error handling wrapper
+export const safeInitAnimations = () => {
+  try {
+    initAnimations();
+  } catch (error) {
+    console.error('Animation initialization failed:', error);
+    // Fallback to basic functionality
+    document.body.classList.remove('loading');
+  }
 };

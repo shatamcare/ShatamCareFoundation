@@ -2,42 +2,68 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { initAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger } from '@/utils/animations';
+import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   
-  // Initialize enhanced emotional animations on component mount
+  // Initialize enhanced emotional animations with error handling
   useEffect(() => {
-    // Initialize loading animation first
-    initLoadingAnimation();
+    let isComponentMounted = true;
     
-    // Wait for DOM to be ready then initialize all animations
-    const timer = setTimeout(() => {
-      initAnimations();
-      initSmoothScroll();
-      initMobileOptimizations();
-    }, 100);
-    
-    // Refresh ScrollTrigger when component updates
-    const refreshTimer = setTimeout(() => {
-      refreshScrollTrigger();
-    }, 500);
+    const initializeAnimations = async () => {
+      try {
+        // Initialize loading animation first
+        initLoadingAnimation();
+        
+        // Wait for DOM to be ready then initialize all animations
+        const timer = setTimeout(() => {
+          if (isComponentMounted) {
+            safeInitAnimations();
+            initSmoothScroll();
+            initMobileOptimizations();
+          }
+        }, 100);
+        
+        // Refresh ScrollTrigger when component updates
+        const refreshTimer = setTimeout(() => {
+          if (isComponentMounted) {
+            refreshScrollTrigger();
+          }
+        }, 500);
+        
+        return () => {
+          clearTimeout(timer);
+          clearTimeout(refreshTimer);
+        };
+      } catch (error) {
+        console.error('Failed to initialize animations:', error);
+      }
+    };
+
+    initializeAnimations();
     
     return () => {
-      clearTimeout(timer);
-      clearTimeout(refreshTimer);
+      isComponentMounted = false;
+      cleanupAnimations();
     };
   }, []);
   
   // Refresh ScrollTrigger when expanded program changes
   useEffect(() => {
     if (expandedProgram !== null) {
-      setTimeout(() => refreshScrollTrigger(), 300);
+      const timer = setTimeout(() => refreshScrollTrigger(), 300);
+      return () => clearTimeout(timer);
     }
   }, [expandedProgram]);
+
+  // Handle image errors
+  const handleImageError = (imagePath: string) => {
+    setImageErrors(prev => new Set(prev).add(imagePath));
+  };
 
   const programs = [{
     image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop",
@@ -142,46 +168,65 @@ const Index = () => {
   }];
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-IN', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return dateString;
+    }
   };
 
   const getEventTypeColor = (type: string) => {
-    switch (type) {
-      case 'Workshop':
-        return 'bg-lavender-100 text-lavender-700';
-      case 'Support Group':
-        return 'bg-sage-100 text-sage-700';
-      case 'Therapy':
-        return 'bg-blue-100 text-blue-700';
-      case 'Fundraiser':
-        return 'bg-rose-100 text-rose-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+    const colorMap: Record<string, string> = {
+      'Workshop': 'bg-lavender-100 text-lavender-700',
+      'Support Group': 'bg-sage-100 text-sage-700',
+      'Therapy': 'bg-blue-100 text-blue-700',
+      'Fundraiser': 'bg-rose-100 text-rose-700'
+    };
+    return colorMap[type] || 'bg-gray-100 text-gray-700';
+  };
+
+  const handleLogoError = () => {
+    handleImageError('/images/SC_LOGO-removebg-preview.png');
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    try {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error) {
+      console.error('Scroll error:', error);
     }
   };
+
   return <div className="min-h-screen bg-gradient-to-b from-lavender-50 to-white">
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-lavender-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/images/SC_LOGO-removebg-preview.png" 
-                alt="Shatam Care Foundation" 
-                className="h-16 w-auto object-contain"
-                onError={(e) => {
-                  // Fallback to text if logo fails to load
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                }}
-              />
-              <div className="hidden">
+              {!imageErrors.has('/images/SC_LOGO-removebg-preview.png') ? (
+                <img 
+                  src="/images/SC_LOGO-removebg-preview.png" 
+                  alt="Shatam Care Foundation" 
+                  className="h-16 w-auto object-contain"
+                  onError={handleLogoError}
+                  loading="eager"
+                />
+              ) : (
+                <div className="h-16 w-16 bg-gradient-to-br from-lavender-500 to-sage-500 rounded-xl flex items-center justify-center">
+                  <Heart className="h-8 w-8 text-white" />
+                </div>
+              )}
+              <div className={imageErrors.has('/images/SC_LOGO-removebg-preview.png') ? 'block' : 'hidden'}>
                 <span className="text-xl font-bold text-gray-800 font-lora">Shatam Care Foundation</span>
                 <p className="text-sm text-lavender-600 font-medium">Because Every Memory Deserves Care</p>
               </div>
@@ -199,12 +244,19 @@ const Index = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <Button className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cta-button">
+              <Button 
+                className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cta-button"
+                onClick={() => scrollToSection('donate')}
+              >
                 Support Our Mission
               </Button>
               
               {/* Mobile menu button */}
-              <button className="lg:hidden p-2 rounded-lg hover:bg-lavender-50" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <button 
+                className="lg:hidden p-2 rounded-lg hover:bg-lavender-50" 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle menu"
+              >
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
             </div>
@@ -228,9 +280,14 @@ const Index = () => {
       {/* Hero Section */}
       <section id="home" className="relative overflow-hidden" ref={heroRef}>
         <div className="hero-overlay absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" style={{
-        backgroundImage: 'url("/images/sessions.jpg")'
-      }}></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" 
+          style={{
+            backgroundImage: 'url("/images/sessions.jpg")',
+            backgroundPosition: 'center',
+            backgroundSize: 'cover'
+          }}
+        ></div>
         <div className="relative z-20 py-32 lg:py-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
@@ -242,14 +299,18 @@ const Index = () => {
                 Empowering caregivers, supporting elders, and building an inclusive dementia care ecosystem across India with compassion and dignity.
               </p>
               <div className="hero-buttons flex flex-col sm:flex-row gap-6 justify-center">
-                <Button size="lg" className="btn cta-button bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105" onClick={() => document.getElementById('programs')?.scrollIntoView({
-                behavior: 'smooth'
-              })}>
+                <Button 
+                  size="lg" 
+                  className="btn cta-button bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105" 
+                  onClick={() => scrollToSection('programs')}
+                >
                   Join Our Support Group
                 </Button>
-                <Button size="lg" className="btn border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full text-lg backdrop-blur-sm transition-all duration-300" onClick={() => document.getElementById('donate')?.scrollIntoView({
-                behavior: 'smooth'
-              })}>
+                <Button 
+                  size="lg" 
+                  className="btn border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full text-lg backdrop-blur-sm transition-all duration-300" 
+                  onClick={() => scrollToSection('donate')}
+                >
                   Support Our Mission
                 </Button>
               </div>
@@ -281,23 +342,46 @@ const Index = () => {
             <div className="w-24 h-1 bg-gradient-to-r from-lavender-400 to-sage-400 mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {programs.map((program, index) => <Card key={index} className="program-card bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-lg group overflow-hidden">
+            {programs.map((program, index) => (
+              <Card key={index} className="program-card bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-lg group overflow-hidden">
                 <div className="relative h-48 overflow-hidden">
-                  <img src={program.image} alt={program.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <img 
+                    src={program.image} 
+                    alt={program.title} 
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                 </div>
                 <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4 font-lora group-hover:text-lavender-600 transition-colors">{program.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4 font-lora group-hover:text-lavender-600 transition-colors">
+                    {program.title}
+                  </h3>
                   <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
-                  <button onClick={() => setExpandedProgram(expandedProgram === index ? null : index)} className="flex items-center text-lavender-600 hover:text-lavender-700 font-medium transition-colors">
+                  <button 
+                    onClick={() => setExpandedProgram(expandedProgram === index ? null : index)} 
+                    className="flex items-center text-lavender-600 hover:text-lavender-700 font-medium transition-colors"
+                    aria-expanded={expandedProgram === index}
+                    aria-controls={`program-details-${index}`}
+                  >
                     Learn More
                     {expandedProgram === index ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
                   </button>
-                  {expandedProgram === index && <div className="mt-6 p-6 bg-lavender-50 rounded-xl animate-accordion-down">
+                  {expandedProgram === index && (
+                    <div 
+                      id={`program-details-${index}`}
+                      className="mt-6 p-6 bg-lavender-50 rounded-xl animate-accordion-down"
+                    >
                       <p className="text-gray-700 leading-relaxed">{program.details}</p>
-                    </div>}
+                    </div>
+                  )}
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -311,27 +395,38 @@ const Index = () => {
             <p className="text-xl mb-12 opacity-90">Building a network of care across India</p>
             
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16">
-              {impactStats.map((stat, index) => <div key={index} className="text-center">
-                  <div className="stat-number text-4xl lg:text-6xl font-bold text-sage-200 mb-3 font-lora">{stat.number}</div>
+              {impactStats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="stat-number text-4xl lg:text-6xl font-bold text-sage-200 mb-3 font-lora">
+                    {stat.number}
+                  </div>
                   <div className="text-lg opacity-90">{stat.label}</div>
-                </div>)}
+                </div>
+              ))}
             </div>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-4xl mx-auto">
               <h3 className="text-2xl font-semibold mb-8 font-lora text-center">Trusted Partners</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
-                  <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" alt="Government of Maharashtra" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
-                  <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center" alt="Johnson & Johnson Foundation" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
-                  <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center" alt="The Better India" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
-                </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
-                  <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center" alt="L'Oréal Paris" className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
-                </div>
+                {[
+                  { src: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center", alt: "Government of Maharashtra" },
+                  { src: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center", alt: "Johnson & Johnson Foundation" },
+                  { src: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center", alt: "The Better India" },
+                  { src: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center", alt: "L'Oréal Paris" }
+                ].map((partner, index) => (
+                  <div key={index} className="bg-white/90 backdrop-blur-sm rounded-xl p-4 flex items-center justify-center hover:bg-white hover:shadow-lg transition-all duration-300 h-20 group">
+                    <img 
+                      src={partner.src} 
+                      alt={partner.alt} 
+                      className="max-h-12 w-auto object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -348,7 +443,12 @@ const Index = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop" alt="Therapy session with elderly participants" className="parallax-image rounded-2xl shadow-2xl w-full h-96 object-cover" />
+              <img 
+                src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop" 
+                alt="Therapy session with elderly participants" 
+                className="parallax-image rounded-2xl shadow-2xl w-full h-96 object-cover"
+                loading="lazy"
+              />
             </div>
             <div className="space-y-8">
               <Card className="testimonial bg-gradient-to-br from-sage-50 to-sage-100 border-0 shadow-lg hover:shadow-xl transition-shadow">
@@ -407,7 +507,8 @@ const Index = () => {
                     <img 
                       src={event.image} 
                       alt={event.title} 
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
                     />
                     <div className="absolute top-4 left-4">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>
@@ -488,9 +589,15 @@ const Index = () => {
             <p className="text-xl mb-16 opacity-90 max-w-3xl mx-auto">Your support directly impacts lives and builds hope for families across India</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-              {donationOptions.map((option, index) => <Card key={index} className="donation-card bg-white/95 backdrop-blur-sm text-gray-800 hover:bg-white hover:shadow-2xl transition-all duration-300 border-0 group overflow-hidden">
+              {donationOptions.map((option, index) => (
+                <Card key={index} className="donation-card bg-white/95 backdrop-blur-sm text-gray-800 hover:bg-white hover:shadow-2xl transition-all duration-300 border-0 group overflow-hidden">
                   <div className="relative h-32 overflow-hidden">
-                    <img src={option.image} alt={option.purpose} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <img 
+                      src={option.image} 
+                      alt={option.purpose} 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                     <div className="absolute bottom-2 left-2 text-white font-bold text-xl">{option.amount}</div>
                   </div>
@@ -500,7 +607,8 @@ const Index = () => {
                       Donate Now
                     </Button>
                   </CardContent>
-                </Card>)}
+                </Card>
+              ))}
             </div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -521,7 +629,12 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="text-center lg:text-left">
               <div className="relative inline-block">
-                <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop" alt="Amrita Patil, Founder" className="parallax-image w-80 h-80 rounded-full object-cover mx-auto lg:mx-0 mb-8 shadow-2xl border-8 border-white" />
+                <img 
+                  src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop" 
+                  alt="Amrita Patil, Founder" 
+                  className="parallax-image w-80 h-80 rounded-full object-cover mx-auto lg:mx-0 mb-8 shadow-2xl border-8 border-white"
+                  loading="lazy"
+                />
                 <div className="absolute -bottom-4 -right-4 bg-gradient-to-br from-lavender-500 to-sage-500 p-4 rounded-full shadow-xl">
                   <Award className="h-8 w-8 text-white" />
                 </div>
@@ -553,19 +666,18 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
-                <img 
-                  src="/images/SC_LOGO-removebg-preview.png" 
-                  alt="Shatam Care Foundation" 
-                  className="h-12 w-auto object-contain brightness-0 invert"
-                  onError={(e) => {
-                    // Fallback to icon if logo fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <div className="hidden p-3 bg-gradient-to-br from-lavender-500 to-sage-500 rounded-xl">
-                  <Heart className="h-8 w-8 text-white" />
-                </div>
+                {!imageErrors.has('/images/SC_LOGO-removebg-preview.png') ? (
+                  <img 
+                    src="/images/SC_LOGO-removebg-preview.png" 
+                    alt="Shatam Care Foundation" 
+                    className="h-12 w-auto object-contain brightness-0 invert"
+                    onError={handleLogoError}
+                  />
+                ) : (
+                  <div className="p-3 bg-gradient-to-br from-lavender-500 to-sage-500 rounded-xl">
+                    <Heart className="h-8 w-8 text-white" />
+                  </div>
+                )}
                 <div>
                   <span className="text-2xl font-bold font-lora">Shatam Care Foundation</span>
                   <p className="text-lavender-200">Because Every Memory Deserves Care</p>
@@ -630,7 +742,11 @@ const Index = () => {
 
       {/* WhatsApp Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <Button className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300" onClick={() => window.open('https://wa.me/919158566665', '_blank')}>
+        <Button 
+          className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300" 
+          onClick={() => window.open('https://wa.me/919158566665', '_blank')}
+          aria-label="Contact us on WhatsApp"
+        >
           <MessageCircle className="h-6 w-6" />
         </Button>
       </div>

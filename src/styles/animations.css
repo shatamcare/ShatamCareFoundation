@@ -1,5 +1,5 @@
 
-/* Enhanced GSAP Animation Support for Emotional Appeal */
+/* Enhanced GSAP Animation Support for Emotional Appeal - Optimized */
 
 /* Smooth scrolling with memory-like flow */
 html {
@@ -17,30 +17,30 @@ html {
   will-change: transform, opacity;
 }
 
-/* Memory particle system */
+/* Optimized memory particle system */
 .memory-particle {
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(147, 51, 234, 0.4), rgba(139, 92, 246, 0.2));
-  filter: blur(1px);
-  animation: memory-float 12s infinite ease-in-out;
+  background: radial-gradient(circle, rgba(147, 51, 234, 0.3), rgba(139, 92, 246, 0.15));
+  filter: blur(0.5px);
+  animation: memory-float 10s infinite ease-in-out;
 }
 
 @keyframes memory-float {
   0%, 100% { 
     transform: translateY(0) rotate(0deg);
-    opacity: 0.3;
+    opacity: 0.2;
   }
   25% { 
-    transform: translateY(-30px) rotate(90deg);
-    opacity: 0.7;
+    transform: translateY(-20px) rotate(90deg);
+    opacity: 0.5;
   }
   50% { 
-    transform: translateY(-60px) rotate(180deg);
-    opacity: 0.4;
+    transform: translateY(-40px) rotate(180deg);
+    opacity: 0.3;
   }
   75% { 
-    transform: translateY(-30px) rotate(270deg);
-    opacity: 0.6;
+    transform: translateY(-20px) rotate(270deg);
+    opacity: 0.4;
   }
 }
 
@@ -49,12 +49,12 @@ html {
   will-change: transform;
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
-  filter: brightness(1.05) contrast(1.02);
-  transition: filter 0.6s ease;
+  filter: brightness(1.02) contrast(1.01);
+  transition: filter 0.4s ease;
 }
 
 .parallax-image:hover {
-  filter: brightness(1.1) contrast(1.05);
+  filter: brightness(1.05) contrast(1.02);
 }
 
 /* Performance optimizations for emotional animations */
@@ -63,30 +63,30 @@ html {
 .event-card {
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Enhanced hover states with emotional appeal */
+/* Optimized hover states with emotional appeal */
 .program-card:hover,
 .donation-card:hover,
 .event-card:hover {
-  transform: translate3d(0, -12px, 0) scale(1.05);
+  transform: translate3d(0, -8px, 0) scale(1.03);
   box-shadow: 
-    0 25px 50px rgba(147, 51, 234, 0.15),
-    0 0 0 1px rgba(147, 51, 234, 0.1);
+    0 20px 40px rgba(147, 51, 234, 0.12),
+    0 0 0 1px rgba(147, 51, 234, 0.08);
 }
 
 /* Gentle transitions for interactive elements */
 nav a,
 .btn,
 button {
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Loading state with memory theme */
+/* Optimized loading state with memory theme */
 body.loading {
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.05), rgba(255, 255, 255, 1));
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.03), rgba(255, 255, 255, 1));
 }
 
 body.loading::before {
@@ -98,37 +98,37 @@ body.loading::before {
   height: 100%;
   background: radial-gradient(
     circle at center,
-    rgba(147, 51, 234, 0.1) 0%,
+    rgba(147, 51, 234, 0.08) 0%,
     transparent 70%
   );
   z-index: 9999;
-  animation: memory-pulse 2s ease-in-out infinite;
+  animation: memory-pulse 1.5s ease-in-out infinite;
 }
 
 @keyframes memory-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.02); }
 }
 
 /* Enhanced scroll trigger animations */
 .fade-in-up {
   opacity: 0;
-  transform: translateY(60px);
+  transform: translateY(40px);
 }
 
 .fade-in-left {
   opacity: 0;
-  transform: translateX(-60px);
+  transform: translateX(-40px);
 }
 
 .fade-in-right {
   opacity: 0;
-  transform: translateX(60px);
+  transform: translateX(40px);
 }
 
 .scale-in {
   opacity: 0;
-  transform: scale(0.85);
+  transform: scale(0.9);
 }
 
 /* Text reveal animations with emotional timing */
@@ -138,7 +138,7 @@ body.loading::before {
 
 .text-reveal .char {
   display: inline-block;
-  transform: translateY(120%);
+  transform: translateY(100%);
   opacity: 0;
 }
 
@@ -148,8 +148,8 @@ body.loading::before {
   overflow: hidden;
   background: linear-gradient(135deg, rgba(147, 51, 234, 1), rgba(139, 92, 246, 1));
   border: none;
-  box-shadow: 0 8px 32px rgba(147, 51, 234, 0.3);
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 6px 24px rgba(147, 51, 234, 0.25);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .cta-button::before {
@@ -162,10 +162,10 @@ body.loading::before {
   background: linear-gradient(
     90deg, 
     transparent, 
-    rgba(255,255,255,0.4), 
+    rgba(255,255,255,0.3), 
     transparent
   );
-  transition: left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .cta-button:hover::before {
@@ -173,53 +173,53 @@ body.loading::before {
 }
 
 .cta-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 48px rgba(147, 51, 234, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(147, 51, 234, 0.3);
 }
 
 /* Emotional accordion animations */
 .accordion-content {
   overflow: hidden;
-  transition: max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Enhanced shadow animations with emotional appeal */
 .shadow-hover {
   transition: 
-    box-shadow 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .shadow-hover:hover {
   box-shadow: 
-    0 25px 50px rgba(147, 51, 234, 0.2),
-    0 0 0 1px rgba(147, 51, 234, 0.1);
-  transform: translateY(-4px);
+    0 20px 40px rgba(147, 51, 234, 0.15),
+    0 0 0 1px rgba(147, 51, 234, 0.08);
+  transform: translateY(-2px);
 }
 
-/* Enhanced loading spinner for images */
+/* Optimized loading spinner for images */
 .image-loading {
   background: linear-gradient(
     -90deg, 
-    rgba(147, 51, 234, 0.1) 0%, 
-    rgba(139, 92, 246, 0.2) 50%, 
-    rgba(147, 51, 234, 0.1) 100%
+    rgba(147, 51, 234, 0.08) 0%, 
+    rgba(139, 92, 246, 0.15) 50%, 
+    rgba(147, 51, 234, 0.08) 100%
   );
   background-size: 400% 400%;
-  animation: memory-loading 2s ease-in-out infinite;
+  animation: memory-loading 1.5s ease-in-out infinite;
 }
 
 @keyframes memory-loading {
   0% { 
     background-position: 400% 0%;
-    opacity: 0.3;
+    opacity: 0.2;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.5;
   }
   100% { 
     background-position: -400% 0%;
-    opacity: 0.3;
+    opacity: 0.2;
   }
 }
 
@@ -232,24 +232,24 @@ body.loading::before {
 .testimonial::before {
   content: '"';
   position: absolute;
-  top: -20px;
-  left: -15px;
-  font-size: 120px;
-  color: rgba(147, 51, 234, 0.08);
+  top: -15px;
+  left: -10px;
+  font-size: 80px;
+  color: rgba(147, 51, 234, 0.06);
   font-family: serif;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Impact stats glow effect */
+/* Optimized impact stats glow effect */
 .stat-number {
-  text-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
-  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  text-shadow: 0 0 15px rgba(147, 51, 234, 0.2);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .stat-number:hover {
-  text-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
-  transform: scale(1.05);
+  text-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+  transform: scale(1.02);
 }
 
 /* Mobile optimizations with emotional consideration */
@@ -261,15 +261,22 @@ body.loading::before {
   .program-card:hover,
   .donation-card:hover,
   .event-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
   }
   
   .memory-particle {
-    animation-duration: 8s;
+    animation-duration: 6s;
+    opacity: 0.5;
   }
   
   .cta-button {
-    box-shadow: 0 4px 16px rgba(147, 51, 234, 0.2);
+    box-shadow: 0 3px 12px rgba(147, 51, 234, 0.15);
+  }
+  
+  .testimonial::before {
+    font-size: 60px;
+    top: -10px;
+    left: -5px;
   }
 }
 
@@ -312,7 +319,7 @@ body.loading::before {
 *:focus-visible {
   outline: 2px solid rgba(147, 51, 234, 0.8);
   outline-offset: 2px;
-  transition: outline 0.3s ease;
+  transition: outline 0.2s ease;
 }
 
 /* Print styles */
@@ -325,5 +332,29 @@ body.loading::before {
   * {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* Performance optimizations */
+@media (max-width: 480px) {
+  .memory-particle {
+    display: none;
+  }
+  
+  .parallax-image {
+    will-change: auto;
+  }
+}
+
+/* High performance mode for low-end devices */
+@media (max-resolution: 150dpi) {
+  .program-card,
+  .donation-card,
+  .event-card {
+    will-change: auto;
+  }
+  
+  .parallax-image {
+    filter: none;
   }
 }
