@@ -48,6 +48,7 @@ export const initAnimations = () => {
   initBackgroundMagic();
   initFooterGentleness();
   initScrollStorytelling();
+  initStatsAnimations(); // Add this line to activate stats animations
   
   // Remove loading state after animations are ready
   setTimeout(() => {
@@ -460,15 +461,20 @@ export const initStatsAnimations = () => {
   
   stats.forEach(stat => {
     const statElement = stat as HTMLElement;
-    const finalNumber = statElement.textContent || "0";
-    const numericValue = parseInt(finalNumber.replace(/\D/g, '')) || 0;
+    const finalText = statElement.textContent || "0";
+    
+    // Extract the number from the text (handle cases like "7", "3600+", "₹1,200")
+    const numericValue = parseInt(finalText.replace(/\D/g, '')) || 0;
     
     // Create heartbeat effect during counting
     gsap.set(statElement, { scale: 1 });
     
-    gsap.from(statElement, {
-      textContent: 0,
-      duration: 3,
+    // Set initial value to 0
+    gsap.set(statElement, { textContent: "0" });
+    
+    gsap.to(statElement, {
+      textContent: numericValue,
+      duration: 2.5,
       ease: "gentleFlow",
       snap: { textContent: 1 },
       scrollTrigger: {
@@ -490,10 +496,10 @@ export const initStatsAnimations = () => {
           });
         }
         
-        // Format the number display
-        if (finalNumber.includes('+')) {
+        // Format the number display to match original format
+        if (finalText.includes('+')) {
           statElement.textContent = currentValue + '+';
-        } else if (finalNumber.includes('₹')) {
+        } else if (finalText.includes('₹')) {
           statElement.textContent = '₹' + currentValue.toLocaleString();
         } else {
           statElement.textContent = currentValue.toString();
