@@ -1,0 +1,168 @@
+
+/* GSAP Animation Enhancements */
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Initial states for animations */
+.hero-title,
+.hero-subtitle,
+.hero-buttons,
+.program-card,
+.donation-card,
+.event-card,
+.stat-number {
+  will-change: transform, opacity;
+}
+
+/* Parallax containers */
+.parallax-image {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Performance optimizations */
+.program-card,
+.donation-card,
+.event-card {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+/* Hover state optimizations */
+.program-card:hover,
+.donation-card:hover,
+.event-card:hover {
+  transform: translate3d(0, -8px, 0) scale(1.03);
+}
+
+/* Smooth transitions for interactive elements */
+nav a,
+.btn,
+button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading state */
+body.loading {
+  overflow: hidden;
+}
+
+/* Scroll trigger animations */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.scale-in {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Text reveal animations */
+.text-reveal {
+  overflow: hidden;
+}
+
+.text-reveal .char {
+  display: inline-block;
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+/* Button pulse animation for CTAs */
+.cta-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+
+/* Smooth accordion animations */
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced shadow animations */
+.shadow-hover {
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shadow-hover:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Loading spinner for images */
+.image-loading {
+  background: linear-gradient(-90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+  background-size: 400% 400%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 400% 0%; }
+  100% { background-position: -400% 0%; }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .parallax-image {
+    transform: none !important;
+  }
+  
+  .program-card:hover,
+  .donation-card:hover,
+  .event-card:hover {
+    transform: none;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .parallax-image {
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .hero-overlay {
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
+}

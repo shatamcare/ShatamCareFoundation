@@ -1,10 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { initAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger } from '@/utils/animations';
+
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize animations on component mount
+  useEffect(() => {
+    // Initialize loading animation first
+    initLoadingAnimation();
+    
+    // Wait for DOM to be ready then initialize all animations
+    const timer = setTimeout(() => {
+      initAnimations();
+      initSmoothScroll();
+      initMobileOptimizations();
+    }, 100);
+    
+    // Refresh ScrollTrigger when component updates
+    const refreshTimer = setTimeout(() => {
+      refreshScrollTrigger();
+    }, 500);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(refreshTimer);
+    };
+  }, []);
+  
+  // Refresh ScrollTrigger when expanded program changes
+  useEffect(() => {
+    if (expandedProgram !== null) {
+      setTimeout(() => refreshScrollTrigger(), 300);
+    }
+  }, [expandedProgram]);
+
   const programs = [{
     image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=300&fit=crop",
     title: "Residential & Day Care for Elderly",
@@ -165,7 +199,7 @@ const Index = () => {
             </nav>
 
             <div className="flex items-center space-x-4">
-              <Button className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+              <Button className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cta-button">
                 Support Our Mission
               </Button>
               
@@ -192,28 +226,28 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
+      <section id="home" className="relative overflow-hidden" ref={heroRef}>
+        <div className="hero-overlay absolute inset-0 bg-gradient-to-r from-lavender-900/60 to-lavender-800/40 z-10"></div>
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" style={{
         backgroundImage: 'url("/images/sessions.jpg")'
       }}></div>
         <div className="relative z-20 py-32 lg:py-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center animate-fade-in-up">
-              <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-8 font-lora">
+            <div className="text-center">
+              <h1 className="hero-title text-5xl lg:text-7xl font-bold text-white leading-tight mb-8 font-lora">
                 Because Every Memory
                 <span className="block text-lavender-200">Deserves Care</span>
               </h1>
-              <p className="text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="hero-subtitle text-xl lg:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
                 Empowering caregivers, supporting elders, and building an inclusive dementia care ecosystem across India with compassion and dignity.
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Button size="lg" className="bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105" onClick={() => document.getElementById('programs')?.scrollIntoView({
+              <div className="hero-buttons flex flex-col sm:flex-row gap-6 justify-center">
+                <Button size="lg" className="btn bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105" onClick={() => document.getElementById('programs')?.scrollIntoView({
                 behavior: 'smooth'
               })}>
                   Join Our Support Group
                 </Button>
-                <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full text-lg backdrop-blur-sm transition-all duration-300" onClick={() => document.getElementById('donate')?.scrollIntoView({
+                <Button size="lg" className="btn border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full text-lg backdrop-blur-sm transition-all duration-300" onClick={() => document.getElementById('donate')?.scrollIntoView({
                 behavior: 'smooth'
               })}>
                   Support Our Mission
@@ -227,7 +261,7 @@ const Index = () => {
       {/* Mission Section */}
       <section id="mission" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto animate-fade-in-up">
+          <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-8 font-lora">
               Dignity, Support, and Hope for Every Elderly Indian
             </h2>
@@ -242,14 +276,12 @@ const Index = () => {
       {/* Programs Section */}
       <section id="programs" className="py-24 bg-gradient-to-b from-lavender-50 to-sage-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 animate-fade-in-up">
+          <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-6 font-lora">Our Key Programs</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-lavender-400 to-sage-400 mx-auto"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {programs.map((program, index) => <Card key={index} className="bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-lg animate-fade-in-up group overflow-hidden" style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
+            {programs.map((program, index) => <Card key={index} className="program-card bg-white/80 backdrop-blur-sm hover:bg-white hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-lg group overflow-hidden">
                 <div className="relative h-48 overflow-hidden">
                   <img src={program.image} alt={program.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -274,33 +306,31 @@ const Index = () => {
       <section className="py-20 bg-gradient-to-r from-lavender-600 to-sage-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="animate-fade-in-up">
+          <div>
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 font-lora">Our Impact Since 2018</h2>
             <p className="text-xl mb-12 opacity-90">Building a network of care across India</p>
             
             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16">
-              {impactStats.map((stat, index) => <div key={index} className="text-center animate-fade-in-up" style={{
-              animationDelay: `${index * 0.1}s`
-            }}>
-                  <div className="text-4xl lg:text-6xl font-bold text-sage-200 mb-3 font-lora">{stat.number}</div>
+              {impactStats.map((stat, index) => <div key={index} className="text-center">
+                  <div className="stat-number text-4xl lg:text-6xl font-bold text-sage-200 mb-3 font-lora">{stat.number}</div>
                   <div className="text-lg opacity-90">{stat.label}</div>
                 </div>)}
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-4xl mx-auto animate-fade-in-up">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 max-w-4xl mx-auto">
               <h3 className="text-2xl font-semibold mb-8 font-lora text-center">Trusted Partners</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20 px-0 py-0">
-                  <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" alt="Government of Maharashtra" className="max-h-12 w-auto object-contain" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
+                  <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=120&h=60&fit=crop&crop=center" alt="Government of Maharashtra" className="max-h-10 w-auto object-contain" />
                 </div>
-                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
-                  <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center" alt="Johnson & Johnson Foundation" className="max-h-12 w-auto object-contain" />
+                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
+                  <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=120&h=60&fit=crop&crop=center" alt="Johnson & Johnson Foundation" className="max-h-10 w-auto object-contain" />
                 </div>
-                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
-                  <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center" alt="The Better India" className="max-h-12 w-auto object-contain" />
+                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
+                  <img src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=120&h=60&fit=crop&crop=center" alt="The Better India" className="max-h-10 w-auto object-contain" />
                 </div>
-                <div className="bg-white rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-shadow h-20">
-                  <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center" alt="L'Oréal Paris" className="max-h-12 w-auto object-contain" />
+                <div className="bg-white rounded-lg p-3 flex items-center justify-center hover:shadow-lg transition-shadow h-16">
+                  <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=120&h=60&fit=crop&crop=center" alt="L'Oréal Paris" className="max-h-10 w-auto object-contain" />
                 </div>
               </div>
             </div>
@@ -311,16 +341,16 @@ const Index = () => {
       {/* Real Stories Section */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 animate-fade-in-up">
+          <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-6 font-lora">Lives Changed Through Care</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-lavender-400 to-sage-400 mx-auto"></div>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="animate-fade-in-up">
-              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop" alt="Therapy session with elderly participants" className="rounded-2xl shadow-2xl w-full h-96 object-cover" />
+            <div>
+              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=600&h=400&fit=crop" alt="Therapy session with elderly participants" className="parallax-image rounded-2xl shadow-2xl w-full h-96 object-cover" />
             </div>
-            <div className="space-y-8 animate-fade-in-up">
+            <div className="space-y-8">
               <Card className="bg-gradient-to-br from-sage-50 to-sage-100 border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardContent className="p-8">
                   <div className="flex items-start space-x-4">
@@ -361,7 +391,7 @@ const Index = () => {
       {/* Events Calendar Section */}
       <section id="events" className="py-24 bg-gradient-to-b from-white to-lavender-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 animate-fade-in-up">
+          <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-800 mb-6 font-lora">Upcoming Events</h2>
             <div className="w-24 h-1 bg-gradient-to-r from-lavender-400 to-sage-400 mx-auto mb-6"></div>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -371,9 +401,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {upcomingEvents.map((event, index) => (
-              <Card key={event.id} className="bg-white hover:shadow-2xl transition-all duration-300 border-0 shadow-lg animate-fade-in-up group overflow-hidden" style={{
-                animationDelay: `${index * 0.1}s`
-              }}>
+              <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-300 border-0 shadow-lg group overflow-hidden">
                 <div className="flex flex-col md:flex-row">
                   <div className="relative h-48 md:h-auto md:w-1/3 overflow-hidden">
                     <img 
@@ -414,7 +442,7 @@ const Index = () => {
                       
                       <div className="pt-4">
                         <Button 
-                          className="w-full bg-gradient-to-r from-lavender-500 to-sage-500 hover:from-lavender-600 hover:to-sage-600 text-white font-semibold py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                          className="btn w-full bg-gradient-to-r from-lavender-500 to-sage-500 hover:from-lavender-600 hover:to-sage-600 text-white font-semibold py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                           onClick={() => window.open(event.registrationLink, '_blank')}
                         >
                           Register Now
@@ -427,7 +455,7 @@ const Index = () => {
             ))}
           </div>
           
-          <div className="text-center mt-16 animate-fade-in-up">
+          <div className="text-center mt-16">
             <Card className="bg-gradient-to-r from-lavender-100 to-sage-100 border-0 shadow-lg inline-block">
               <CardContent className="p-8">
                 <div className="flex items-center justify-center space-x-4">
@@ -438,7 +466,7 @@ const Index = () => {
                     <h3 className="text-2xl font-bold text-gray-800 mb-2 font-lora">Want to Stay Updated?</h3>
                     <p className="text-gray-600 mb-4">Subscribe to our newsletter for event notifications and updates</p>
                     <Button 
-                      className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="btn bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
                       onClick={() => window.open('mailto:shatamcare@gmail.com?subject=Newsletter Subscription', '_blank')}
                     >
                       Subscribe Now
@@ -455,14 +483,12 @@ const Index = () => {
       <section id="donate" className="py-24 bg-gradient-to-br from-lavender-500 via-lavender-600 to-sage-500 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <div className="animate-fade-in-up">
+          <div>
             <h2 className="text-4xl lg:text-5xl font-bold mb-8 font-lora">Be a Part of the Change</h2>
             <p className="text-xl mb-16 opacity-90 max-w-3xl mx-auto">Your support directly impacts lives and builds hope for families across India</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-              {donationOptions.map((option, index) => <Card key={index} className="bg-white/95 backdrop-blur-sm text-gray-800 hover:bg-white hover:shadow-2xl transition-all duration-300 border-0 animate-fade-in-up group overflow-hidden" style={{
-              animationDelay: `${index * 0.1}s`
-            }}>
+              {donationOptions.map((option, index) => <Card key={index} className="donation-card bg-white/95 backdrop-blur-sm text-gray-800 hover:bg-white hover:shadow-2xl transition-all duration-300 border-0 group overflow-hidden">
                   <div className="relative h-32 overflow-hidden">
                     <img src={option.image} alt={option.purpose} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -470,18 +496,18 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 text-center">
                     <p className="text-gray-700 mb-4 leading-relaxed font-medium">{option.purpose}</p>
-                    <Button className="bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white w-full font-medium rounded-full shadow-lg hover:shadow-xl transition-all">
+                    <Button className="btn bg-gradient-to-r from-lavender-500 to-lavender-600 hover:from-lavender-600 hover:to-lavender-700 text-white w-full font-medium rounded-full shadow-lg hover:shadow-xl transition-all">
                       Donate Now
                     </Button>
                   </CardContent>
                 </Card>)}
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up">
-              <Button size="lg" className="bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Button size="lg" className="btn bg-white text-lavender-600 hover:bg-lavender-50 font-semibold px-10 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all">
                 Volunteer with Us
               </Button>
-              <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full backdrop-blur-sm transition-all">
+              <Button size="lg" className="btn border-2 border-white text-white bg-white/10 hover:bg-white hover:text-lavender-600 font-semibold px-10 py-4 rounded-full backdrop-blur-sm transition-all">
                 Partner with Shatam
               </Button>
             </div>
@@ -493,15 +519,15 @@ const Index = () => {
       <section className="py-24 bg-gradient-to-b from-sage-50 to-lavender-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="text-center lg:text-left animate-fade-in-up">
+            <div className="text-center lg:text-left">
               <div className="relative inline-block">
-                <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop" alt="Amrita Patil, Founder" className="w-80 h-80 rounded-full object-cover mx-auto lg:mx-0 mb-8 shadow-2xl border-8 border-white" />
+                <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=400&fit=crop" alt="Amrita Patil, Founder" className="parallax-image w-80 h-80 rounded-full object-cover mx-auto lg:mx-0 mb-8 shadow-2xl border-8 border-white" />
                 <div className="absolute -bottom-4 -right-4 bg-gradient-to-br from-lavender-500 to-sage-500 p-4 rounded-full shadow-xl">
                   <Award className="h-8 w-8 text-white" />
                 </div>
               </div>
             </div>
-            <div className="space-y-8 animate-fade-in-up">
+            <div className="space-y-8">
               <blockquote className="text-3xl lg:text-4xl font-medium text-gray-800 leading-relaxed font-lora">
                 "We are committed to building an ecosystem that empowers caregivers and supports the elderly."
               </blockquote>
