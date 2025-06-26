@@ -10,13 +10,11 @@ const PerformanceMonitor = () => {
           console.log('LCP:', entry.startTime);
         }
         if (entry.entryType === 'first-input') {
-          const fidEntry = entry as PerformanceEventTiming;
-          console.log('FID:', fidEntry.processingStart - fidEntry.startTime);
+          console.log('FID:', entry.processingStart - entry.startTime);
         }
         if (entry.entryType === 'layout-shift') {
-          const clsEntry = entry as any; // LayoutShift interface not available in standard types
-          if (!clsEntry.hadRecentInput) {
-            console.log('CLS:', clsEntry.value);
+          if (!entry.hadRecentInput) {
+            console.log('CLS:', entry.value);
           }
         }
       }
