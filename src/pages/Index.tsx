@@ -1,11 +1,10 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Heart, Users, Brain, Award, ArrowRight, Calendar, MapPin, Phone, Mail, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-import { initializeAnimations } from '@/utils/optimizedAnimations';
+import { initOptimizedAnimations } from '@/utils/optimizedAnimations';
 import OptimizedImage from '@/components/OptimizedImage';
 import PerformanceMonitor from '@/components/PerformanceMonitor';
 
@@ -16,12 +15,7 @@ const Index = () => {
   const statsRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    initializeAnimations({
-      heroRef: heroRef.current,
-      aboutRef: aboutRef.current,
-      programsRef: programsRef.current,
-      statsRef: statsRef.current,
-    });
+    initOptimizedAnimations();
   }, []);
 
   return (
@@ -89,19 +83,19 @@ const Index = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">500+</div>
+                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2 stat-number">500+</div>
                 <div className="text-gray-600">Seniors Served</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">50+</div>
+                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2 stat-number">50+</div>
                 <div className="text-gray-600">Caregivers Trained</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">10+</div>
+                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2 stat-number">10+</div>
                 <div className="text-gray-600">Programs</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">5</div>
+                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2 stat-number">5</div>
                 <div className="text-gray-600">Years of Service</div>
               </div>
             </div>
