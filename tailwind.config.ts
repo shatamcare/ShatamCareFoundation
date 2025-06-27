@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -22,6 +21,7 @@ export default {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
 				'open-sans': ['Open Sans', 'sans-serif'],
+				'lora': ['Lora', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -67,7 +67,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Shatam Care Brand Colors
+				// Enhanced Shatam Care Brand Colors
 				'warm-teal': {
 					DEFAULT: '#04808A',
 					50: '#e6f7f8',
@@ -94,6 +94,30 @@ export default {
 					800: '#803907',
 					900: '#4d2204',
 				},
+				'lavender': {
+					50: '#f5f3ff',
+					100: '#ede9fe',
+					200: '#ddd6fe',
+					300: '#c4b5fd',
+					400: '#a78bfa',
+					500: '#8b5cf6',
+					600: '#7c3aed',
+					700: '#6d28d9',
+					800: '#5b21b6',
+					900: '#4c1d95',
+				},
+				'sage': {
+					50: '#f6f7f6',
+					100: '#e3e8e3',
+					200: '#c7d2c7',
+					300: '#a3b5a3',
+					400: '#7a927a',
+					500: '#5a735a',
+					600: '#475a47',
+					700: '#3a4a3a',
+					800: '#2f3d2f',
+					900: '#283328',
+				},
 				'off-white': '#F9F9F9',
 				'light-gray': '#F4F4F4',
 				'dark-charcoal': '#262626',
@@ -101,6 +125,7 @@ export default {
 			spacing: {
 				'section': '60px',
 				'section-sm': '40px',
+				'section-lg': '80px',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -141,13 +166,34 @@ export default {
 					'100%': {
 						opacity: '1'
 					}
+				},
+				'gentle-float': {
+					'0%, 100%': {
+						transform: 'translateY(0px)'
+					},
+					'50%': {
+						transform: 'translateY(-10px)'
+					}
+				},
+				'memory-glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px rgba(4, 128, 138, 0.3)'
+					},
+					'50%': {
+						boxShadow: '0 0 40px rgba(4, 128, 138, 0.6)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in-up': 'fade-in-up 0.6s ease-out',
-				'fade-in': 'fade-in 0.8s ease-out'
+				'fade-in': 'fade-in 0.8s ease-out',
+				'gentle-float': 'gentle-float 6s ease-in-out infinite',
+				'memory-glow': 'memory-glow 4s ease-in-out infinite'
+			},
+			boxShadow: {
+				'3xl': '0 35px 60px -12px rgba(0, 0, 0, 0.25)',
 			}
 		}
 	},
