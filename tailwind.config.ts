@@ -21,7 +21,9 @@ export default {
 		extend: {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
-				'lora': ['Lora', 'serif'],
+				'open-sans': ['Open Sans', 'sans-serif'],
+				'sans': ['Open Sans', 'sans-serif'],
+				'serif': ['Poppins', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -67,29 +69,26 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				lavender: {
-					50: '#faf9fc',
-					100: '#f3f1f8',
-					200: '#e9e5f1',
-					300: '#d8d0e4',
-					400: '#c1b3d3',
-					500: '#a894c0',
-					600: '#9078ab',
-					700: '#7a6394',
-					800: '#655379',
-					900: '#544564',
+				// Brand colors
+				teal: {
+					50: 'hsl(var(--teal-50))',
+					100: 'hsl(var(--teal-100))',
+					200: 'hsl(var(--teal-200))',
+					300: 'hsl(var(--teal-300))',
+					400: 'hsl(var(--teal-400))',
+					500: 'hsl(var(--teal-500))',
+					600: 'hsl(var(--teal-600))',
+					700: 'hsl(var(--teal-700))',
 				},
-				sage: {
-					50: '#f8f9f6',
-					100: '#f1f3ed',
-					200: '#e4e8db',
-					300: '#d0d7c1',
-					400: '#b8c2a1',
-					500: '#9da885',
-					600: '#828d6b',
-					700: '#6a7255',
-					800: '#555c47',
-					900: '#474d3c',
+				orange: {
+					50: 'hsl(var(--orange-50))',
+					100: 'hsl(var(--orange-100))',
+					200: 'hsl(var(--orange-200))',
+					300: 'hsl(var(--orange-300))',
+					400: 'hsl(var(--orange-400))',
+					500: 'hsl(var(--orange-500))',
+					600: 'hsl(var(--orange-600))',
+					700: 'hsl(var(--orange-700))',
 				}
 			},
 			borderRadius: {
