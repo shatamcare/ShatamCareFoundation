@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -22,6 +21,7 @@ export default {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
 				'open-sans': ['Open Sans', 'sans-serif'],
+				'lora': ['Lora', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -93,6 +93,30 @@ export default {
 					700: '#b3500a',
 					800: '#803907',
 					900: '#4d2204',
+				},
+				'lavender': {
+					50: '#f5f3ff',
+					100: '#ede9fe',
+					200: '#ddd6fe',
+					300: '#c4b5fd',
+					400: '#a78bfa',
+					500: '#8b5cf6',
+					600: '#7c3aed',
+					700: '#6d28d9',
+					800: '#5b21b6',
+					900: '#4c1d95',
+				},
+				'sage': {
+					50: '#f6f7f6',
+					100: '#e3e8e3',
+					200: '#c7d2c7',
+					300: '#a3b5a3',
+					400: '#7a927a',
+					500: '#5a735a',
+					600: '#475a47',
+					700: '#3a4a3a',
+					800: '#2f3d2f',
+					900: '#283328',
 				},
 				'off-white': '#F9F9F9',
 				'light-gray': '#F4F4F4',
