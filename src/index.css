@@ -4,57 +4,47 @@
 @tailwind utilities;
 @import './styles/animations.css';
 
-/* Enhanced Design System with Emotional Intelligence */
+/* Shatam Care Foundation Design System */
 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 262 52% 47%;
+    /* Shatam Care Brand Colors */
+    --primary: 184 95% 28%; /* Warm Teal #04808A */
     --primary-foreground: 0 0% 98%;
 
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220 8.9% 46.1%;
 
+    --accent: 22 100% 67%; /* Sunrise Orange #FF9A56 */
+    --accent-foreground: 0 0% 98%;
+
     --muted: 220 14.3% 95.9%;
     --muted-foreground: 220 8.9% 46.1%;
-
-    --accent: 262 20% 92%;
-    --accent-foreground: 262 52% 47%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 262 52% 47%;
+    --ring: 184 95% 28%;
 
     --radius: 0.75rem;
 
-    /* Enhanced emotional color palette */
-    --lavender-50: 250 100% 98%;
-    --lavender-100: 249 56% 95%;
-    --lavender-200: 251 52% 88%;
-    --lavender-300: 252 56% 79%;
-    --lavender-400: 253 55% 69%;
-    --lavender-500: 262 52% 47%;
-    --lavender-600: 262 52% 42%;
-    --lavender-700: 262 52% 37%;
-    
-    --sage-50: 138 25% 97%;
-    --sage-100: 140 20% 93%;
-    --sage-200: 139 15% 85%;
-    --sage-300: 140 12% 76%;
-    --sage-400: 140 10% 67%;
-    --sage-500: 140 8% 58%;
-    --sage-600: 140 8% 49%;
+    /* Shatam Care Extended Palette */
+    --warm-teal: 184 95% 28%; /* #04808A */
+    --sunrise-orange: 22 100% 67%; /* #FF9A56 */
+    --off-white: 60 9% 98%; /* #F9F9F9 */
+    --light-gray: 0 0% 96%; /* #F4F4F4 */
+    --dark-charcoal: 0 0% 15%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -76,7 +66,7 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 262 52% 47%;
+    --primary: 184 95% 28%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 3.7% 15.9%;
@@ -85,7 +75,7 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 240 3.7% 15.9%;
+    --accent: 22 100% 67%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -93,7 +83,7 @@
 
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 262 52% 47%;
+    --ring: 184 95% 28%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -111,7 +101,10 @@
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
     font-feature-settings: "rlig" 1, "calt" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -119,47 +112,56 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-lora;
-    font-feature-settings: "kern" 1, "liga" 1;
-    text-rendering: optimizeLegibility;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    color: hsl(var(--dark-charcoal));
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
   }
 }
 
-/* Enhanced Custom Colors for Emotional Appeal */
+/* Shatam Care Custom Colors */
 @layer utilities {
-  .text-lavender-50 { color: hsl(var(--lavender-50)); }
-  .text-lavender-100 { color: hsl(var(--lavender-100)); }
-  .text-lavender-200 { color: hsl(var(--lavender-200)); }
-  .text-lavender-300 { color: hsl(var(--lavender-300)); }
-  .text-lavender-400 { color: hsl(var(--lavender-400)); }
-  .text-lavender-500 { color: hsl(var(--lavender-500)); }
-  .text-lavender-600 { color: hsl(var(--lavender-600)); }
-  .text-lavender-700 { color: hsl(var(--lavender-700)); }
+  .text-warm-teal { color: hsl(var(--warm-teal)); }
+  .text-sunrise-orange { color: hsl(var(--sunrise-orange)); }
+  .text-dark-charcoal { color: hsl(var(--dark-charcoal)); }
   
-  .bg-lavender-50 { background-color: hsl(var(--lavender-50)); }
-  .bg-lavender-100 { background-color: hsl(var(--lavender-100)); }
-  .bg-lavender-200 { background-color: hsl(var(--lavender-200)); }
-  .bg-lavender-300 { background-color: hsl(var(--lavender-300)); }
-  .bg-lavender-400 { background-color: hsl(var(--lavender-400)); }
-  .bg-lavender-500 { background-color: hsl(var(--lavender-500)); }
-  .bg-lavender-600 { background-color: hsl(var(--lavender-600)); }
-  .bg-lavender-700 { background-color: hsl(var(--lavender-700)); }
+  .bg-warm-teal { background-color: hsl(var(--warm-teal)); }
+  .bg-sunrise-orange { background-color: hsl(var(--sunrise-orange)); }
+  .bg-off-white { background-color: hsl(var(--off-white)); }
+  .bg-light-gray { background-color: hsl(var(--light-gray)); }
+  .bg-dark-charcoal { background-color: hsl(var(--dark-charcoal)); }
+
+  .border-warm-teal { border-color: hsl(var(--warm-teal)); }
+  .border-sunrise-orange { border-color: hsl(var(--sunrise-orange)); }
+
+  /* Section Spacing */
+  .section-padding { padding: 60px 0; }
+  .section-padding-sm { padding: 40px 0; }
   
-  .text-sage-50 { color: hsl(var(--sage-50)); }
-  .text-sage-100 { color: hsl(var(--sage-100)); }
-  .text-sage-200 { color: hsl(var(--sage-200)); }
-  .text-sage-300 { color: hsl(var(--sage-300)); }
-  .text-sage-400 { color: hsl(var(--sage-400)); }
-  .text-sage-500 { color: hsl(var(--sage-500)); }
-  .text-sage-600 { color: hsl(var(--sage-600)); }
-  
-  .bg-sage-50 { background-color: hsl(var(--sage-50)); }
-  .bg-sage-100 { background-color: hsl(var(--sage-100)); }
-  .bg-sage-200 { background-color: hsl(var(--sage-200)); }
-  .bg-sage-300 { background-color: hsl(var(--sage-300)); }
-  .bg-sage-400 { background-color: hsl(var(--sage-400)); }
-  .bg-sage-500 { background-color: hsl(var(--sage-500)); }
-  .bg-sage-600 { background-color: hsl(var(--sage-600)); }
+  /* Grid Gutters */
+  .grid-gutter { gap: 20px; }
+  .grid-gutter-lg { gap: 30px; }
 
   /* Enhanced GSAP Animation Utilities */
   .animate-fade-in-up {
@@ -234,10 +236,10 @@
 
 @keyframes memoryGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    box-shadow: 0 0 20px rgba(4, 128, 138, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 40px rgba(4, 128, 138, 0.6);
   }
 }
 

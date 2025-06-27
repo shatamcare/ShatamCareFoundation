@@ -21,7 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				'poppins': ['Poppins', 'sans-serif'],
-				'lora': ['Lora', 'serif'],
+				'open-sans': ['Open Sans', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -67,30 +67,40 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				lavender: {
-					50: '#faf9fc',
-					100: '#f3f1f8',
-					200: '#e9e5f1',
-					300: '#d8d0e4',
-					400: '#c1b3d3',
-					500: '#a894c0',
-					600: '#9078ab',
-					700: '#7a6394',
-					800: '#655379',
-					900: '#544564',
+				// Shatam Care Brand Colors
+				'warm-teal': {
+					DEFAULT: '#04808A',
+					50: '#e6f7f8',
+					100: '#b3e6ea',
+					200: '#80d5db',
+					300: '#4dc4cc',
+					400: '#1ab3bd',
+					500: '#04808A',
+					600: '#036670',
+					700: '#024d56',
+					800: '#01333c',
+					900: '#001a22',
 				},
-				sage: {
-					50: '#f8f9f6',
-					100: '#f1f3ed',
-					200: '#e4e8db',
-					300: '#d0d7c1',
-					400: '#b8c2a1',
-					500: '#9da885',
-					600: '#828d6b',
-					700: '#6a7255',
-					800: '#555c47',
-					900: '#474d3c',
-				}
+				'sunrise-orange': {
+					DEFAULT: '#FF9A56',
+					50: '#fff5f0',
+					100: '#ffe4d1',
+					200: '#ffc9a3',
+					300: '#ffad74',
+					400: '#FF9A56',
+					500: '#ff7d1f',
+					600: '#e6670c',
+					700: '#b3500a',
+					800: '#803907',
+					900: '#4d2204',
+				},
+				'off-white': '#F9F9F9',
+				'light-gray': '#F4F4F4',
+				'dark-charcoal': '#262626',
+			},
+			spacing: {
+				'section': '60px',
+				'section-sm': '40px',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
