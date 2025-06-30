@@ -3,6 +3,9 @@
 @tailwind utilities;
 @import './styles/animations.css';
 
+/* Font Preloading for Performance */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap');
+
 /* Shatam Care Foundation Design System - Enhanced */
 
 @layer base {
@@ -446,5 +449,133 @@
   
   .section-padding {
     padding: 30px 0;
+  }
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 2.5rem !important;
+    line-height: 1.1;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.125rem !important;
+  }
+  
+  .section-padding {
+    padding: 2rem 0;
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .donation-card {
+    min-height: auto;
+  }
+  
+  .impact-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  /* Better spacing for mobile */
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Mobile-first button improvements */
+  .btn-cta, .btn-secondary-cta {
+    width: 100%;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Better mobile navigation */
+  .sticky-header {
+    padding: 0 1rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .lg\:grid-cols-5 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .lg\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Better tablet spacing */
+  .section-padding {
+    padding: 3rem 0;
+  }
+  
+  /* Tablet-specific improvements */
+  .hero-title {
+    font-size: 3.5rem !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Large mobile landscape optimization */
+@media (max-width: 896px) and (orientation: landscape) {
+  .hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .section-padding {
+    padding: 1.5rem 0;
+  }
+  
+  .min-h-screen {
+    min-height: 100vh;
+  }
+}
+
+/* Enhanced Accessibility Improvements */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: hsl(var(--warm-teal));
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  transition: top 0.3s;
+}
+
+.skip-to-content:focus {
+  top: 6px;
+}
+
+/* Enhanced screen reader support */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn-cta, .btn-secondary-cta {
+    border: 2px solid currentColor;
+  }
+  
+  .card-hover {
+    border: 1px solid hsl(var(--dark-charcoal));
   }
 }

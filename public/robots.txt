@@ -1,3 +1,16 @@
+# Shatam Care Foundation Website
+# https://shatamcare.org
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://shatamcare.org/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Allow social media crawlers
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +23,5 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: LinkedInBot
 Allow: /

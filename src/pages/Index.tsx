@@ -160,8 +160,8 @@ const Index = () => {
     location: "Mumbai Community Center",
     type: "Workshop",
     description: "Comprehensive training session for aspiring caregivers focusing on elderly care techniques and dementia support.",
-    registrationLink: "#",
-    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=200&fit=crop",
+    registrationLink: "mailto:shatamcare@gmail.com?subject=Caregiver Training Workshop Registration&body=I would like to register for the Caregiver Training Workshop on July 15, 2025 in Mumbai.",
+    image: "/images/Caregivers/training.jpg",
     spots: "15 spots left"
   }, {
     id: 2,
@@ -171,8 +171,8 @@ const Index = () => {
     location: "Pune Center",
     type: "Support Group",
     description: "Monthly gathering for families dealing with dementia. Share experiences, get support, and learn coping strategies.",
-    registrationLink: "#",
-    image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=400&h=200&fit=crop",
+    registrationLink: "mailto:shatamcare@gmail.com?subject=Family Support Group Registration&body=I would like to join the Family Support Group meeting on July 20, 2025 in Pune.",
+    image: "/images/Caregivers/sessions.jpg",
     spots: "Open to all"
   }];
 
@@ -200,12 +200,12 @@ const Index = () => {
 
   const getEventTypeColor = (type: string) => {
     const colorMap: Record<string, string> = {
-      'Workshop': 'bg-warm-teal-100 text-warm-teal-700',
-      'Support Group': 'bg-sage-100 text-sage-700',
-      'Therapy': 'bg-blue-100 text-blue-700',
-      'Fundraiser': 'bg-sunrise-orange-100 text-sunrise-orange-700'
+      'Workshop': 'bg-warm-teal text-white',
+      'Support Group': 'bg-sage-600 text-white',
+      'Therapy': 'bg-blue-600 text-white',
+      'Fundraiser': 'bg-sunrise-orange text-white'
     };
-    return colorMap[type] || 'bg-gray-100 text-gray-700';
+    return colorMap[type] || 'bg-gray-600 text-white';
   };
 
   const handleLogoError = () => {
@@ -224,6 +224,11 @@ const Index = () => {
   };
 
   return <div className="min-h-screen bg-background">
+      {/* Skip to Content Link for Accessibility */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+      
       {/* Enhanced Header with Sticky Behavior */}
       <header className={`sticky-header ${isHeaderScrolled ? 'scrolled' : ''} transition-all duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -302,6 +307,7 @@ const Index = () => {
       </header>
 
       {/* Enhanced Hero Section */}
+      <main id="main-content">
       <section id="home" className="relative overflow-hidden min-h-screen flex items-center" ref={heroRef}>
         <div className="hero-overlay absolute inset-0 bg-gradient-to-r from-dark-charcoal/70 to-dark-charcoal/50 z-10"></div>
         <div 
@@ -483,9 +489,9 @@ const Index = () => {
                   {expandedProgram === index && (
                     <div 
                       id={`program-details-${index}`}
-                      className="mt-6 p-6 bg-warm-teal-50 rounded-xl animate-accordion-down"
+                      className="mt-6 p-6 bg-warm-teal rounded-xl animate-accordion-down"
                     >
-                      <p className="text-gray-700 leading-relaxed mb-4">{program.details}</p>
+                      <p className="text-white leading-relaxed mb-4">{program.details}</p>
                       <Button className="btn-cta">
                         Get Involved <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
@@ -508,75 +514,103 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Enhanced Impact Section */}
+      {/* Modern Impact Section */}
       <section id="impact" className="section-padding bg-gradient-to-r from-warm-teal to-warm-teal-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-dark-charcoal/10"></div>
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins">Our Impact Since 2018</h2>
-            <p className="text-xl mb-16 opacity-90 max-w-3xl mx-auto">
-              Building care networks across India, one family at a time
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Header */}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins text-white">Our Impact Since 2018</h2>
+            <p className="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
+              Transforming lives through compassionate care and professional training across India
             </p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-16">
-              {impactStats.map((stat, index) => (
-                <div key={index} className="text-center group">
-                  <div className="stat-number text-4xl lg:text-6xl font-bold text-warm-teal-200 mb-3 font-poppins group-hover:scale-110 transition-transform duration-300">
+          </div>
+          
+          {/* Impact Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8 mb-20">
+            {impactStats.map((stat, index) => (
+              <Card key={index} className="bg-white/15 backdrop-blur-sm border-0 hover:bg-white/20 transition-all duration-300 group">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2 font-poppins group-hover:scale-110 transition-transform duration-300">
                     {stat.number}
                   </div>
-                  <div className="text-lg font-medium mb-2">{stat.label}</div>
-                  <div className="text-sm opacity-80">{stat.description}</div>
-                </div>
-              ))}
+                  <div className="text-sm font-medium text-warm-teal-100 mb-1">{stat.label}</div>
+                  <div className="text-xs text-white/70">{stat.description}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left: Recognition Cards */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-semibold mb-6 text-white">Recognition & Trust</h3>
+              
+              <div className="space-y-4">
+                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
+                  <CardContent className="p-4 flex items-center space-x-4">
+                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
+                      <Award className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-white text-sm">Government Recognized</h4>
+                      <p className="text-xs text-white/80">Section 8 Company Registration</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
+                  <CardContent className="p-4 flex items-center space-x-4">
+                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
+                      <Shield className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-white text-sm">80G Tax Benefits</h4>
+                      <p className="text-xs text-white/80">Income Tax Approved Donations</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
+                  <CardContent className="p-4 flex items-center space-x-4">
+                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
+                      <Star className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-white text-sm">Media Recognition</h4>
+                      <p className="text-xs text-white/80">Featured by The Better India</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            {/* Enhanced Trust & Credibility Section */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-5xl mx-auto">
-              <h3 className="text-3xl font-semibold mb-8 font-poppins">Trusted Partners & Recognition</h3>
+            {/* Right: Key Partners */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-semibold mb-6 text-white">Key Partners</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div className="text-center">
-                  <div className="bg-white/20 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                    <Award className="h-10 w-10 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-3 text-lg">Government Recognized</h4>
-                  <p className="text-sm opacity-90 mb-2">Registered under Section 8 Companies Act 2013</p>
-                  <p className="text-xs opacity-75">CIN: U85300MH2018NPL308xxx</p>
-                </div>
-
-                <div className="text-center">
-                  <div className="bg-white/20 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                    <Shield className="h-10 w-10 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-3 text-lg">80G Tax Exemption</h4>
-                  <p className="text-sm opacity-90 mb-2">Income Tax Department Approved</p>
-                  <p className="text-xs opacity-75">Valid donations receive tax benefits</p>
-                </div>
-
-                <div className="text-center">
-                  <div className="bg-white/20 rounded-full p-6 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                    <Star className="h-10 w-10 text-white" />
-                  </div>
-                  <h4 className="font-semibold mb-3 text-lg">Media Recognition</h4>
-                  <p className="text-sm opacity-90 mb-2">Featured in The Better India, L'Oréal Foundation</p>
-                  <p className="text-xs opacity-75">Award for Social Impact 2023</p>
-                </div>
-              </div>
-
-              <div className="border-t border-white/20 pt-8">
-                <p className="text-sm opacity-75 mb-6">In partnership with</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    "Government of Maharashtra",
-                    "Johnson & Johnson Foundation", 
-                    "The Better India",
-                    "L'Oréal Foundation"
-                  ].map((partner, index) => (
-                    <div key={index} className="bg-white/15 rounded-lg p-4 text-center hover:bg-white/25 transition-colors">
-                      <p className="text-sm font-medium">{partner}</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  { name: "L'Oréal Foundation", type: "Award Partner", icon: Award },
+                  { name: "Johnson & Johnson", type: "Healthcare Partner", icon: Heart },
+                  { name: "Government of Maharashtra", type: "Policy Partner", icon: Shield },
+                  { name: "The Better India", type: "Media Partner", icon: Star }
+                ].map((partner, index) => (
+                  <Card key={index} className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
+                    <CardContent className="p-4 flex items-center space-x-4">
+                      <div className="bg-sunrise-orange/30 rounded-lg p-2 flex-shrink-0">
+                        <partner.icon className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-white text-sm">{partner.name}</h4>
+                        <p className="text-xs text-white/70">{partner.type}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           </div>
@@ -661,7 +695,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-dark-charcoal/10"></div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <div>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins">Transform a Life Today</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins text-white">Transform a Life Today</h2>
             <p className="text-xl opacity-100 max-w-3xl mx-auto mb-8 leading-relaxed">
               Choose your impact - every donation directly supports our mission to provide dignified care
             </p>
@@ -683,26 +717,30 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {donationOptions.map((option, index) => (
-                <Card key={index} className={`donation-card bg-white text-dark-charcoal hover:shadow-2xl transition-all duration-500 border-0 group overflow-hidden relative ${option.popular ? 'ring-4 ring-sunrise-orange' : ''}`}>
-                  <CardContent className="p-8 text-center">
-                    {option.popular && (
-                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-sunrise-orange text-white text-sm px-4 py-1 rounded-full font-medium">
-                        Most Popular
+                <div key={index} className={`relative ${option.popular ? 'mt-4' : ''}`}>
+                  {option.popular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-sunrise-orange text-white text-xs px-3 py-1 rounded-full font-medium z-10">
+                      Most Popular
+                    </div>
+                  )}
+                  <Card className={`donation-card bg-white text-dark-charcoal hover:shadow-2xl transition-all duration-500 border-0 group h-full ${option.popular ? 'ring-2 ring-sunrise-orange shadow-lg' : ''}`}>
+                    <CardContent className="p-6 text-center h-full flex flex-col justify-between">
+                      <div className="space-y-4">
+                        <div className="pt-2">
+                          <div className="text-2xl lg:text-3xl font-bold text-warm-teal mb-2 font-poppins">{option.amount}</div>
+                          <div className="text-base font-medium text-gray-700 leading-tight">{option.purpose}</div>
+                        </div>
+                        <div className="p-4 bg-gray-50 rounded-xl">
+                          <p className="text-xs text-gray-600 mb-2 font-medium">Impact:</p>
+                          <p className="text-sm text-gray-700 leading-snug">{option.impact}</p>
+                        </div>
                       </div>
-                    )}
-                    <div className="mb-6">
-                      <div className="text-3xl font-bold text-warm-teal mb-2 font-poppins">{option.amount}</div>
-                      <div className="text-lg font-medium text-gray-700 mb-4">{option.purpose}</div>
-                    </div>
-                    <div className="mb-6 p-4 bg-gray-50 rounded-xl">
-                      <p className="text-sm text-gray-600 mb-2 font-medium">Impact:</p>
-                      <p className="text-sm text-gray-700">{option.impact}</p>
-                    </div>
-                    <Button className="btn-cta w-full">
-                      Donate Securely <Heart className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
+                      <Button className="btn-cta w-full mt-4">
+                        Donate Securely <Heart className="ml-2 h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
               ))}
             </div>
             
@@ -719,7 +757,7 @@ const Index = () => {
 
             {/* Enhanced Financial Transparency */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto">
-              <h4 className="text-2xl font-semibold mb-6 font-poppins">Financial Transparency</h4>
+              <h4 className="text-2xl font-semibold mb-6 font-poppins text-white">Financial Transparency</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-green-200 mb-2 font-poppins">85%</div>
@@ -778,8 +816,8 @@ const Index = () => {
                     Recognized by L'Oréal Paris and The Better India for her dedication to elderly care, Amrita has pioneered sustainable solutions for India's aging population through innovative training programs and community-driven care models.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="bg-warm-teal-100 text-warm-teal-700 px-3 py-1 rounded-full text-sm font-medium">L'Oréal Award Winner</span>
-                    <span className="bg-sunrise-orange-100 text-sunrise-orange-700 px-3 py-1 rounded-full text-sm font-medium">Social Impact Leader</span>
+                    <span className="bg-warm-teal text-white px-3 py-1 rounded-full text-sm font-medium">L'Oréal Award Winner</span>
+                    <span className="bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm font-medium">Social Impact Leader</span>
                   </div>
                 </CardContent>
               </Card>
@@ -792,124 +830,160 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Enhanced Footer */}
-      <footer id="contact" className="bg-gradient-to-br from-dark-charcoal to-gray-900 text-white section-padding">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center mb-8">
-                {!imageErrors.has('/images/Team/SC_LOGO-removebg-preview.png') ? (
-                  <img 
-                    src="/images/Team/SC_LOGO-removebg-preview.png" 
-                    alt="Shatam Care Foundation" 
-                    className="h-20 w-auto object-contain brightness-0 invert"
-                    onError={handleLogoError}
-                  />
-                ) : (
-                  <div className="p-4 bg-gradient-to-br from-warm-teal to-sunrise-orange rounded-2xl">
-                    <Heart className="h-12 w-12 text-white" />
-                  </div>
-                )}
-              </div>
-              <p className="text-gray-300 mb-8 leading-relaxed text-lg">
-                Building compassionate care ecosystems for India's elderly and their caregivers since 2018. Every memory deserves care, every caregiver deserves empowerment.
-              </p>
+      {/* Modern Clean Footer */}
+      <footer id="contact" className="bg-dark-charcoal text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Main Footer Content */}
+          <div className="py-16 border-b border-gray-700/50">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
               
-              <div className="bg-gray-800/50 rounded-xl p-6 mb-8">
-                <h4 className="font-semibold mb-4 text-lg">Legal & Registration</h4>
-                <div className="space-y-3 text-sm text-gray-300">
-                  <p>• Registered under Section 8 Companies Act 2013</p>
-                  <p>• 80G Income Tax Exemption Certificate Available</p>
-                  <p>• FCRA Registration: 083781234 (if applicable)</p>
-                  <p>• PAN: AABTS1234P</p>
+              {/* Brand Section */}
+              <div className="lg:col-span-1">
+                <div className="flex items-center space-x-3 mb-6">
+                  {!imageErrors.has('/images/Team/SC_LOGO-removebg-preview.png') ? (
+                    <img 
+                      src="/images/Team/SC_LOGO-removebg-preview.png" 
+                      alt="Shatam Care Foundation" 
+                      className="h-12 w-auto object-contain brightness-0 invert"
+                      onError={handleLogoError}
+                    />
+                  ) : (
+                    <div className="p-2 bg-gradient-to-br from-warm-teal to-sunrise-orange rounded-lg">
+                      <Heart className="h-6 w-6 text-white" />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-lg font-bold text-white font-poppins">Shatam Care</h3>
+                    <p className="text-xs text-warm-teal-200">Every Memory Deserves Care</p>
+                  </div>
+                </div>
+                
+                <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
+                  Empowering caregivers and creating dignified care solutions for India's elderly since 2018.
+                </p>
+                
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="bg-gray-800/30 rounded-lg p-3">
+                    <div className="text-lg font-bold text-warm-teal">1,500+</div>
+                    <div className="text-xs text-gray-400">Caregivers Trained</div>
+                  </div>
+                  <div className="bg-gray-800/30 rounded-lg p-3">
+                    <div className="text-lg font-bold text-sunrise-orange">800+</div>
+                    <div className="text-xs text-gray-400">Families Helped</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-warm-teal/20 rounded-xl">
-                    <Phone className="h-5 w-5 text-warm-teal" />
-                  </div>
+              {/* Navigation Links */}
+              <div className="lg:col-span-1">
+                <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <p className="font-medium">+91 9158566665</p>
-                    <p className="text-sm text-gray-400">Available 9 AM - 6 PM</p>
+                    <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Navigate</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li><a href="#mission" className="text-gray-400 hover:text-warm-teal transition-colors">Our Mission</a></li>
+                      <li><a href="#programs" className="text-gray-400 hover:text-warm-teal transition-colors">Programs</a></li>
+                      <li><a href="#impact" className="text-gray-400 hover:text-warm-teal transition-colors">Impact</a></li>
+                      <li><a href="#events" className="text-gray-400 hover:text-warm-teal transition-colors">Events</a></li>
+                    </ul>
                   </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-sunrise-orange/20 rounded-xl">
-                    <Mail className="h-5 w-5 text-sunrise-orange" />
-                  </div>
+                  
                   <div>
-                    <p className="font-medium">shatamcare@gmail.com</p>
-                    <p className="text-sm text-gray-400">We respond within 24 hours</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-sage-500/20 rounded-xl">
-                    <MapPin className="h-5 w-5 text-sage-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Mumbai, Maharashtra, India</p>
-                    <p className="text-sm text-gray-400">Serving across 7 cities</p>
+                    <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Support</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li><a href="#donate" className="text-gray-400 hover:text-sunrise-orange transition-colors">Donate</a></li>
+                      <li><a href="mailto:shatamcare@gmail.com?subject=Volunteer Interest" className="text-gray-400 hover:text-sunrise-orange transition-colors">Volunteer</a></li>
+                      <li><a href="mailto:shatamcare@gmail.com?subject=Partnership Inquiry" className="text-gray-400 hover:text-sunrise-orange transition-colors">Partner</a></li>
+                      <li><a href="mailto:shatamcare@gmail.com?subject=Sponsorship Opportunity" className="text-gray-400 hover:text-sunrise-orange transition-colors">Sponsor</a></li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold mb-6 font-poppins">Transparency</h3>
-              <ul className="space-y-4 text-gray-300">
-                <li><a href="#" className="hover:text-warm-teal transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Annual Reports</a></li>
-                <li><a href="#" className="hover:text-warm-teal transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Financial Statements</a></li>
-                <li><a href="#" className="hover:text-warm-teal transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Impact Reports</a></li>
-                <li><a href="#" className="hover:text-warm-teal transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Donor Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-warm-teal transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Grievance Policy</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold mb-6 font-poppins">Get Involved</h3>
-              <ul className="space-y-4 text-gray-300">
-                <li><a href="#" className="hover:text-sunrise-orange transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Volunteer</a></li>
-                <li><a href="#" className="hover:text-sunrise-orange transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Partner</a></li>
-                <li><a href="#" className="hover:text-sunrise-orange transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Sponsor</a></li>
-                <li><a href="#" className="hover:text-sunrise-orange transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Media Kit</a></li>
-                <li><a href="#" className="hover:text-sunrise-orange transition-colors flex items-center"><ArrowRight className="h-4 w-4 mr-2" />Newsletter</a></li>
-              </ul>
+
+              {/* Contact & Legal */}
+              <div className="lg:col-span-1">
+                <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Get in Touch</h4>
+                
+                {/* Contact Info */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-warm-teal/20 rounded">
+                      <Phone className="h-3 w-3 text-warm-teal" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">+91 9158566665</p>
+                      <p className="text-xs text-gray-400">Mon-Sat, 9 AM - 6 PM</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="p-1.5 bg-sunrise-orange/20 rounded">
+                      <Mail className="h-3 w-3 text-sunrise-orange" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">shatamcare@gmail.com</p>
+                      <p className="text-xs text-gray-400">Response in 24 hours</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trust Badges */}
+                <div className="bg-gray-800/30 rounded-lg p-3 mb-6">
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-3 w-3 text-warm-teal" />
+                      <span className="text-gray-300">80G Tax Exemption</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Award className="h-3 w-3 text-sunrise-orange" />
+                      <span className="text-gray-300">Section 8 Registered</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Links */}
+                <div className="flex space-x-3">
+                  <a href="https://www.facebook.com/shatamcare" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-warm-teal/20 rounded transition-all duration-200">
+                    <span className="sr-only">Facebook</span>
+                    <div className="h-4 w-4 bg-gray-400 hover:bg-warm-teal transition-colors rounded-sm"></div>
+                  </a>
+                  <a href="https://www.instagram.com/shatamcare" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-sunrise-orange/20 rounded transition-all duration-200">
+                    <span className="sr-only">Instagram</span>
+                    <div className="h-4 w-4 bg-gray-400 hover:bg-sunrise-orange transition-colors rounded-sm"></div>
+                  </a>
+                  <a href="https://www.linkedin.com/company/shatam-care-foundation" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-warm-teal/20 rounded transition-all duration-200">
+                    <span className="sr-only">LinkedIn</span>
+                    <div className="h-4 w-4 bg-gray-400 hover:bg-warm-teal transition-colors rounded-sm"></div>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div className="border-t border-gray-700 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+
+          {/* Bottom Bar */}
+          <div className="py-6">
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="text-center md:text-left">
-                <p className="text-gray-400 mb-2">
+                <p className="text-sm text-gray-400">
                   © 2024 Shatam Care Foundation. All rights reserved.
                 </p>
-                <div className="flex flex-wrap gap-6 text-sm text-gray-500">
-                  <span className="flex items-center"><Shield className="h-4 w-4 mr-1" />80G Tax exemption available</span>
-                  <a href="#" className="hover:text-gray-300 transition-colors">Privacy Policy</a>
-                  <a href="#" className="hover:text-gray-300 transition-colors">Terms of Service</a>
-                  <a href="#" className="hover:text-gray-300 transition-colors">Refund Policy</a>
-                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  CIN: U85300MH2018NPL308xxx
+                </p>
               </div>
-              <div className="flex flex-col items-center md:items-end">
-                <span className="text-gray-400 mb-4 font-medium">Connect with us</span>
-                <div className="flex space-x-4">
-                  <a href="#" className="text-gray-400 hover:text-warm-teal transition-colors p-3 hover:bg-warm-teal/10 rounded-xl">
-                    Facebook
-                  </a>
-                  <a href="#" className="text-gray-400 hover:text-warm-teal transition-colors p-3 hover:bg-warm-teal/10 rounded-xl">
-                    Instagram
-                  </a>
-                  <a href="#" className="text-gray-400 hover:text-warm-teal transition-colors p-3 hover:bg-warm-teal/10 rounded-xl">
-                    LinkedIn
-                  </a>
-                </div>
+              
+              <div className="flex flex-wrap justify-center gap-6 text-xs">
+                <a href="mailto:shatamcare@gmail.com?subject=Privacy Policy Request" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
+                <a href="mailto:shatamcare@gmail.com?subject=Terms of Service Request" className="text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
+                <a href="mailto:shatamcare@gmail.com?subject=Annual Report Request" className="text-gray-500 hover:text-gray-300 transition-colors">Reports</a>
+                <a href="#contact" className="text-gray-500 hover:text-gray-300 transition-colors">Contact</a>
               </div>
             </div>
           </div>
         </div>
       </footer>
+      </main>
 
       {/* Enhanced WhatsApp Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">

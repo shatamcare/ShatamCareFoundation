@@ -1,11 +1,13 @@
 
-import { useEffect, useState } from "react";
-import { Heart, Users, MapPin, Award, Star, Building2 } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Heart, Users, MapPin, Award, Star, Building2, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { useNavigate } from "react-router-dom";
 
 const OurImpact = () => {
+  const navigate = useNavigate();
   const [counters, setCounters] = useState({
     caregivers: 0,
     families: 0,
@@ -13,12 +15,12 @@ const OurImpact = () => {
     locations: 0
   });
 
-  const metrics = [
+  const metrics = useMemo(() => [
     { key: 'caregivers', target: 1500, label: 'Trained Caregivers', icon: Users },
     { key: 'families', target: 800, label: 'Families Supported', icon: Heart },
     { key: 'sessions', target: 3000, label: 'Training Sessions', icon: Award },
     { key: 'locations', target: 7, label: 'Cities Reached', icon: MapPin }
-  ];
+  ], []);
 
   const testimonials = [
     {
@@ -76,10 +78,28 @@ const OurImpact = () => {
     }, interval);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [metrics]);
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Navigation Header */}
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2 text-warm-teal hover:text-warm-teal-600"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Home</span>
+            </Button>
+            <h1 className="text-lg font-semibold text-dark-charcoal">Our Impact</h1>
+            <div className="w-20"></div> {/* Spacer for center alignment */}
+          </div>
+        </div>
+      </header>
+
       {/* Header */}
       <section className="bg-warm-teal text-white py-20">
         <div className="container mx-auto px-4 text-center">
@@ -150,7 +170,7 @@ const OurImpact = () => {
           </h2>
           
           <div className="max-w-4xl mx-auto">
-            <Carousel className="w-full">
+            <Carousel className="w-full" role="region" aria-label="Testimonials from our community">
               <CarouselContent>
                 {testimonials.map((testimonial, index) => (
                   <CarouselItem key={index}>

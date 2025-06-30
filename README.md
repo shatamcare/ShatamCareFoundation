@@ -1,73 +1,140 @@
-# Welcome to your Lovable project
+# Shatam Care Foundation Website
 
-## Project info
+## About the Project
 
-**URL**: https://lovable.dev/projects/41856b30-5120-408c-a27d-95465d180b97
+**Website**: Shatam Care Foundation - Because Every Memory Deserves Care
+**Mission**: Empowering caregivers and supporting elders with dementia care training across India
 
-## How can I edit this code?
+## Project Overview
 
-There are several ways of editing your application.
+This is the official website for Shatam Care Foundation, a non-profit organization dedicated to providing comprehensive dementia care training and support services across India. The website showcases our programs, impact, and provides resources for caregivers and families dealing with dementia.
 
-**Use Lovable**
+## How to Run the Project
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/41856b30-5120-408c-a27d-95465d180b97) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Follow these steps to set up and run the project locally:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd ShatamCareFoundation
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
+
+# Step 5: Build for production
+npm run build
+
+# Step 6: Preview production build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## Technologies Used
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This project is built with modern web technologies:
 
-**Use GitHub Codespaces**
+- **Frontend Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: shadcn/ui (Radix UI primitives)
+- **Icons**: Lucide React
+- **Animations**: GSAP (GreenSock)
+- **Routing**: React Router DOM
+- **State Management**: TanStack Query
+- **Form Handling**: React Hook Form
+- **Date Handling**: date-fns
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # shadcn/ui components
+│   ├── ErrorBoundary.tsx
+│   └── LoadingSpinner.tsx
+├── pages/               # Main page components
+│   ├── Index.tsx        # Homepage
+│   ├── OurPrograms.tsx  # Programs page
+│   ├── OurImpact.tsx    # Impact page
+│   └── NotFound.tsx     # 404 page
+├── utils/               # Utility functions
+│   └── animations.ts    # GSAP animations
+├── styles/              # CSS files
+│   └── animations.css
+├── hooks/               # Custom React hooks
+├── lib/                 # Library configurations
+└── main.tsx            # App entry point
+```
 
-This project is built with:
+## Features
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Core Features
+- ✅ Responsive design optimized for mobile, tablet, and desktop
+- ✅ Accessibility compliant (WCAG guidelines)
+- ✅ SEO optimized with comprehensive meta tags
+- ✅ Progressive Web App capabilities
+- ✅ Performance optimized with lazy loading and code splitting
 
-## How can I deploy this project?
+### Sections
+- 🏠 **Homepage**: Hero section, mission, programs overview, impact stats, testimonials
+- 📚 **Programs**: Detailed view of all caregiver training and support programs
+- 📊 **Impact**: Statistics, testimonials, and success stories
+- 📞 **Contact**: Multiple ways to reach the foundation
+- 🎯 **Donation**: Secure donation system with multiple options
 
-Simply open [Lovable](https://lovable.dev/projects/41856b30-5120-408c-a27d-95465d180b97) and click on Share -> Publish.
+### Design System
+- **Primary Colors**: Warm Teal (#04808A) and Sunrise Orange (#FF9A56)
+- **Typography**: Poppins (headings) and Open Sans (body text)
+- **Components**: Consistent button styles, cards, and interactive elements
+- **Animations**: Smooth GSAP animations with performance considerations
 
-## Can I connect a custom domain to my Lovable project?
+## Deployment
 
-Yes, you can!
+The website can be deployed to various platforms:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Vercel (Recommended)
+```sh
+npm run build
+# Deploy the 'dist' folder to Vercel
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Netlify
+```sh
+npm run build
+# Deploy the 'dist' folder to Netlify
+```
+
+### GitHub Pages
+```sh
+npm run build
+# Deploy the 'dist' folder to GitHub Pages
+```
+
+## Contributing
+
+To contribute to this project:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Contact Information
+
+**Shatam Care Foundation**
+- **Email**: shatamcare@gmail.com
+- **Phone**: +91 9158566665
+- **Website**: [shatamcare.org](https://shatamcare.org)
+
+## License
+
+This project is proprietary to Shatam Care Foundation. All rights reserved.
+
+---
+
+**Developed with ❤️ for the cause of dignified elderly care in India**
