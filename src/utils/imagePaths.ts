@@ -23,13 +23,9 @@ export const getImagePath = (imagePath: string): string => {
   const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
   const baseUrl = getBaseUrl();
   
-  // If no base URL, just return the original path
-  if (!baseUrl) {
-    return `/${cleanPath}`;
-  }
-  
-  // Return the full path with base URL
-  return `${baseUrl}/${cleanPath}`;
+  // Always return with leading slash for proper absolute paths
+  const fullPath = baseUrl ? `${baseUrl}/${cleanPath}` : `/${cleanPath}`;
+  return fullPath;
 };
 
 /**

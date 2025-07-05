@@ -5,7 +5,8 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/ShatamCareFoundation/",
+  // Only use base path in production for GitHub Pages
+  base: process.env.NODE_ENV === 'production' ? "/ShatamCareFoundation/" : "/",
   server: {
     host: "::",
     port: 8080,

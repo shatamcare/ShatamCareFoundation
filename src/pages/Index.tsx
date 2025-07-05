@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations';
 import { getImagePath, getBackgroundImagePath, imagePaths } from '@/utils/imagePaths';
+import ContactForm from '@/components/ContactForm';
+import NewsletterSignup from '@/components/NewsletterSignup';
+import EventRegistrationModal from '@/components/EventRegistrationModal';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -154,25 +157,23 @@ const Index = () => {
 
   // Enhanced upcoming events
   const upcomingEvents = [{
-    id: 1,
+    id: "550e8400-e29b-41d4-a716-446655440001",
     title: "Caregiver Training Workshop",
     date: "2025-07-15",
     time: "10:00 AM - 4:00 PM",
     location: "Mumbai Community Center",
     type: "Workshop",
     description: "Comprehensive training session for aspiring caregivers focusing on elderly care techniques and dementia support.",
-    registrationLink: "mailto:shatamcare@gmail.com?subject=Caregiver Training Workshop Registration&body=I would like to register for the Caregiver Training Workshop on July 15, 2025 in Mumbai.",
     image: imagePaths.caregivers.training,
     spots: "15 spots left"
   }, {
-    id: 2,
+    id: "550e8400-e29b-41d4-a716-446655440002",
     title: "Family Support Group Meeting",
     date: "2025-07-20",
     time: "2:00 PM - 4:00 PM",
     location: "Pune Center",
     type: "Support Group",
     description: "Monthly gathering for families dealing with dementia. Share experiences, get support, and learn coping strategies.",
-    registrationLink: "mailto:shatamcare@gmail.com?subject=Family Support Group Registration&body=I would like to join the Family Support Group meeting on July 20, 2025 in Pune.",
     image: imagePaths.caregivers.sessions,
     spots: "Open to all"
   }];
@@ -672,12 +673,18 @@ const Index = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    className="btn-cta w-full"
-                    onClick={() => window.open(event.registrationLink, '_blank')}
+                  <EventRegistrationModal
+                    eventId={event.id}
+                    eventTitle={event.title}
+                    eventDate={event.date}
+                    eventTime={event.time}
+                    eventLocation={event.location}
+                    spotsLeft={event.spots}
                   >
-                    Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                    <Button className="btn-cta w-full">
+                      Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </EventRegistrationModal>
                 </CardContent>
               </Card>
             ))}
@@ -831,8 +838,14 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Contact Form Section */}
+      <ContactForm />
+
+      {/* Newsletter Signup Section */}
+      <NewsletterSignup />
+
       {/* Modern Clean Footer */}
-      <footer id="contact" className="bg-dark-charcoal text-white">
+      <footer className="bg-dark-charcoal text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Main Footer Content */}
