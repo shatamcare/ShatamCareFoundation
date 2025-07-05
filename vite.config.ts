@@ -4,6 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "/website/",
   server: {
     host: "::",
     port: 8080,
@@ -17,6 +18,8 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: "dist",
+    sourcemap: false,
     // Optimize bundle size
     rollupOptions: {
       output: {
@@ -30,13 +33,9 @@ export default defineConfig({
       },
     },
     // Enable compression and optimization
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs in production
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild', // Use esbuild instead of terser for better compatibility
+    target: 'esnext',
+    assetsDir: 'assets',
   },
   // Performance optimizations
   optimizeDeps: {
