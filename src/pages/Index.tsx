@@ -3,6 +3,7 @@ import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, C
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations';
+import { getImagePath, getBackgroundImagePath, imagePaths } from '@/utils/imagePaths';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -76,28 +77,28 @@ const Index = () => {
 
   // Enhanced programs data
   const programs = [{
-    image: "/images/Users/EHA (1).jpg",
+    image: imagePaths.users.eha1,
     title: "Residential & Day Care for Elderly",
     description: "Safe, supportive spaces for elder well-being with 24/7 professional care",
     details: "Our residential and day care programs provide a nurturing environment where elderly individuals receive comprehensive care, engaging activities, and social interaction in a home-like setting.",
     impact: "120+ elderly served",
     icon: Home
   }, {
-    image: "/images/Caregivers/sessions.jpg",
+    image: imagePaths.caregivers.sessions,
     title: "Caregiver Certificate Course",
     description: "Empowering underserved individuals with professional skills & dignified jobs",
     details: "We train caregivers from underserved communities, providing them with professional skills and certification to create dignified employment opportunities while addressing the growing need for elderly care.",
     impact: "1,500+ caregivers trained",
     icon: Users
   }, {
-    image: "/images/Brain Kit/kit.jpg",
+    image: imagePaths.brainKit.kit,
     title: "Brain Bridge Cognitive Therapy",
     description: "Evidence-based therapy kits to stimulate memory & cognitive connection",
     details: "Our innovative therapy kits use evidence-based activities to stimulate cognitive function, improve memory, and maintain connections for individuals with dementia and Alzheimer's.",
     impact: "3,600+ therapy sessions",
     icon: Heart
   }, {
-    image: "/images/Users/dementia care 1.jpg",
+    image: imagePaths.users.dementiaCare1,
     title: "Dementia Support Groups",
     description: "Healing communities for caregivers & families navigating dementia care",
     details: "Support groups provide emotional support, practical advice, and community connection for families and caregivers navigating the challenges of dementia care.",
@@ -161,7 +162,7 @@ const Index = () => {
     type: "Workshop",
     description: "Comprehensive training session for aspiring caregivers focusing on elderly care techniques and dementia support.",
     registrationLink: "mailto:shatamcare@gmail.com?subject=Caregiver Training Workshop Registration&body=I would like to register for the Caregiver Training Workshop on July 15, 2025 in Mumbai.",
-    image: "/images/Caregivers/training.jpg",
+    image: imagePaths.caregivers.training,
     spots: "15 spots left"
   }, {
     id: 2,
@@ -172,7 +173,7 @@ const Index = () => {
     type: "Support Group",
     description: "Monthly gathering for families dealing with dementia. Share experiences, get support, and learn coping strategies.",
     registrationLink: "mailto:shatamcare@gmail.com?subject=Family Support Group Registration&body=I would like to join the Family Support Group meeting on July 20, 2025 in Pune.",
-    image: "/images/Caregivers/sessions.jpg",
+    image: imagePaths.caregivers.sessions,
     spots: "Open to all"
   }];
 
@@ -209,7 +210,7 @@ const Index = () => {
   };
 
   const handleLogoError = () => {
-    handleImageError('/images/Team/SC_LOGO-removebg-preview.png');
+    handleImageError(imagePaths.team.logo);
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -234,9 +235,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
-              {!imageErrors.has('/images/Team/SC_LOGO-removebg-preview.png') ? (
+              {!imageErrors.has(imagePaths.team.logo) ? (
                 <img 
-                  src="/images/Team/SC_LOGO-removebg-preview.png" 
+                  src={imagePaths.team.logo} 
                   alt="Shatam Care Foundation" 
                   className="h-16 w-auto object-contain transition-all duration-300"
                   onError={handleLogoError}
@@ -247,7 +248,7 @@ const Index = () => {
                   <Heart className="h-8 w-8 text-white" />
                 </div>
               )}
-              <div className={imageErrors.has('/images/Team/SC_LOGO-removebg-preview.png') ? 'block' : 'hidden'}>
+              <div className={imageErrors.has(imagePaths.team.logo) ? 'block' : 'hidden'}>
                 <span className="text-xl font-bold text-dark-charcoal font-poppins">Shatam Care Foundation</span>
                 <p className="text-sm text-warm-teal-600 font-medium">Because Every Memory Deserves Care</p>
               </div>
@@ -313,7 +314,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" 
           style={{
-            backgroundImage: 'url("/images/Users/care.jpg")',
+            backgroundImage: getBackgroundImagePath('/images/Users/care.jpg'),
             backgroundPosition: 'center',
             backgroundSize: 'cover'
           }}
@@ -788,7 +789,7 @@ const Index = () => {
             <div className="text-center lg:text-left">
               <div className="relative inline-block">
                 <img 
-                  src="/images/Team/Amrita.jpg" 
+                  src={imagePaths.team.amrita} 
                   alt="Amrita Patil, Founder" 
                   className="parallax-image w-80 h-80 rounded-2xl object-cover mx-auto lg:mx-0 mb-8 shadow-2xl border-4 border-white"
                   loading="lazy"
@@ -841,9 +842,9 @@ const Index = () => {
               {/* Brand Section */}
               <div className="lg:col-span-1">
                 <div className="flex items-center space-x-3 mb-6">
-                  {!imageErrors.has('/images/Team/SC_LOGO-removebg-preview.png') ? (
+                  {!imageErrors.has(imagePaths.team.logo) ? (
                     <img 
-                      src="/images/Team/SC_LOGO-removebg-preview.png" 
+                      src={imagePaths.team.logo} 
                       alt="Shatam Care Foundation" 
                       className="h-12 w-auto object-contain brightness-0 invert"
                       onError={handleLogoError}
