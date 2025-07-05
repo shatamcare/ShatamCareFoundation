@@ -1,8 +1,9 @@
+
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon, Star, Shield, CheckCircle, ArrowRight, Play } from 'lucide-react';
+import { Menu, X, Heart, Users, Home, Award, Phone, Mail, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon, Shield, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations';
+import { safeInitAnimations, initSmoothScroll, cleanupAnimations } from '@/utils/animations';
 import { getImagePath, getBackgroundImagePath, imagePaths } from '@/utils/imagePaths';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -11,12 +12,9 @@ import EventRegistrationModal from '@/components/EventRegistrationModal';
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
-  const [showAllPrograms, setShowAllPrograms] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   
-  // Enhanced scroll detection for sticky header
   useEffect(() => {
     const handleScroll = () => {
       setIsHeaderScrolled(window.scrollY > 50);
@@ -26,213 +24,110 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Initialize enhanced emotional animations with error handling
   useEffect(() => {
-    let isComponentMounted = true;
-    
-    const initializeAnimations = async () => {
-      try {
-        initLoadingAnimation();
-        
-        const timer = setTimeout(() => {
-          if (isComponentMounted) {
-            safeInitAnimations();
-            initSmoothScroll();
-            initMobileOptimizations();
-          }
-        }, 100);
-        
-        const refreshTimer = setTimeout(() => {
-          if (isComponentMounted) {
-            refreshScrollTrigger();
-          }
-        }, 500);
-        
-        return () => {
-          clearTimeout(timer);
-          clearTimeout(refreshTimer);
-        };
-      } catch (error) {
-        console.error('Failed to initialize animations:', error);
-      }
-    };
-
-    initializeAnimations();
+    const timer = setTimeout(() => {
+      safeInitAnimations();
+      initSmoothScroll();
+    }, 100);
     
     return () => {
-      isComponentMounted = false;
+      clearTimeout(timer);
       cleanupAnimations();
     };
   }, []);
-  
-  // Refresh ScrollTrigger when expanded program changes
-  useEffect(() => {
-    if (expandedProgram !== null) {
-      const timer = setTimeout(() => refreshScrollTrigger(), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [expandedProgram]);
 
-  // Handle image errors
   const handleImageError = (imagePath: string) => {
     setImageErrors(prev => new Set(prev).add(imagePath));
   };
 
-  // Enhanced programs data
-  const programs = [{
-    image: imagePaths.users.eha1,
-    title: "Residential & Day Care for Elderly",
-    description: "Safe, supportive spaces for elder well-being with 24/7 professional care",
-    details: "Our residential and day care programs provide a nurturing environment where elderly individuals receive comprehensive care, engaging activities, and social interaction in a home-like setting.",
-    impact: "120+ elderly served",
-    icon: Home
-  }, {
-    image: imagePaths.caregivers.sessions,
-    title: "Caregiver Certificate Course",
-    description: "Empowering underserved individuals with professional skills & dignified jobs",
-    details: "We train caregivers from underserved communities, providing them with professional skills and certification to create dignified employment opportunities while addressing the growing need for elderly care.",
-    impact: "1,500+ caregivers trained",
-    icon: Users
-  }, {
-    image: imagePaths.brainKit.kit,
-    title: "Brain Bridge Cognitive Therapy",
-    description: "Evidence-based therapy kits to stimulate memory & cognitive connection",
-    details: "Our innovative therapy kits use evidence-based activities to stimulate cognitive function, improve memory, and maintain connections for individuals with dementia and Alzheimer's.",
-    impact: "3,600+ therapy sessions",
-    icon: Heart
-  }, {
-    image: imagePaths.users.dementiaCare1,
-    title: "Dementia Support Groups",
-    description: "Healing communities for caregivers & families navigating dementia care",
-    details: "Support groups provide emotional support, practical advice, and community connection for families and caregivers navigating the challenges of dementia care.",
-    impact: "800+ families supported",
-    icon: Users
-  }];
+  // Simplified and focused programs
+  const programs = [
+    {
+      image: imagePaths.users.eha1,
+      title: "Elderly Care Services",
+      description: "Professional residential and day care with 24/7 support",
+      impact: "120+ elderly served daily",
+      icon: Home
+    },
+    {
+      image: imagePaths.caregivers.training,
+      title: "Caregiver Training",
+      description: "Certified training program creating employment opportunities",
+      impact: "1,500+ caregivers certified",
+      icon: Users
+    },
+    {
+      image: imagePaths.brainKit.kit,
+      title: "Memory Care Therapy",
+      description: "Evidence-based cognitive therapy for dementia patients",
+      impact: "3,600+ therapy sessions delivered",
+      icon: Heart
+    }
+  ];
 
-  // Enhanced impact stats with better formatting
-  const impactStats = [{
-    number: "7",
-    label: "Cities Reached",
-    description: "Expanding across India"
-  }, {
-    number: "3,600+",
-    label: "Therapy Sessions",
-    description: "Cognitive stimulation delivered"
-  }, {
-    number: "1,500+",
-    label: "Caregivers Trained",
-    description: "Professional certification provided"
-  }, {
-    number: "800+",
-    label: "Families Supported",
-    description: "Through our programs"
-  }, {
-    number: "120+",
-    label: "Elderly Served",
-    description: "In residential care"
-  }];
+  // Focused impact stats
+  const impactStats = [
+    { number: "1,500+", label: "Caregivers Trained" },
+    { number: "800+", label: "Families Supported" },
+    { number: "120+", label: "Elderly in Care" },
+    { number: "7", label: "Cities Reached" }
+  ];
 
-  // Enhanced donation options with better impact messaging
-  const donationOptions = [{
-    amount: "₹1,200",
-    purpose: "Brain Bridge Therapy Kit",
-    impact: "Helps 1 elderly person for 3 months",
-    popular: false
-  }, {
-    amount: "₹2,000",
-    purpose: "Support Group Session",
-    impact: "Supports 5 families in one session",
-    popular: false
-  }, {
-    amount: "₹15,000",
-    purpose: "Complete Caregiver Training",
-    impact: "Trains 1 caregiver completely",
-    popular: true
-  }, {
-    amount: "₹50,000",
-    purpose: "Dementia Care Home Development",
-    impact: "Contributes to facility development",
-    popular: false
-  }];
+  // Meaningful donation options
+  const donationOptions = [
+    {
+      amount: "₹1,200",
+      purpose: "Monthly Therapy Kit",
+      impact: "Supports one elderly person for a month"
+    },
+    {
+      amount: "₹15,000",
+      purpose: "Train One Caregiver",
+      impact: "Complete certification program",
+      popular: true
+    },
+    {
+      amount: "₹50,000",
+      purpose: "Care Facility Support",
+      impact: "Monthly operational support"
+    }
+  ];
 
-  // Enhanced upcoming events
-  const upcomingEvents = [{
-    id: "550e8400-e29b-41d4-a716-446655440001",
-    title: "Caregiver Training Workshop",
-    date: "2025-07-15",
-    time: "10:00 AM - 4:00 PM",
-    location: "Mumbai Community Center",
-    type: "Workshop",
-    description: "Comprehensive training session for aspiring caregivers focusing on elderly care techniques and dementia support.",
-    image: imagePaths.caregivers.training,
-    spots: "15 spots left"
-  }, {
-    id: "550e8400-e29b-41d4-a716-446655440002",
-    title: "Family Support Group Meeting",
-    date: "2025-07-20",
-    time: "2:00 PM - 4:00 PM",
-    location: "Pune Center",
-    type: "Support Group",
-    description: "Monthly gathering for families dealing with dementia. Share experiences, get support, and learn coping strategies.",
-    image: imagePaths.caregivers.sessions,
-    spots: "Open to all"
-  }];
-
-  // Enhanced trust indicators
-  const trustIndicators = [
-    { icon: Shield, text: "80G Tax Benefits", subtext: "Government Approved" },
-    { icon: CheckCircle, text: "100% Secure Payments", subtext: "SSL Encrypted" },
-    { icon: Award, text: "Transparent Reporting", subtext: "Annual Impact Reports" }
+  // Key upcoming events
+  const upcomingEvents = [
+    {
+      id: "caregiver-workshop-jul",
+      title: "Caregiver Training Workshop",
+      date: "2025-07-15",
+      time: "10:00 AM - 4:00 PM",
+      location: "Mumbai Community Center",
+      type: "Training",
+      description: "Comprehensive caregiver training with certification",
+      image: imagePaths.caregivers.training,
+      spots: "12 spots available"
+    }
   ];
 
   const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-IN', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-    } catch (error) {
-      console.error('Date formatting error:', error);
-      return dateString;
-    }
-  };
-
-  const getEventTypeColor = (type: string) => {
-    const colorMap: Record<string, string> = {
-      'Workshop': 'bg-warm-teal text-white',
-      'Support Group': 'bg-sage-600 text-white',
-      'Therapy': 'bg-blue-600 text-white',
-      'Fundraiser': 'bg-sunrise-orange text-white'
-    };
-    return colorMap[type] || 'bg-gray-600 text-white';
-  };
-
-  const handleLogoError = () => {
-    handleImageError(imagePaths.team.logo);
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { 
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   const scrollToSection = (sectionId: string) => {
-    try {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } catch (error) {
-      console.error('Scroll error:', error);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  return <div className="min-h-screen bg-background">
-      {/* Skip to Content Link for Accessibility */}
-      <a href="#main-content" className="skip-to-content">
-        Skip to main content
-      </a>
-      
-      {/* Enhanced Header with Sticky Behavior */}
-      <header className={`sticky-header ${isHeaderScrolled ? 'scrolled' : ''} transition-all duration-300`}>
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className={`sticky top-0 bg-white z-50 shadow-sm transition-all duration-300 ${isHeaderScrolled ? 'shadow-md' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
@@ -240,261 +135,139 @@ const Index = () => {
                 <img 
                   src={imagePaths.team.logo} 
                   alt="Shatam Care Foundation" 
-                  className="h-16 w-auto object-contain transition-all duration-300"
-                  onError={handleLogoError}
-                  loading="eager"
+                  className="h-16 w-auto object-contain"
+                  onError={() => handleImageError(imagePaths.team.logo)}
                 />
               ) : (
-                <div className="h-16 w-16 bg-gradient-to-br from-warm-teal to-warm-teal-600 rounded-xl flex items-center justify-center">
+                <div className="h-16 w-16 bg-warm-teal rounded-xl flex items-center justify-center">
                   <Heart className="h-8 w-8 text-white" />
                 </div>
               )}
-              <div className={imageErrors.has(imagePaths.team.logo) ? 'block' : 'hidden'}>
-                <span className="text-xl font-bold text-dark-charcoal font-poppins">Shatam Care Foundation</span>
-                <p className="text-sm text-warm-teal-600 font-medium">Because Every Memory Deserves Care</p>
-              </div>
             </div>
             
-            {/* Enhanced Desktop Navigation */}
             <nav className="hidden lg:flex space-x-8">
-              <a href="#home" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Home</a>
-              <a href="#mission" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Our Mission</a>
-              <a href="#programs" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Programs</a>
-              <a href="#impact" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Impact</a>
-              <a href="#events" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Events</a>
-              <a href="#get-involved" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Get Involved</a>
-              <a href="#contact" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Contact</a>
+              <a href="#programs" className="text-gray-700 hover:text-warm-teal transition-colors">Programs</a>
+              <a href="#impact" className="text-gray-700 hover:text-warm-teal transition-colors">Impact</a>
+              <a href="#events" className="text-gray-700 hover:text-warm-teal transition-colors">Events</a>
+              <a href="#contact" className="text-gray-700 hover:text-warm-teal transition-colors">Contact</a>
             </nav>
 
             <div className="flex items-center space-x-4">
               <Button 
-                className="btn-cta hidden sm:flex"
+                className="bg-warm-teal hover:bg-warm-teal-600 text-white hidden sm:flex"
                 onClick={() => scrollToSection('donate')}
               >
                 Donate Now
               </Button>
               
-              {/* Mobile menu button */}
               <button 
                 className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle menu"
               >
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
             </div>
           </div>
           
-          {/* Enhanced Mobile Navigation */}
-          {isMenuOpen && <div className="lg:hidden bg-white border-t border-gray-100">
+          {isMenuOpen && (
+            <div className="lg:hidden bg-white border-t">
               <div className="px-2 pt-2 pb-3 space-y-1">
-                <a href="#home" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Home</a>
-                <a href="#mission" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Our Mission</a>
-                <a href="#programs" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Programs</a>
-                <a href="#impact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Impact</a>
-                <a href="#events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Events</a>
-                <a href="#get-involved" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Get Involved</a>
-                <a href="#contact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Contact</a>
+                <a href="#programs" className="block px-4 py-3 text-gray-700 hover:text-warm-teal">Programs</a>
+                <a href="#impact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal">Impact</a>
+                <a href="#events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal">Events</a>
+                <a href="#contact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal">Contact</a>
                 <div className="px-4 py-3">
                   <Button 
-                    className="btn-cta w-full"
+                    className="bg-warm-teal hover:bg-warm-teal-600 text-white w-full"
                     onClick={() => scrollToSection('donate')}
                   >
                     Donate Now
                   </Button>
                 </div>
               </div>
-            </div>}
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Enhanced Hero Section */}
-      <main id="main-content">
-      <section id="home" className="relative overflow-hidden min-h-screen flex items-center" ref={heroRef}>
-        <div className="hero-overlay absolute inset-0 bg-gradient-to-r from-dark-charcoal/70 to-dark-charcoal/50 z-10"></div>
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" 
-          style={{
-            backgroundImage: getBackgroundImagePath('/images/Users/care.jpg'),
-            backgroundPosition: 'center',
-            backgroundSize: 'cover'
-          }}
-        ></div>
-        <div className="relative z-20 w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h1 className="hero-title text-5xl lg:text-7xl font-bold text-white leading-tight mb-8 font-poppins">
-                Because Every Memory
-                <span className="block text-warm-teal-200">Deserves Care</span>
-              </h1>
-              <p className="hero-subtitle text-xl lg:text-2xl text-white mb-12 max-w-4xl mx-auto leading-relaxed">
-                Empowering caregivers, supporting elders, and building an inclusive dementia care ecosystem across India with compassion and dignity.
-              </p>
-              
-              {/* Enhanced Social Proof Strip */}
-              <div className="hero-social-proof bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-12 max-w-4xl mx-auto">
-                <p className="text-white/90 text-lg mb-4 font-medium">Trusted by families across India</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-warm-teal-200">1,500+</div>
-                    <div className="text-sm text-white/80">Caregivers Trained</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-warm-teal-200">800+</div>
-                    <div className="text-sm text-white/80">Families Supported</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-warm-teal-200">3,600+</div>
-                    <div className="text-sm text-white/80">Therapy Sessions</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-warm-teal-200">7</div>
-                    <div className="text-sm text-white/80">Cities Reached</div>
-                  </div>
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-warm-teal to-warm-teal-600 text-white py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-5xl lg:text-6xl font-bold mb-8 font-poppins">
+              Every Memory Deserves Care
+            </h1>
+            <p className="text-xl lg:text-2xl mb-12 max-w-3xl mx-auto opacity-90">
+              Empowering caregivers and supporting elders with dementia across India since 2018
+            </p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 max-w-4xl mx-auto">
+              {impactStats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
+                  <div className="text-sm opacity-80">{stat.label}</div>
                 </div>
-              </div>
-              
-              <div className="hero-buttons flex flex-col sm:flex-row gap-6 justify-center">
-                <Button 
-                  size="lg" 
-                  className="btn-cta text-lg px-12 py-4" 
-                  onClick={() => scrollToSection('programs')}
-                >
-                  <Heart className="mr-2 h-5 w-5" />
-                  Join Our Support Group
-                </Button>
-                <Button 
-                  size="lg" 
-                  className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-dark-charcoal font-semibold px-12 py-4 rounded-full text-lg transition-all duration-300 backdrop-blur-sm" 
-                  onClick={() => scrollToSection('donate')}
-                >
-                  <ArrowRight className="mr-2 h-5 w-5" />
-                  Support Our Mission
-                </Button>
-              </div>
+              ))}
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Button 
+                size="lg" 
+                className="bg-white text-warm-teal hover:bg-gray-100 px-8 py-4"
+                onClick={() => scrollToSection('programs')}
+              >
+                <Heart className="mr-2 h-5 w-5" />
+                Our Programs
+              </Button>
+              <Button 
+                size="lg" 
+                className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-warm-teal px-8 py-4"
+                onClick={() => scrollToSection('donate')}
+              >
+                Support Our Mission
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Vision • Mission • Values Section */}
-      <section id="mission" className="section-padding bg-white">
+      {/* Programs Section */}
+      <section id="programs" className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">
-              Our Foundation
-            </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-              Building a compassionate ecosystem where every elderly person receives dignified care and every caregiver is empowered with professional skills.
+            <h2 className="text-4xl font-bold text-dark-charcoal mb-6">Our Programs</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Comprehensive care solutions designed to empower caregivers and enhance quality of life
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-warm-teal-50 to-white">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-warm-teal rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Heart className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins">Our Vision</h3>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  A society where aging with dignity is a reality for every Indian elder.
-                </p>
-                <Button variant="outline" className="border-warm-teal text-warm-teal hover:bg-warm-teal hover:text-white">
-                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-sunrise-orange-50 to-white">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-sunrise-orange rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Users className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins">Our Mission</h3>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  Empowering caregivers and creating inclusive dementia care solutions.
-                </p>
-                <Button variant="outline" className="border-sunrise-orange text-sunrise-orange hover:bg-sunrise-orange hover:text-white">
-                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-sage-50 to-white">
-              <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 bg-sage-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Award className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins">Our Values</h3>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  Compassion, dignity, transparency, and community-driven impact.
-                </p>
-                <Button variant="outline" className="border-sage-600 text-sage-600 hover:bg-sage-600 hover:text-white">
-                  Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced Programs Section */}
-      <section id="programs" className="section-padding bg-gradient-to-b from-light-gray to-off-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">Our Programs</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Comprehensive care solutions designed to empower caregivers and enhance quality of life for those living with dementia
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {programs.map((program, index) => (
-              <Card key={index} className="program-card bg-white hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-lg group overflow-hidden">
-                <div className="relative h-48 overflow-hidden">
+              <Card key={index} className="bg-white hover:shadow-lg transition-shadow duration-300 border-0">
+                <div className="relative h-48 overflow-hidden rounded-t-lg">
                   <img 
                     src={program.image} 
                     alt={program.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-3">
-                    <program.icon className="h-6 w-6 text-warm-teal" />
-                  </div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <div className="text-sm font-medium bg-warm-teal/80 px-3 py-1 rounded-full">
-                      {program.impact}
-                    </div>
+                  <div className="absolute top-4 left-4 bg-white rounded-full p-2">
+                    <program.icon className="h-5 w-5 text-warm-teal" />
                   </div>
                 </div>
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">
-                    {program.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-dark-charcoal mb-3">{program.title}</h3>
+                  <p className="text-gray-600 mb-4">{program.description}</p>
+                  <div className="text-sm font-medium text-warm-teal mb-4">{program.impact}</div>
                   <button 
                     onClick={() => setExpandedProgram(expandedProgram === index ? null : index)} 
-                    className="flex items-center text-warm-teal hover:text-warm-teal-600 font-medium transition-colors"
-                    aria-expanded={expandedProgram === index}
-                    aria-controls={`program-details-${index}`}
+                    className="flex items-center text-warm-teal hover:text-warm-teal-600 font-medium"
                   >
                     Learn More
                     {expandedProgram === index ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
                   </button>
                   {expandedProgram === index && (
-                    <div 
-                      id={`program-details-${index}`}
-                      className="mt-6 p-6 bg-warm-teal rounded-xl animate-accordion-down"
-                    >
-                      <p className="text-white leading-relaxed mb-4">{program.details}</p>
-                      <Button className="btn-cta">
+                    <div className="mt-4 p-4 bg-warm-teal-50 rounded-lg">
+                      <Button className="bg-warm-teal hover:bg-warm-teal-600 text-white">
                         Get Involved <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -503,513 +276,277 @@ const Index = () => {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Impact Section */}
+      <section id="impact" className="py-20 bg-warm-teal text-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold mb-6">Our Impact</h2>
+          <p className="text-xl opacity-90 mb-12 max-w-3xl mx-auto">
+            Creating meaningful change in elderly care across India
+          </p>
           
-          <div className="text-center">
-            <Button 
-              className="btn-secondary-cta"
-              onClick={() => setShowAllPrograms(!showAllPrograms)}
-            >
-              {showAllPrograms ? 'Show Less Programs' : 'View All Programs'}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="bg-white/10 backdrop-blur-sm border-0">
+              <CardContent className="p-6 text-center">
+                <Award className="h-12 w-12 text-white mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">L'Oréal Award Winner</h3>
+                <p className="text-sm opacity-80">Recognized for social impact in elderly care</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-0">
+              <CardContent className="p-6 text-center">
+                <Shield className="h-12 w-12 text-white mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">80G Tax Benefits</h3>
+                <p className="text-sm opacity-80">Government approved donations</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/10 backdrop-blur-sm border-0">
+              <CardContent className="p-6 text-center">
+                <CheckCircle className="h-12 w-12 text-white mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Transparent Impact</h3>
+                <p className="text-sm opacity-80">Regular impact reports available</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Modern Impact Section */}
-      <section id="impact" className="section-padding bg-gradient-to-r from-warm-teal to-warm-teal-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-dark-charcoal/10"></div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins text-white">Our Impact Since 2018</h2>
-            <p className="text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
-              Transforming lives through compassionate care and professional training across India
-            </p>
-          </div>
-          
-          {/* Impact Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8 mb-20">
-            {impactStats.map((stat, index) => (
-              <Card key={index} className="bg-white/15 backdrop-blur-sm border-0 hover:bg-white/20 transition-all duration-300 group">
-                <CardContent className="p-6 text-center">
-                  <div className="text-3xl lg:text-4xl font-bold text-white mb-2 font-poppins group-hover:scale-110 transition-transform duration-300">
-                    {stat.number}
-                  </div>
-                  <div className="text-sm font-medium text-warm-teal-100 mb-1">{stat.label}</div>
-                  <div className="text-xs text-white/70">{stat.description}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Left: Recognition Cards */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-semibold mb-6 text-white">Recognition & Trust</h3>
-              
-              <div className="space-y-4">
-                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                  <CardContent className="p-4 flex items-center space-x-4">
-                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
-                      <Award className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm">Government Recognized</h4>
-                      <p className="text-xs text-white/80">Section 8 Company Registration</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                  <CardContent className="p-4 flex items-center space-x-4">
-                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
-                      <Shield className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm">80G Tax Benefits</h4>
-                      <p className="text-xs text-white/80">Income Tax Approved Donations</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                  <CardContent className="p-4 flex items-center space-x-4">
-                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
-                      <Star className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm">Media Recognition</h4>
-                      <p className="text-xs text-white/80">Featured by The Better India</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* Right: Key Partners */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-semibold mb-6 text-white">Key Partners</h3>
-              
-              <div className="grid grid-cols-1 gap-4">
-                {[
-                  { name: "L'Oréal Foundation", type: "Award Partner", icon: Award },
-                  { name: "Johnson & Johnson", type: "Healthcare Partner", icon: Heart },
-                  { name: "Government of Maharashtra", type: "Policy Partner", icon: Shield },
-                  { name: "The Better India", type: "Media Partner", icon: Star }
-                ].map((partner, index) => (
-                  <Card key={index} className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                    <CardContent className="p-4 flex items-center space-x-4">
-                      <div className="bg-sunrise-orange/30 rounded-lg p-2 flex-shrink-0">
-                        <partner.icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-white text-sm">{partner.name}</h4>
-                        <p className="text-xs text-white/70">{partner.type}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced Events Section */}
-      <section id="events" className="section-padding bg-white">
+      {/* Events Section */}
+      <section id="events" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">Join Our Next Events</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mx-auto mb-8"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Dementia care workshops, support groups, and community events designed to empower and connect
+            <h2 className="text-4xl font-bold text-dark-charcoal mb-6">Upcoming Events</h2>
+            <p className="text-xl text-gray-600">
+              Join our community workshops and training programs
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {upcomingEvents.map((event, index) => (
-              <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={event.image} 
-                    alt={event.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>
-                      {event.type}
-                    </span>
+          <div className="max-w-2xl mx-auto">
+            {upcomingEvents.map((event) => (
+              <Card key={event.id} className="bg-white shadow-lg border-0 mb-6">
+                <div className="flex flex-col md:flex-row">
+                  <div className="md:w-1/3">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-48 md:h-full object-cover rounded-l-lg"
+                    />
                   </div>
-                  <div className="absolute bottom-4 right-4 bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm font-medium">
-                    {event.spots}
-                  </div>
+                  <CardContent className="md:w-2/3 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="bg-warm-teal text-white px-3 py-1 rounded-full text-sm">
+                        {event.type}
+                      </span>
+                      <span className="text-sunrise-orange font-medium text-sm">{event.spots}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-dark-charcoal mb-3">{event.title}</h3>
+                    <p className="text-gray-600 mb-4">{event.description}</p>
+                    
+                    <div className="space-y-2 mb-6">
+                      <div className="flex items-center text-gray-700">
+                        <Calendar className="h-4 w-4 text-warm-teal mr-2" />
+                        <span className="text-sm">{formatDate(event.date)}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <Clock className="h-4 w-4 text-sunrise-orange mr-2" />
+                        <span className="text-sm">{event.time}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <MapPinIcon className="h-4 w-4 text-sage-600 mr-2" />
+                        <span className="text-sm">{event.location}</span>
+                      </div>
+                    </div>
+                    
+                    <EventRegistrationModal
+                      eventId={event.id}
+                      eventTitle={event.title}
+                      eventDate={event.date}
+                      eventTime={event.time}
+                      eventLocation={event.location}
+                      spotsLeft={event.spots}
+                    >
+                      <Button className="bg-warm-teal hover:bg-warm-teal-600 text-white w-full">
+                        Register Now
+                      </Button>
+                    </EventRegistrationModal>
+                  </CardContent>
                 </div>
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-bold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">
-                    {event.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {event.description}
-                  </p>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center text-gray-700">
-                      <Calendar className="h-5 w-5 text-warm-teal mr-3 flex-shrink-0" />
-                      <span className="font-medium">{formatDate(event.date)}</span>
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <Clock className="h-5 w-5 text-sunrise-orange mr-3 flex-shrink-0" />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <MapPinIcon className="h-5 w-5 text-sage-600 mr-3 flex-shrink-0" />
-                      <span>{event.location}</span>
-                    </div>
-                  </div>
-                  
-                  <EventRegistrationModal
-                    eventId={event.id}
-                    eventTitle={event.title}
-                    eventDate={event.date}
-                    eventTime={event.time}
-                    eventLocation={event.location}
-                    spotsLeft={event.spots}
-                  >
-                    <Button className="btn-cta w-full">
-                      Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </EventRegistrationModal>
-                </CardContent>
               </Card>
             ))}
-          </div>
-          
-          <div className="text-center">
-            <Button className="btn-secondary-cta">
-              View All Events <Calendar className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Donation Section */}
-      <section id="donate" className="section-padding bg-gradient-to-br from-warm-teal via-warm-teal-600 to-sunrise-orange relative overflow-hidden">
-        <div className="absolute inset-0 bg-dark-charcoal/10"></div>
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <div>
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins text-white">Transform a Life Today</h2>
-            <p className="text-xl opacity-100 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Choose your impact - every donation directly supports our mission to provide dignified care
-            </p>
-            
-            {/* Enhanced Trust Indicators */}
-            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-6 max-w-4xl mx-auto mb-12">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {trustIndicators.map((indicator, index) => (
-                  <div key={index} className="flex items-center justify-center space-x-3">
-                    <indicator.icon className="h-6 w-6" />
-                    <div className="text-left">
-                      <div className="font-medium">{indicator.text}</div>
-                      <div className="text-sm opacity-80">{indicator.subtext}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {donationOptions.map((option, index) => (
-                <div key={index} className={`relative ${option.popular ? 'mt-4' : ''}`}>
+      {/* Donation Section */}
+      <section id="donate" className="py-20 bg-gradient-to-r from-warm-teal to-warm-teal-600 text-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold mb-6">Make a Difference Today</h2>
+          <p className="text-xl opacity-90 mb-12 max-w-3xl mx-auto">
+            Your donation directly supports our mission to provide dignified elderly care
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {donationOptions.map((option, index) => (
+              <Card key={index} className={`bg-white text-dark-charcoal ${option.popular ? 'ring-2 ring-sunrise-orange' : ''}`}>
+                <CardContent className="p-6 text-center">
                   {option.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-sunrise-orange text-white text-xs px-3 py-1 rounded-full font-medium z-10">
+                    <div className="bg-sunrise-orange text-white text-xs px-3 py-1 rounded-full inline-block mb-4">
                       Most Popular
                     </div>
                   )}
-                  <Card className={`donation-card bg-white text-dark-charcoal hover:shadow-2xl transition-all duration-500 border-0 group h-full ${option.popular ? 'ring-2 ring-sunrise-orange shadow-lg' : ''}`}>
-                    <CardContent className="p-6 text-center h-full flex flex-col justify-between">
-                      <div className="space-y-4">
-                        <div className="pt-2">
-                          <div className="text-2xl lg:text-3xl font-bold text-warm-teal mb-2 font-poppins">{option.amount}</div>
-                          <div className="text-base font-medium text-gray-700 leading-tight">{option.purpose}</div>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-xl">
-                          <p className="text-xs text-gray-600 mb-2 font-medium">Impact:</p>
-                          <p className="text-sm text-gray-700 leading-snug">{option.impact}</p>
-                        </div>
-                      </div>
-                      <Button className="btn-cta w-full mt-4">
-                        Donate Securely <Heart className="ml-2 h-4 w-4" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-              <Button size="lg" className="bg-white text-warm-teal hover:bg-gray-100 font-medium px-10 py-4 rounded-full shadow-lg hover:shadow-xl transition-all">
-                <Users className="mr-2 h-5 w-5" />
-                Volunteer with Us
-              </Button>
-              <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-warm-teal font-medium px-10 py-4 rounded-full transition-all backdrop-blur-sm">
-                <Award className="mr-2 h-5 w-5" />
-                Partner with Us
-              </Button>
-            </div>
-
-            {/* Enhanced Financial Transparency */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto">
-              <h4 className="text-2xl font-semibold mb-6 font-poppins text-white">Financial Transparency</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-200 mb-2 font-poppins">85%</div>
-                  <p className="font-medium">Direct Program Costs</p>
-                  <p className="text-sm opacity-80">Directly supporting beneficiaries</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-200 mb-2 font-poppins">10%</div>
-                  <p className="font-medium">Administrative Costs</p>
-                  <p className="text-sm opacity-80">Operations and management</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-yellow-200 mb-2 font-poppins">5%</div>
-                  <p className="font-medium">Fundraising Costs</p>
-                  <p className="text-sm opacity-80">Sustainable growth initiatives</p>
-                </div>
+                  <div className="text-3xl font-bold text-warm-teal mb-2">{option.amount}</div>
+                  <div className="font-medium text-gray-700 mb-4">{option.purpose}</div>
+                  <div className="text-sm text-gray-600 mb-6">{option.impact}</div>
+                  <Button className="bg-warm-teal hover:bg-warm-teal-600 text-white w-full">
+                    Donate <Heart className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center space-x-6">
+              <div className="flex items-center">
+                <Shield className="h-5 w-5 mr-2" />
+                <span className="text-sm">80G Tax Benefits</span>
               </div>
-              <p className="text-sm opacity-75">Annual reports and audited financials available on request</p>
+              <div className="flex items-center">
+                <CheckCircle className="h-5 w-5 mr-2" />
+                <span className="text-sm">Secure Payments</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Founder Section */}
-      <section id="get-involved" className="section-padding bg-gradient-to-b from-off-white to-white">
+      {/* Founder Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
-              <div className="relative inline-block">
-                <img 
-                  src={imagePaths.team.amrita} 
-                  alt="Amrita Patil, Founder" 
-                  className="parallax-image w-80 h-80 rounded-2xl object-cover mx-auto lg:mx-0 mb-8 shadow-2xl border-4 border-white"
-                  loading="lazy"
-                />
-                <div className="absolute -bottom-4 -right-4 bg-gradient-to-br from-warm-teal to-sunrise-orange p-4 rounded-2xl shadow-xl">
-                  <Award className="h-8 w-8 text-white" />
-                </div>
-              </div>
+              <img 
+                src={imagePaths.team.amrita} 
+                alt="Amrita Patil, Founder" 
+                className="w-80 h-80 rounded-2xl object-cover mx-auto lg:mx-0 shadow-lg"
+              />
             </div>
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">Meet Our Founder</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mb-8"></div>
-              </div>
-              <blockquote className="testimonial text-2xl lg:text-3xl font-medium text-dark-charcoal leading-relaxed font-poppins italic">
-                "Building an ecosystem that empowers caregivers and supports the elderly with dignity and compassion."
+            <div>
+              <h2 className="text-4xl font-bold text-dark-charcoal mb-6">Meet Our Founder</h2>
+              <blockquote className="text-2xl font-medium text-dark-charcoal mb-6 italic">
+                "Building an ecosystem that empowers caregivers and supports the elderly with dignity."
               </blockquote>
-              <div>
-                <p className="text-xl text-warm-teal font-semibold mb-2">— Amrita Patil</p>
-                <p className="text-gray-600 font-medium mb-6">Founder & Director</p>
+              <div className="mb-6">
+                <p className="text-xl text-warm-teal font-semibold">Amrita Patil</p>
+                <p className="text-gray-600">Founder & Director</p>
               </div>
-              <Card className="bg-gradient-to-br from-warm-teal-50 to-white border-0 shadow-lg">
+              <Card className="bg-warm-teal-50 border-0">
                 <CardContent className="p-6">
-                  <p className="text-gray-700 leading-relaxed mb-4">
-                    Recognized by L'Oréal Paris and The Better India for her dedication to elderly care, Amrita has pioneered sustainable solutions for India's aging population through innovative training programs and community-driven care models.
+                  <p className="text-gray-700 mb-4">
+                    Recognized by L'Oréal Paris and The Better India for her dedication to elderly care, 
+                    Amrita has pioneered sustainable solutions for India's aging population.
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="bg-warm-teal text-white px-3 py-1 rounded-full text-sm font-medium">L'Oréal Award Winner</span>
-                    <span className="bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm font-medium">Social Impact Leader</span>
+                  <div className="flex gap-2">
+                    <span className="bg-warm-teal text-white px-3 py-1 rounded-full text-sm">L'Oréal Award Winner</span>
+                    <span className="bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm">Social Impact Leader</span>
                   </div>
                 </CardContent>
               </Card>
-              <Button className="btn-cta">
-                <Play className="mr-2 h-5 w-5" />
-                Watch Her Story
-              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Form Section */}
+      {/* Contact Form */}
       <ContactForm />
 
-      {/* Newsletter Signup Section */}
+      {/* Newsletter */}
       <NewsletterSignup />
 
-      {/* Modern Clean Footer */}
-      <footer className="bg-dark-charcoal text-white">
+      {/* Footer */}
+      <footer className="bg-dark-charcoal text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Main Footer Content */}
-          <div className="py-16 border-b border-gray-700/50">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-              
-              {/* Brand Section */}
-              <div className="lg:col-span-1">
-                <div className="flex items-center space-x-3 mb-6">
-                  {!imageErrors.has(imagePaths.team.logo) ? (
-                    <img 
-                      src={imagePaths.team.logo} 
-                      alt="Shatam Care Foundation" 
-                      className="h-12 w-auto object-contain brightness-0 invert"
-                      onError={handleLogoError}
-                    />
-                  ) : (
-                    <div className="p-2 bg-gradient-to-br from-warm-teal to-sunrise-orange rounded-lg">
-                      <Heart className="h-6 w-6 text-white" />
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-lg font-bold text-white font-poppins">Shatam Care</h3>
-                    <p className="text-xs text-warm-teal-200">Every Memory Deserves Care</p>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                {!imageErrors.has(imagePaths.team.logo) ? (
+                  <img 
+                    src={imagePaths.team.logo} 
+                    alt="Shatam Care Foundation" 
+                    className="h-10 w-auto brightness-0 invert"
+                  />
+                ) : (
+                  <Heart className="h-8 w-8 text-warm-teal" />
+                )}
+                <span className="text-lg font-bold">Shatam Care Foundation</span>
+              </div>
+              <p className="text-gray-400 mb-4">
+                Empowering caregivers and creating dignified care solutions for India's elderly since 2018.
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <div className="font-bold text-warm-teal">1,500+</div>
+                  <div className="text-gray-400">Caregivers Trained</div>
                 </div>
-                
-                <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
-                  Empowering caregivers and creating dignified care solutions for India's elderly since 2018.
-                </p>
-                
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-gray-800/30 rounded-lg p-3">
-                    <div className="text-lg font-bold text-warm-teal">1,500+</div>
-                    <div className="text-xs text-gray-400">Caregivers Trained</div>
-                  </div>
-                  <div className="bg-gray-800/30 rounded-lg p-3">
-                    <div className="text-lg font-bold text-sunrise-orange">800+</div>
-                    <div className="text-xs text-gray-400">Families Helped</div>
-                  </div>
+                <div>
+                  <div className="font-bold text-sunrise-orange">800+</div>
+                  <div className="text-gray-400">Families Helped</div>
                 </div>
               </div>
-
-              {/* Navigation Links */}
-              <div className="lg:col-span-1">
-                <div className="grid grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Navigate</h4>
-                    <ul className="space-y-2 text-sm">
-                      <li><a href="#mission" className="text-gray-400 hover:text-warm-teal transition-colors">Our Mission</a></li>
-                      <li><a href="#programs" className="text-gray-400 hover:text-warm-teal transition-colors">Programs</a></li>
-                      <li><a href="#impact" className="text-gray-400 hover:text-warm-teal transition-colors">Impact</a></li>
-                      <li><a href="#events" className="text-gray-400 hover:text-warm-teal transition-colors">Events</a></li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Support</h4>
-                    <ul className="space-y-2 text-sm">
-                      <li><a href="#donate" className="text-gray-400 hover:text-sunrise-orange transition-colors">Donate</a></li>
-                      <li><a href="mailto:shatamcare@gmail.com?subject=Volunteer Interest" className="text-gray-400 hover:text-sunrise-orange transition-colors">Volunteer</a></li>
-                      <li><a href="mailto:shatamcare@gmail.com?subject=Partnership Inquiry" className="text-gray-400 hover:text-sunrise-orange transition-colors">Partner</a></li>
-                      <li><a href="mailto:shatamcare@gmail.com?subject=Sponsorship Opportunity" className="text-gray-400 hover:text-sunrise-orange transition-colors">Sponsor</a></li>
-                    </ul>
-                  </div>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#programs" className="text-gray-400 hover:text-warm-teal">Programs</a></li>
+                <li><a href="#impact" className="text-gray-400 hover:text-warm-teal">Impact</a></li>
+                <li><a href="#events" className="text-gray-400 hover:text-warm-teal">Events</a></li>
+                <li><a href="#donate" className="text-gray-400 hover:text-warm-teal">Donate</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Contact Us</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center">
+                  <Phone className="h-4 w-4 text-warm-teal mr-2" />
+                  <span>+91 9158566665</span>
+                </div>
+                <div className="flex items-center">
+                  <Mail className="h-4 w-4 text-sunrise-orange mr-2" />
+                  <span>shatamcare@gmail.com</span>
                 </div>
               </div>
-
-              {/* Contact & Legal */}
-              <div className="lg:col-span-1">
-                <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Get in Touch</h4>
-                
-                {/* Contact Info */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-warm-teal/20 rounded">
-                      <Phone className="h-3 w-3 text-warm-teal" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">+91 9158566665</p>
-                      <p className="text-xs text-gray-400">Mon-Sat, 9 AM - 6 PM</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-sunrise-orange/20 rounded">
-                      <Mail className="h-3 w-3 text-sunrise-orange" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">shatamcare@gmail.com</p>
-                      <p className="text-xs text-gray-400">Response in 24 hours</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Trust Badges */}
-                <div className="bg-gray-800/30 rounded-lg p-3 mb-6">
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="h-3 w-3 text-warm-teal" />
-                      <span className="text-gray-300">80G Tax Exemption</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Award className="h-3 w-3 text-sunrise-orange" />
-                      <span className="text-gray-300">Section 8 Registered</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="flex space-x-3">
-                  <a href="https://www.facebook.com/shatamcare" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-warm-teal/20 rounded transition-all duration-200">
-                    <span className="sr-only">Facebook</span>
-                    <div className="h-4 w-4 bg-gray-400 hover:bg-warm-teal transition-colors rounded-sm"></div>
-                  </a>
-                  <a href="https://www.instagram.com/shatamcare" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-sunrise-orange/20 rounded transition-all duration-200">
-                    <span className="sr-only">Instagram</span>
-                    <div className="h-4 w-4 bg-gray-400 hover:bg-sunrise-orange transition-colors rounded-sm"></div>
-                  </a>
-                  <a href="https://www.linkedin.com/company/shatam-care-foundation" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-warm-teal/20 rounded transition-all duration-200">
-                    <span className="sr-only">LinkedIn</span>
-                    <div className="h-4 w-4 bg-gray-400 hover:bg-warm-teal transition-colors rounded-sm"></div>
-                  </a>
+              <div className="mt-4 p-3 bg-gray-800 rounded">
+                <div className="flex items-center space-x-2 text-xs">
+                  <Shield className="h-3 w-3 text-warm-teal" />
+                  <span>80G Tax Exemption Available</span>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Bottom Bar */}
-          <div className="py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-center md:text-left">
-                <p className="text-sm text-gray-400">
-                  © 2024 Shatam Care Foundation. All rights reserved.
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  CIN: U85300MH2018NPL308xxx
-                </p>
-              </div>
-              
-              <div className="flex flex-wrap justify-center gap-6 text-xs">
-                <a href="mailto:shatamcare@gmail.com?subject=Privacy Policy Request" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
-                <a href="mailto:shatamcare@gmail.com?subject=Terms of Service Request" className="text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
-                <a href="mailto:shatamcare@gmail.com?subject=Annual Report Request" className="text-gray-500 hover:text-gray-300 transition-colors">Reports</a>
-                <a href="#contact" className="text-gray-500 hover:text-gray-300 transition-colors">Contact</a>
-              </div>
-            </div>
+          
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+            <p className="text-gray-400 text-sm">
+              © 2024 Shatam Care Foundation. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
-      </main>
 
-      {/* Enhanced WhatsApp Floating Button */}
+      {/* WhatsApp Button */}
       <div className="fixed bottom-6 right-6 z-50">
         <Button 
-          className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 animate-gentle-float" 
+          className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg" 
           onClick={() => window.open('https://wa.me/919158566665', '_blank')}
-          aria-label="Contact us on WhatsApp"
         >
           <MessageCircle className="h-6 w-6" />
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Index;
