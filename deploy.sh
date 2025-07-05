@@ -9,4 +9,4 @@ echo "Deploying to GitHub Pages..."
 npm run deploy
 
 echo "Deployment complete! Your site should be available at:"
-echo "https://shatamcare.github.io/website/"
+echo "https://adarshalexbalmuchu.github.io/ShatamCareFoundation/"
