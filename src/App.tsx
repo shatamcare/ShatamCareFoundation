@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
+import TestIndex from "./pages/TestIndex";
 import OurPrograms from "./pages/OurPrograms";
 import OurImpact from "./pages/OurImpact";
 import AdminPage from "./pages/AdminPage";
@@ -26,9 +27,10 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/ShatamCareFoundation">
+        <BrowserRouter basename={import.meta.env.PROD ? "/ShatamCareFoundation" : ""}>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/test" element={<TestIndex />} />
             <Route path="/our-programs" element={<OurPrograms />} />
             <Route path="/our-impact" element={<OurImpact />} />
             <Route path="/admin" element={<AdminPage />} />
