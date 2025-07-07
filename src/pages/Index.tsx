@@ -26,7 +26,7 @@ const Index = () => {
       icon: Heart,
       title: "Caregiver Training Workshops",
       description: "Comprehensive training programs equipping family caregivers with essential skills for dementia care and emotional support techniques.",
-      image: getImagePath('caregivers/training.jpg'),
+      image: getImagePath('images/Caregivers/training.jpg'),
       cta: "Join Training",
       impact: "1,200+ caregivers trained",
       details: "Our comprehensive training workshops provide hands-on learning experiences, covering topics from basic care techniques to advanced dementia support strategies. Participants gain practical skills in communication, medication management, behavioral interventions, and self-care for caregivers."
@@ -35,7 +35,7 @@ const Index = () => {
       icon: Users,
       title: "Memory Care Support Groups",
       description: "Safe spaces for caregivers and families to share experiences, learn from each other, and build lasting support networks.",
-      image: getImagePath('caregivers/sessions.jpg'),
+      image: getImagePath('images/Caregivers/sessions.jpg'),
       cta: "Find Group",
       impact: "80+ active support groups",
       details: "Our support groups offer a caring environment where families can connect with others facing similar challenges. Led by experienced facilitators, these sessions provide emotional support, practical advice, and lasting friendships that make the caregiving journey less isolating."
@@ -44,7 +44,7 @@ const Index = () => {
       icon: BookOpen,
       title: "Educational Resources",
       description: "Evidence-based materials, guides, and toolkits designed to enhance understanding of dementia care and management strategies.",
-      image: getImagePath('brain-kit/brain_bridge_boxcontent-1024x1024.jpeg'),
+      image: getImagePath('images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg'),
       cta: "Access Resources",
       impact: "50,000+ resources accessed",
       details: "Our comprehensive resource library includes educational materials, care guides, activity suggestions, and practical tools. All resources are developed by healthcare professionals and regularly updated to reflect the latest research in dementia care."
@@ -53,7 +53,7 @@ const Index = () => {
       icon: Home,
       title: "Home Care Consultation",
       description: "Personalized assessments and recommendations to create safe, comfortable living environments for those with dementia.",
-      image: getImagePath('caregivers/care.jpg'),
+      image: getImagePath('images/Users/care.jpg'),
       cta: "Book Consultation",
       impact: "500+ homes assessed",
       details: "Our home care consultations provide personalized assessments to optimize living environments for individuals with dementia. Our experts evaluate safety, accessibility, and comfort factors to create recommendations that enhance quality of life for both patients and caregivers."
@@ -364,7 +364,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat parallax-image" 
           style={{
-            backgroundImage: getBackgroundImagePath('/images/Users/care.jpg'),
+            backgroundImage: getBackgroundImagePath('images/Users/care.jpg'),
             backgroundPosition: 'center',
             backgroundSize: 'cover'
           }}
