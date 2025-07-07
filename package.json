@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
-    "predeploy": "npm run build",
+    "predeploy": "npm run typecheck && npm run build",
     "build:dev": "vite build --mode development"
   },
   "keywords": [
@@ -23,10 +24,10 @@
     "foundation"
   ],
   "author": "Shatam Care Foundation <shatamcare@gmail.com>",
-  "homepage": "https://shatamcare.github.io/website",
+  "homepage": "https://adarshalexbalmuchu.github.io/ShatamCareFoundation",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shatamcare/website.git"
+    "url": "https://github.com/adarshalexbalmuchu/ShatamCareFoundation.git"
   },
   "bugs": {
     "url": "https://github.com/shatamcare/website/issues",

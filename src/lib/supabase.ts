@@ -76,14 +76,35 @@ export const checkSupabaseConnection = async () => {
   }
 }
 
+interface SupabaseError {
+  code?: string;
+  message: string;
+}
+
 // Utility function for error handling
-export const handleSupabaseError = (error: any) => {
-  if (error.code === '23505') {
-    return 'This record already exists.'
+export const handleSupabaseError = (error: unknown): string => {
+  // Check if error is a Supabase error with a code
+  if (error && typeof error === 'object' && 'code' in error) {
+    const supaError = error as SupabaseError;
+    
+    if (supaError.code === '23505') {
+      return 'This record already exists.';
+    }
+    
+    if (supaError.code === 'PGRST116') {
+      return 'Invalid input data. Please check your form entries.';
+    }
+
+    if (typeof supaError.message === 'string') {
+      return supaError.message;
+    }
   }
-  if (error.code === 'PGRST116') {
-    return 'Invalid input data. Please check your form entries.'
+
+  // Handle standard Error objects
+  if (error instanceof Error) {
+    return error.message;
   }
+
   return 'An unexpected error occurred. Please try again.'
 }
 
