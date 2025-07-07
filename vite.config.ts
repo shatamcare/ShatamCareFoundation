@@ -6,10 +6,10 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
   // Use base path for GitHub Pages in production
-  base: mode === 'production' ? "/ShatamCareFoundation/" : "/",
+  base: "/",
   server: {
     host: "::",
-    port: 8080,
+    port: 5173,
   },
   plugins: [
     react(),

@@ -22,6 +22,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Helper function to count words
+  const countWords = (text: string): number => {
+    const trimmed = text.trim();
+    return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -52,6 +58,15 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
       return;
     }
 
+    // Message word count validation
+    const wordCount = countWords(formData.message);
+    if (wordCount < 10) {
+      setErrorMessage('Please write at least 10 words in your message.');
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Simple insert - no select after insert
       const { error } = await supabase
@@ -65,7 +80,17 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
 
       if (error) {
         console.error('Supabase error:', error);
-        throw new Error(`Database error: ${error.message}`);
+        
+        // Handle specific database constraint errors
+        if (error.message.includes('message_word_count')) {
+          throw new Error('Please write at least 10 words in your message.');
+        } else if (error.message.includes('email')) {
+          throw new Error('Please enter a valid email address.');
+        } else if (error.message.includes('name')) {
+          throw new Error('Please enter a valid name.');
+        } else {
+          throw new Error('Unable to send message. Please try again later.');
+        }
       }
 
       console.log('Contact form submitted successfully');
@@ -180,6 +205,14 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                     className="w-full h-32 resize-none"
                     required
                   />
+                  <div className="mt-1 flex justify-between items-center text-sm">
+                    <span className={`${countWords(formData.message) < 10 && formData.message.trim() !== '' ? 'text-red-500' : 'text-gray-500'}`}>
+                      {countWords(formData.message)} / 10 words minimum
+                    </span>
+                    {formData.message.trim() !== '' && countWords(formData.message) < 10 && (
+                      <span className="text-red-500 text-xs">Need {10 - countWords(formData.message)} more words</span>
+                    )}
+                  </div>
                 </div>
 
                 {submitStatus === 'success' && (
