@@ -60,22 +60,34 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
     }
 
     try {
+      // Simple insert without extra fields
       const { data, error } = await supabase
         .from('contacts')
-        .insert([{
+        .insert({
           name: formData.name.trim(),
           email: formData.email.trim(),
           phone: formData.phone?.trim() || null,
           message: formData.message.trim(),
-          type: 'general',
-          status: 'new',
-          created_at: new Date().toISOString()
-        }])
+          type: 'general'
+        })
         .select();
 
       if (error) {
-        console.error('Supabase error:', error);
-        throw new Error(`Database error: ${error.message}`);
+        console.error('Supabase error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // Provide more specific error messages
+        if (error.message.includes('relation "contacts" does not exist')) {
+          throw new Error('The contacts table has not been created yet. Please run the setup SQL first.');
+        } else if (error.message.includes('column') && error.message.includes('does not exist')) {
+          throw new Error('Database schema mismatch. Please check the table structure.');
+        } else {
+          throw new Error(`Database error: ${error.message}`);
+        }
       }
 
       console.log('Contact form submitted successfully:', data);

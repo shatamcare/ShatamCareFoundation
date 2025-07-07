@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS contacts (
   phone TEXT,
   message TEXT NOT NULL,
   type TEXT DEFAULT 'general',
-  status TEXT DEFAULT 'new',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
