@@ -4,9 +4,9 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  // Only use base path in production for GitHub Pages
-  base: process.env.NODE_ENV === 'production' ? "/ShatamCareFoundation/" : "/",
+export default defineConfig(({ command, mode }) => ({
+  // Use base path for GitHub Pages in production
+  base: mode === 'production' ? "/ShatamCareFoundation/" : "/",
   server: {
     host: "::",
     port: 8080,
@@ -47,4 +47,4 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
-});
+}));
