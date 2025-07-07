@@ -69,3 +69,33 @@ export const imagePaths = {
     amrita: getImagePath('/images/Team/Amrita.jpg'),
   }
 };
+
+// Image optimization utilities
+export const getOptimizedImagePath = (path: string, size = 'default') => {
+  // Base implementation - in a production environment, this could integrate with a CDN or image service
+  const sizeSuffix = size === 'default' ? '' : `?size=${size}`;
+  return getImagePath(path) + sizeSuffix;
+};
+
+export const lazyLoadImage = (element: HTMLImageElement) => {
+  if ('loading' in HTMLImageElement.prototype) {
+    element.loading = 'lazy';
+  }
+  // Could be extended with IntersectionObserver for browsers without native lazy loading
+};
+
+// Preload critical images
+export const preloadCriticalImages = () => {
+  const criticalImagePaths = [
+    imagePaths.team.logo,
+    getBackgroundImagePath('/images/Users/care.jpg')
+  ];
+  
+  criticalImagePaths.forEach(path => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = path;
+    document.head.appendChild(link);
+  });
+};
