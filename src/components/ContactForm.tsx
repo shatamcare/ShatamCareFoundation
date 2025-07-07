@@ -81,65 +81,42 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-dark-charcoal mb-4 font-poppins">
-            Get in Touch
+            Contact Us
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Ready to make a difference? We're here to help you get started with our programs
-            or answer any questions you might have.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
+          {/* Contact Information - Simplified */}
           <div className="space-y-8">
             <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl text-dark-charcoal mb-4">
-                  Connect With Us
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-warm-teal/10 rounded-full">
-                    <Phone className="h-6 w-6 text-warm-teal" />
+              <CardContent className="p-8">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-5 w-5 text-warm-teal" />
+                    <div>
+                      <p className="font-medium text-dark-charcoal">+91 9158566665</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-dark-charcoal">Phone</h3>
-                    <p className="text-gray-600">+91 9158566665</p>
-                    <p className="text-sm text-gray-500">Mon-Sat, 9 AM - 6 PM</p>
-                  </div>
-                </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-sunrise-orange/10 rounded-full">
-                    <Mail className="h-6 w-6 text-sunrise-orange" />
+                  <div className="flex items-center space-x-3">
+                    <Mail className="h-5 w-5 text-sunrise-orange" />
+                    <div>
+                      <p className="font-medium text-dark-charcoal">shatamcare@gmail.com</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-dark-charcoal">Email</h3>
-                    <p className="text-gray-600">shatamcare@gmail.com</p>
-                    <p className="text-sm text-gray-500">Response in 24 hours</p>
-                  </div>
-                </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-sage-600/10 rounded-full">
-                    <MapPin className="h-6 w-6 text-sage-600" />
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-5 w-5 text-sage-600" />
+                    <div>
+                      <p className="font-medium text-dark-charcoal">Mumbai, Maharashtra, India</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-dark-charcoal">Address</h3>
-                    <p className="text-gray-600">Mumbai, Maharashtra, India</p>
-                    <p className="text-sm text-gray-500">Serving nationwide</p>
-                  </div>
-                </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-blue-500/10 rounded-full">
-                    <Clock className="h-6 w-6 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-dark-charcoal">Business Hours</h3>
-                    <p className="text-gray-600">Monday - Saturday</p>
-                    <p className="text-sm text-gray-500">9:00 AM - 6:00 PM IST</p>
+                  <div className="flex items-center space-x-3">
+                    <Clock className="h-5 w-5 text-blue-500" />
+                    <div>
+                      <p className="font-medium text-dark-charcoal">Mon-Sat, 9AM - 6PM IST</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>

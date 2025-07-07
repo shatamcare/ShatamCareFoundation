@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon, Star, Shield, CheckCircle, ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -73,13 +73,22 @@ const Index = () => {
     }
   }, [expandedProgram]);
 
-  // Handle image errors
+  // Handle image errors with better fallback
   const handleImageError = (imagePath: string) => {
     setImageErrors(prev => new Set(prev).add(imagePath));
+    console.warn(`Failed to load image: ${imagePath}`);
   };
 
-  // Enhanced programs data
-  const programs = [{
+  // Create fallback image component
+  const FallbackImage = ({ alt, className }: { alt: string; className?: string }) => (
+    <div className={`bg-gradient-to-br from-warm-teal-100 to-warm-teal-200 flex items-center justify-center ${className}`}>
+      <Heart className="h-8 w-8 text-warm-teal opacity-50" />
+      <span className="sr-only">{alt}</span>
+    </div>
+  );
+
+  // Memoize expensive calculations to prevent unnecessary re-renders
+  const memoizedPrograms = useMemo(() => [{
     image: imagePaths.users.eha1,
     title: "Residential & Day Care for Elderly",
     description: "Safe, supportive spaces for elder well-being with 24/7 professional care",
@@ -107,7 +116,10 @@ const Index = () => {
     details: "Support groups provide emotional support, practical advice, and community connection for families and caregivers navigating the challenges of dementia care.",
     impact: "800+ families supported",
     icon: Users
-  }];
+  }], []);
+
+  // Enhanced programs data (now using memoized version)
+  const programs = memoizedPrograms;
 
   // Enhanced impact stats with better formatting
   const impactStats = [{
@@ -239,7 +251,7 @@ const Index = () => {
               {!imageErrors.has(imagePaths.team.logo) ? (
                 <img 
                   src={imagePaths.team.logo} 
-                  alt="Shatam Care Foundation" 
+                  alt="Shatam Care Foundation Logo" 
                   className="h-16 w-auto object-contain transition-all duration-300"
                   onError={handleLogoError}
                   loading="eager"
@@ -461,7 +473,16 @@ const Index = () => {
                     loading="lazy"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-warm-teal-100 to-warm-teal-200 flex items-center justify-center">
+                          <div class="text-warm-teal opacity-50">
+                            <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                          </div>
+                        </div>`;
+                      }
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
@@ -542,79 +563,6 @@ const Index = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Left: Recognition Cards */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-semibold mb-6 text-white">Recognition & Trust</h3>
-              
-              <div className="space-y-4">
-                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                  <CardContent className="p-4 flex items-center space-x-4">
-                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
-                      <Award className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm">Government Recognized</h4>
-                      <p className="text-xs text-white/80">Section 8 Company Registration</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                  <CardContent className="p-4 flex items-center space-x-4">
-                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
-                      <Shield className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm">80G Tax Benefits</h4>
-                      <p className="text-xs text-white/80">Income Tax Approved Donations</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                  <CardContent className="p-4 flex items-center space-x-4">
-                    <div className="bg-white/20 rounded-lg p-3 flex-shrink-0">
-                      <Star className="h-6 w-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-white text-sm">Media Recognition</h4>
-                      <p className="text-xs text-white/80">Featured by The Better India</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* Right: Key Partners */}
-            <div className="space-y-6">
-              <h3 className="text-2xl font-semibold mb-6 text-white">Key Partners</h3>
-              
-              <div className="grid grid-cols-1 gap-4">
-                {[
-                  { name: "L'Oréal Foundation", type: "Award Partner", icon: Award },
-                  { name: "Johnson & Johnson", type: "Healthcare Partner", icon: Heart },
-                  { name: "Government of Maharashtra", type: "Policy Partner", icon: Shield },
-                  { name: "The Better India", type: "Media Partner", icon: Star }
-                ].map((partner, index) => (
-                  <Card key={index} className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/15 transition-colors">
-                    <CardContent className="p-4 flex items-center space-x-4">
-                      <div className="bg-sunrise-orange/30 rounded-lg p-2 flex-shrink-0">
-                        <partner.icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-white text-sm">{partner.name}</h4>
-                        <p className="text-xs text-white/70">{partner.type}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -752,7 +700,7 @@ const Index = () => {
               ))}
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button size="lg" className="bg-white text-warm-teal hover:bg-gray-100 font-medium px-10 py-4 rounded-full shadow-lg hover:shadow-xl transition-all">
                 <Users className="mr-2 h-5 w-5" />
                 Volunteer with Us
@@ -761,29 +709,6 @@ const Index = () => {
                 <Award className="mr-2 h-5 w-5" />
                 Partner with Us
               </Button>
-            </div>
-
-            {/* Enhanced Financial Transparency */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto">
-              <h4 className="text-2xl font-semibold mb-6 font-poppins text-white">Financial Transparency</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-200 mb-2 font-poppins">85%</div>
-                  <p className="font-medium">Direct Program Costs</p>
-                  <p className="text-sm opacity-80">Directly supporting beneficiaries</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-200 mb-2 font-poppins">10%</div>
-                  <p className="font-medium">Administrative Costs</p>
-                  <p className="text-sm opacity-80">Operations and management</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-yellow-200 mb-2 font-poppins">5%</div>
-                  <p className="font-medium">Fundraising Costs</p>
-                  <p className="text-sm opacity-80">Sustainable growth initiatives</p>
-                </div>
-              </div>
-              <p className="text-sm opacity-75">Annual reports and audited financials available on request</p>
             </div>
           </div>
         </div>
@@ -844,155 +769,108 @@ const Index = () => {
       {/* Newsletter Signup Section */}
       <NewsletterSignup />
 
-      {/* Modern Clean Footer */}
-      <footer className="bg-dark-charcoal text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Clean Minimal Footer */}
+      <footer className="bg-dark-charcoal text-white py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Main Footer Content */}
-          <div className="py-16 border-b border-gray-700/50">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            
+            {/* Brand & Contact */}
+            <div className="md:col-span-1">
+              <div className="flex items-center space-x-3 mb-4">
+                {!imageErrors.has(imagePaths.team.logo) ? (
+                  <img 
+                    src={imagePaths.team.logo} 
+                    alt="Shatam Care Foundation" 
+                    className="h-10 w-auto object-contain brightness-0 invert"
+                    onError={handleLogoError}
+                  />
+                ) : (
+                  <div className="p-2 bg-warm-teal rounded-lg">
+                    <Heart className="h-6 w-6 text-white" />
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-bold text-white">Shatam Care Foundation</h3>
+                  <p className="text-xs text-warm-teal-300">Every Memory Deserves Care</p>
+                </div>
+              </div>
               
-              {/* Brand Section */}
-              <div className="lg:col-span-1">
-                <div className="flex items-center space-x-3 mb-6">
-                  {!imageErrors.has(imagePaths.team.logo) ? (
-                    <img 
-                      src={imagePaths.team.logo} 
-                      alt="Shatam Care Foundation" 
-                      className="h-12 w-auto object-contain brightness-0 invert"
-                      onError={handleLogoError}
-                    />
-                  ) : (
-                    <div className="p-2 bg-gradient-to-br from-warm-teal to-sunrise-orange rounded-lg">
-                      <Heart className="h-6 w-6 text-white" />
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-lg font-bold text-white font-poppins">Shatam Care</h3>
-                    <p className="text-xs text-warm-teal-200">Every Memory Deserves Care</p>
-                  </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-4 w-4 text-warm-teal" />
+                  <span>+91 9158566665</span>
                 </div>
-                
-                <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
-                  Empowering caregivers and creating dignified care solutions for India's elderly since 2018.
-                </p>
-                
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="bg-gray-800/30 rounded-lg p-3">
-                    <div className="text-lg font-bold text-warm-teal">1,500+</div>
-                    <div className="text-xs text-gray-400">Caregivers Trained</div>
-                  </div>
-                  <div className="bg-gray-800/30 rounded-lg p-3">
-                    <div className="text-lg font-bold text-sunrise-orange">800+</div>
-                    <div className="text-xs text-gray-400">Families Helped</div>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <Mail className="h-4 w-4 text-warm-teal" />
+                  <span>shatamcare@gmail.com</span>
                 </div>
               </div>
+            </div>
 
-              {/* Navigation Links */}
-              <div className="lg:col-span-1">
-                <div className="grid grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Navigate</h4>
-                    <ul className="space-y-2 text-sm">
-                      <li><a href="#mission" className="text-gray-400 hover:text-warm-teal transition-colors">Our Mission</a></li>
-                      <li><a href="#programs" className="text-gray-400 hover:text-warm-teal transition-colors">Programs</a></li>
-                      <li><a href="#impact" className="text-gray-400 hover:text-warm-teal transition-colors">Impact</a></li>
-                      <li><a href="#events" className="text-gray-400 hover:text-warm-teal transition-colors">Events</a></li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Support</h4>
-                    <ul className="space-y-2 text-sm">
-                      <li><a href="#donate" className="text-gray-400 hover:text-sunrise-orange transition-colors">Donate</a></li>
-                      <li><a href="mailto:shatamcare@gmail.com?subject=Volunteer Interest" className="text-gray-400 hover:text-sunrise-orange transition-colors">Volunteer</a></li>
-                      <li><a href="mailto:shatamcare@gmail.com?subject=Partnership Inquiry" className="text-gray-400 hover:text-sunrise-orange transition-colors">Partner</a></li>
-                      <li><a href="mailto:shatamcare@gmail.com?subject=Sponsorship Opportunity" className="text-gray-400 hover:text-sunrise-orange transition-colors">Sponsor</a></li>
-                    </ul>
-                  </div>
-                </div>
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#programs" className="text-gray-300 hover:text-warm-teal transition-colors">Programs</a></li>
+                <li><a href="#impact" className="text-gray-300 hover:text-warm-teal transition-colors">Impact</a></li>
+                <li><a href="#events" className="text-gray-300 hover:text-warm-teal transition-colors">Events</a></li>
+                <li><a href="#donate" className="text-gray-300 hover:text-warm-teal transition-colors">Donate</a></li>
+              </ul>
+            </div>
+            
+            {/* Social & Support */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4">Connect</h4>
+              <div className="flex space-x-3 mb-4">
+                <a 
+                  href="https://www.facebook.com/shatamcare" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 bg-gray-800 hover:bg-blue-600 rounded-lg transition-colors"
+                >
+                  <svg className="h-5 w-5 text-gray-300 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+                <a 
+                  href="https://www.instagram.com/shatamcare" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 bg-gray-800 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 rounded-lg transition-colors"
+                >
+                  <svg className="h-5 w-5 text-gray-300 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987 6.62 0 11.987-5.367 11.987-11.987C24.014 5.367 18.637.001 12.017.001zM8.449 16.988c-1.297 0-2.349-1.051-2.349-2.348 0-1.297 1.052-2.349 2.349-2.349 1.297 0 2.348 1.052 2.348 2.349 0 1.297-1.051 2.348-2.348 2.348zm3.568 0c-1.297 0-2.349-1.051-2.349-2.348 0-1.297 1.052-2.349 2.349-2.349s2.348 1.052 2.348 2.349c0 1.297-1.051 2.348-2.348 2.348zm3.568 0c-1.297 0-2.349-1.051-2.349-2.348 0-1.297 1.052-2.349 2.349-2.349 1.297 0 2.348 1.052 2.348 2.349 0 1.297-1.051 2.348-2.348 2.348z"/>
+                  </svg>
+                </a>
+                <a 
+                  href="https://www.linkedin.com/company/shatam-care-foundation" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 bg-gray-800 hover:bg-blue-700 rounded-lg transition-colors"
+                >
+                  <svg className="h-5 w-5 text-gray-300 hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </a>
               </div>
-
-              {/* Contact & Legal */}
-              <div className="lg:col-span-1">
-                <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Get in Touch</h4>
-                
-                {/* Contact Info */}
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-warm-teal/20 rounded">
-                      <Phone className="h-3 w-3 text-warm-teal" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">+91 9158566665</p>
-                      <p className="text-xs text-gray-400">Mon-Sat, 9 AM - 6 PM</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 bg-sunrise-orange/20 rounded">
-                      <Mail className="h-3 w-3 text-sunrise-orange" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">shatamcare@gmail.com</p>
-                      <p className="text-xs text-gray-400">Response in 24 hours</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Trust Badges */}
-                <div className="bg-gray-800/30 rounded-lg p-3 mb-6">
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex items-center space-x-2">
-                      <Shield className="h-3 w-3 text-warm-teal" />
-                      <span className="text-gray-300">80G Tax Exemption</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Award className="h-3 w-3 text-sunrise-orange" />
-                      <span className="text-gray-300">Section 8 Registered</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Social Links */}
-                <div className="flex space-x-3">
-                  <a href="https://www.facebook.com/shatamcare" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-warm-teal/20 rounded transition-all duration-200">
-                    <span className="sr-only">Facebook</span>
-                    <div className="h-4 w-4 bg-gray-400 hover:bg-warm-teal transition-colors rounded-sm"></div>
-                  </a>
-                  <a href="https://www.instagram.com/shatamcare" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-sunrise-orange/20 rounded transition-all duration-200">
-                    <span className="sr-only">Instagram</span>
-                    <div className="h-4 w-4 bg-gray-400 hover:bg-sunrise-orange transition-colors rounded-sm"></div>
-                  </a>
-                  <a href="https://www.linkedin.com/company/shatam-care-foundation" target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800/50 hover:bg-warm-teal/20 rounded transition-all duration-200">
-                    <span className="sr-only">LinkedIn</span>
-                    <div className="h-4 w-4 bg-gray-400 hover:bg-warm-teal transition-colors rounded-sm"></div>
-                  </a>
-                </div>
+              <div className="text-sm space-y-1">
+                <a href="mailto:shatamcare@gmail.com?subject=Volunteer Interest" className="text-gray-300 hover:text-warm-teal transition-colors block">Volunteer</a>
+                <a href="mailto:shatamcare@gmail.com?subject=Partnership Inquiry" className="text-gray-300 hover:text-warm-teal transition-colors block">Partner</a>
               </div>
             </div>
           </div>
 
           {/* Bottom Bar */}
-          <div className="py-6">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="text-center md:text-left">
-                <p className="text-sm text-gray-400">
-                  © 2024 Shatam Care Foundation. All rights reserved.
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  CIN: U85300MH2018NPL308xxx
-                </p>
-              </div>
-              
-              <div className="flex flex-wrap justify-center gap-6 text-xs">
-                <a href="mailto:shatamcare@gmail.com?subject=Privacy Policy Request" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
-                <a href="mailto:shatamcare@gmail.com?subject=Terms of Service Request" className="text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
-                <a href="mailto:shatamcare@gmail.com?subject=Annual Report Request" className="text-gray-500 hover:text-gray-300 transition-colors">Reports</a>
-                <a href="#contact" className="text-gray-500 hover:text-gray-300 transition-colors">Contact</a>
-              </div>
+          <div className="pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <p className="text-xs text-gray-400">
+              © 2024 Shatam Care Foundation. All rights reserved.
+            </p>
+            <div className="flex space-x-4 text-xs">
+              <a href="mailto:shatamcare@gmail.com?subject=Privacy Policy Request" className="text-gray-500 hover:text-gray-300 transition-colors">Privacy</a>
+              <a href="mailto:shatamcare@gmail.com?subject=Terms of Service Request" className="text-gray-500 hover:text-gray-300 transition-colors">Terms</a>
+              <a href="#contact" className="text-gray-500 hover:text-gray-300 transition-colors">Contact</a>
             </div>
           </div>
         </div>
@@ -1012,4 +890,4 @@ const Index = () => {
     </div>;
 };
 
-export default Index;
+export default React.memo(Index);
