@@ -25,12 +25,22 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
 -- Enable RLS for contacts table
 ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
 
--- Allow anyone to insert contact forms
-CREATE POLICY "Allow contact submissions" ON contacts
-  FOR INSERT
-  WITH CHECK (true);
+-- Clean up old policy first
+DROP POLICY IF EXISTS "Allow contact submissions" ON contacts;
+
+-- Allow anonymous users to insert contact forms
+DROP POLICY IF EXISTS "Allow anonymous contact submissions" ON contacts;
+CREATE POLICY "Allow anonymous contact submissions" ON contacts
+  FOR INSERT TO anon WITH CHECK (true);
+
+-- Allow authenticated users to insert contact forms
+DROP POLICY IF EXISTS "Allow authenticated contact submissions" ON contacts;
+CREATE POLICY "Allow authenticated contact submissions" ON contacts
+  FOR INSERT TO authenticated WITH CHECK (true);
+
 
 -- Allow reading for authenticated users
+DROP POLICY IF EXISTS "View contacts for authenticated users" ON contacts;
 CREATE POLICY "View contacts for authenticated users" ON contacts
   FOR SELECT
   USING (auth.role() = 'authenticated');
@@ -38,12 +48,22 @@ CREATE POLICY "View contacts for authenticated users" ON contacts
 -- Enable RLS for newsletter_subscribers table
 ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
 
--- Allow anyone to subscribe to newsletter
-CREATE POLICY "Allow newsletter signups" ON newsletter_subscribers
-  FOR INSERT
-  WITH CHECK (true);
+-- Clean up old policy first
+DROP POLICY IF EXISTS "Allow newsletter signups" ON newsletter_subscribers;
+
+-- Allow anonymous users to subscribe
+DROP POLICY IF EXISTS "Allow anonymous newsletter signups" ON newsletter_subscribers;
+CREATE POLICY "Allow anonymous newsletter signups" ON newsletter_subscribers
+  FOR INSERT TO anon WITH CHECK (true);
+
+-- Allow authenticated users to subscribe
+DROP POLICY IF EXISTS "Allow authenticated newsletter signups" ON newsletter_subscribers;
+CREATE POLICY "Allow authenticated newsletter signups" ON newsletter_subscribers
+  FOR INSERT TO authenticated WITH CHECK (true);
+
 
 -- Allow reading for authenticated users
+DROP POLICY IF EXISTS "View subscribers for authenticated users" ON newsletter_subscribers;
 CREATE POLICY "View subscribers for authenticated users" ON newsletter_subscribers
   FOR SELECT
   USING (auth.role() = 'authenticated');

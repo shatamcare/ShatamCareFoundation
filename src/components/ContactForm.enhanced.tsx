@@ -4,14 +4,21 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/lib/supabase';
-import { Mail, Phone, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Phone, Send, CheckCircle, AlertCircle, Shield } from 'lucide-react';
 
 interface ContactFormProps {
   className?: string;
 }
 
+type FormData = {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
 const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
@@ -19,14 +26,88 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'rate_limited'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Partial<FormData>>({});
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    
+    // Clear validation error when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [field]: undefined
+      }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Partial<FormData> = {};
+    
+    // Name validation
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    } else if (formData.name.trim().length > 100) {
+      errors.name = 'Name must be less than 100 characters';
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else {
+      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(formData.email)) {
+        errors.email = 'Please enter a valid email address';
+      }
+    }
+
+    // Phone validation (optional but if provided, must be valid)
+    if (formData.phone.trim()) {
+      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+      if (!phoneRegex.test(formData.phone.replace(/[\s\-\(\)]/g, ''))) {
+        errors.phone = 'Please enter a valid phone number';
+      }
+    }
+
+    // Message validation
+    if (!formData.message.trim()) {
+      errors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters';
+    } else if (formData.message.trim().length > 2000) {
+      errors.message = 'Message must be less than 2000 characters';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const checkRateLimit = async (): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .rpc('check_rate_limit', {
+          p_email: formData.email.trim(),
+          p_action: 'contact_form',
+          p_limit: 3, // 3 submissions per hour
+          p_window_minutes: 60
+        });
+
+      if (error) {
+        console.error('Rate limit check error:', error);
+        return true; // Allow submission if rate limit check fails
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Rate limit error:', error);
+      return true; // Allow submission if rate limit check fails
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,37 +116,48 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
     setSubmitStatus('idle');
     setErrorMessage('');
 
-    // Basic validation
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      setErrorMessage('Please fill in all required fields.');
+    // Validate form
+    if (!validateForm()) {
       setSubmitStatus('error');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setErrorMessage('Please enter a valid email address.');
-      setSubmitStatus('error');
+      setErrorMessage('Please fix the errors above');
       setIsSubmitting(false);
       return;
     }
 
     try {
-      // Simple insert - no select after insert
+      // Check rate limit
+      const canSubmit = await checkRateLimit();
+      if (!canSubmit) {
+        setSubmitStatus('rate_limited');
+        setErrorMessage('Too many submissions. Please try again later.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Submit form
       const { error } = await supabase
         .from('contacts')
         .insert({
           name: formData.name.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim() || null,
-          message: formData.message.trim()
+          message: formData.message.trim(),
+          status: 'new',
+          priority: 'normal'
         });
 
       if (error) {
         console.error('Supabase error:', error);
-        throw new Error(`Database error: ${error.message}`);
+        
+        if (error.message.includes('email')) {
+          throw new Error('Please enter a valid email address');
+        } else if (error.message.includes('name_length')) {
+          throw new Error('Name must be between 2 and 100 characters');
+        } else if (error.message.includes('message_length')) {
+          throw new Error('Message must be between 10 and 2000 characters');
+        } else {
+          throw new Error('Failed to send message. Please try again.');
+        }
       }
 
       console.log('Contact form submitted successfully');
@@ -118,6 +210,16 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                   <p className="text-sm text-gray-500">Always here to help</p>
                 </div>
               </div>
+
+              <div className="flex items-center space-x-4 text-gray-700">
+                <div className="bg-warm-teal/10 p-3 rounded-lg">
+                  <Shield className="h-5 w-5 text-warm-teal" />
+                </div>
+                <div>
+                  <p className="font-medium">Secure & Private</p>
+                  <p className="text-sm text-gray-500">Your data is protected</p>
+                </div>
+              </div>
             </div>
 
             {/* Contact Form */}
@@ -134,9 +236,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                       placeholder="Your full name"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full"
+                      className={`w-full ${validationErrors.name ? 'border-red-500' : ''}`}
                       required
                     />
+                    {validationErrors.name && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -148,9 +253,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                       placeholder="your.email@example.com"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full"
+                      className={`w-full ${validationErrors.email ? 'border-red-500' : ''}`}
                       required
                     />
+                    {validationErrors.email && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -164,8 +272,11 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                     placeholder="+91 9876543210"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full"
+                    className={`w-full ${validationErrors.phone ? 'border-red-500' : ''}`}
                   />
+                  {validationErrors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
+                  )}
                 </div>
 
                 <div>
@@ -177,16 +288,24 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                     placeholder="Tell us how we can help you..."
                     value={formData.message}
                     onChange={(e) => handleInputChange('message', e.target.value)}
-                    className="w-full h-32 resize-none"
+                    className={`w-full h-32 resize-none ${validationErrors.message ? 'border-red-500' : ''}`}
                     required
                   />
+                  <div className="flex justify-between items-center mt-1">
+                    {validationErrors.message && (
+                      <p className="text-sm text-red-600">{validationErrors.message}</p>
+                    )}
+                    <p className="text-sm text-gray-500 ml-auto">
+                      {formData.message.length}/2000
+                    </p>
+                  </div>
                 </div>
 
                 {submitStatus === 'success' && (
                   <Alert className="border-green-200 bg-green-50">
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <AlertDescription className="text-green-800">
-                      Thank you for your message! We'll get back to you soon.
+                      Thank you for your message! We'll get back to you within 24 hours.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -195,6 +314,15 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                   <Alert className="border-red-200 bg-red-50">
                     <AlertCircle className="h-4 w-4 text-red-600" />
                     <AlertDescription className="text-red-800">
+                      {errorMessage}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {submitStatus === 'rate_limited' && (
+                  <Alert className="border-yellow-200 bg-yellow-50">
+                    <Shield className="h-4 w-4 text-yellow-600" />
+                    <AlertDescription className="text-yellow-800">
                       {errorMessage}
                     </AlertDescription>
                   </Alert>
@@ -217,6 +345,10 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
                     </>
                   )}
                 </Button>
+
+                <p className="text-xs text-gray-500 text-center">
+                  We respect your privacy and will never share your information with third parties.
+                </p>
               </form>
             </div>
           </div>
