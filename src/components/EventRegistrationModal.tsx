@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { supabase, EventRegistration } from '@/lib/supabase';
+import { supabase, EventRegistration, handleSupabaseError } from '@/lib/supabase';
 import { Calendar, Clock, MapPin, Users, CheckCircle, AlertCircle, Send } from 'lucide-react';
 
 interface EventRegistrationModalProps {
@@ -45,41 +45,56 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleInputChange = (field: keyof EventRegistration, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const validateForm = () => {
+    if (!formData.name.trim()) return 'Name is required';
+    if (!formData.email.trim()) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Please enter a valid email address';
+    if (!formData.phone.trim()) return 'Phone number is required';
+    if (!/^[0-9+\-()\s]*$/.test(formData.phone)) return 'Please enter a valid phone number';
+    if (formData.emergency_contact && !/^[0-9+\-()\s]*$/.test(formData.emergency_contact)) return 'Please enter a valid emergency contact number';
+    return '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setErrorMessage(validationError);
+      setSubmitStatus('error');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
 
     try {
-      const { error } = await supabase
+      // Insert registration - the trigger will handle updating the count
+      const { data, error } = await supabase
         .from('event_registrations')
         .insert([{
-          event_id: formData.event_id,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          emergency_contact: formData.emergency_contact || null,
-          medical_conditions: formData.medical_conditions || null,
-          dietary_requirements: formData.dietary_requirements || null,
-          experience: formData.experience || null,
-          motivation: formData.motivation || null
-        }]);
+          ...formData,
+          status: 'confirmed',
+          created_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
 
       if (error) {
-        console.error('Supabase error:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
-        throw error;
+        if (error.code === '23505') { // Unique constraint violation
+          throw new Error('You have already registered for this event.');
+        } else if (error.code === '23503') { // Foreign key violation
+          throw new Error('This event is no longer available.');
+        } else {
+          throw error;
+        }
       }
 
       setSubmitStatus('success');
+      setTimeout(() => setIsOpen(false), 2000); // Close modal after success
+      
+      // Reset form
       setFormData({
         event_id: eventId,
         name: '',
@@ -92,21 +107,12 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
         motivation: ''
       });
     } catch (error) {
-      console.error('Error registering for event:', error);
+      console.error('Registration error:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
       setSubmitStatus('error');
-      setErrorMessage('Failed to register. Please try again or contact us directly.');
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
   };
 
   return (
@@ -114,176 +120,132 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-dark-charcoal">
-            Register for Event
-          </DialogTitle>
+          <DialogTitle>Register for Event</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Event Details */}
-          <Card className="bg-gradient-to-br from-warm-teal/5 to-sunrise-orange/5 border-warm-teal/20">
-            <CardHeader>
-              <CardTitle className="text-xl text-warm-teal">{eventTitle}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center text-gray-700">
-                  <Calendar className="h-5 w-5 text-warm-teal mr-3" />
-                  <span>{formatDate(eventDate)}</span>
+        {/* Event Details */}
+        <Card className="border-0 bg-gray-50/50">
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-lg mb-3">{eventTitle}</h3>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2 text-warm-teal" />
+                <span>{eventDate}</span>
+              </div>
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2 text-warm-teal" />
+                <span>{eventTime}</span>
+              </div>
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-2 text-warm-teal" />
+                <span>{eventLocation}</span>
+              </div>
+              {spotsLeft && (
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 mr-2 text-warm-teal" />
+                  <span>{spotsLeft}</span>
                 </div>
-                <div className="flex items-center text-gray-700">
-                  <Clock className="h-5 w-5 text-sunrise-orange mr-3" />
-                  <span>{eventTime}</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <MapPin className="h-5 w-5 text-sage-600 mr-3" />
-                  <span>{eventLocation}</span>
-                </div>
-                {spotsLeft && (
-                  <div className="flex items-center text-gray-700">
-                    <Users className="h-5 w-5 text-blue-500 mr-3" />
-                    <span>{spotsLeft}</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Success/Error Messages */}
-          {submitStatus === 'success' && (
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
-                Registration successful! You'll receive a confirmation email shortly.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {submitStatus === 'error' && (
-            <Alert className="border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">
-                {errorMessage}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  required
-                  placeholder="Enter your full name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  required
-                  placeholder="Enter your email"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  required
-                  placeholder="Enter your phone number"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="emergency_contact">Emergency Contact</Label>
-                <Input
-                  id="emergency_contact"
-                  type="text"
-                  value={formData.emergency_contact}
-                  onChange={(e) => handleInputChange('emergency_contact', e.target.value)}
-                  placeholder="Emergency contact name & number"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="medical_conditions">Medical Conditions</Label>
-              <Textarea
-                id="medical_conditions"
-                value={formData.medical_conditions}
-                onChange={(e) => handleInputChange('medical_conditions', e.target.value)}
-                placeholder="Any medical conditions we should be aware of?"
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="dietary_requirements">Dietary Requirements</Label>
-              <Textarea
-                id="dietary_requirements"
-                value={formData.dietary_requirements}
-                onChange={(e) => handleInputChange('dietary_requirements', e.target.value)}
-                placeholder="Any dietary restrictions or requirements?"
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="experience">Previous Experience</Label>
-              <Textarea
-                id="experience"
-                value={formData.experience}
-                onChange={(e) => handleInputChange('experience', e.target.value)}
-                placeholder="Tell us about your caregiving experience (if any)"
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="motivation">What motivates you?</Label>
-              <Textarea
-                id="motivation"
-                value={formData.motivation}
-                onChange={(e) => handleInputChange('motivation', e.target.value)}
-                placeholder="What motivates you to join this program?"
-                rows={3}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-warm-teal hover:bg-warm-teal/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Registering...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4" />
-                  <span>Register for Event</span>
-                </>
               )}
-            </Button>
-          </form>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Status Messages */}
+        {submitStatus === 'success' && (
+          <Alert className="border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              Registration successful! We'll send you a confirmation email shortly.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {submitStatus === 'error' && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              {errorMessage}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Registration Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              required
+              placeholder="Enter your full name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              required
+              placeholder="Enter your email"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number *</Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              required
+              placeholder="Enter your phone number"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="emergency_contact">Emergency Contact (Optional)</Label>
+            <Input
+              id="emergency_contact"
+              value={formData.emergency_contact}
+              onChange={(e) => setFormData(prev => ({ ...prev, emergency_contact: e.target.value }))}
+              placeholder="Name and phone number"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="medical_conditions">Medical Conditions (Optional)</Label>
+            <Textarea
+              id="medical_conditions"
+              value={formData.medical_conditions}
+              onChange={(e) => setFormData(prev => ({ ...prev, medical_conditions: e.target.value }))}
+              placeholder="Any medical conditions we should be aware of"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-warm-teal hover:bg-warm-teal/90"
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                <span>Registering...</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <Send className="h-4 w-4 mr-2" />
+                <span>Register Now</span>
+              </div>
+            )}
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
   );

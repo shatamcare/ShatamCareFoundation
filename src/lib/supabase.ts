@@ -1,17 +1,34 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase configuration - Add proper error handling
+// Supabase configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// Validate environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. Forms will not work properly.')
+  throw new Error(
+    'Missing Supabase environment variables. Please check your .env file and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set correctly.'
+  )
 }
 
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-)
+// Initialize Supabase client with proper error handling
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+})
+
+// Test connection on init
+supabase.auth.getSession().catch(error => {
+  console.error('Supabase connection error:', error)
+})
 
 // Database type definitions
 export interface ContactFormData {
@@ -39,43 +56,35 @@ export interface EventRegistration {
   dietary_requirements?: string
   experience?: string
   motivation?: string
+  created_at?: string
+  status?: 'pending' | 'confirmed' | 'waitlist'
 }
 
-export interface Event {
-  id: string
-  title: string
-  description?: string
-  date: string
-  time: string
-  location: string
-  max_participants?: number
-  current_participants?: number
-  registration_fee?: number
-  is_active?: boolean
+// Helper function to check if Supabase is connected
+export const checkSupabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('health_check')
+      .select('status')
+      .single()
+    
+    if (error) throw error
+    return { ok: true, data }
+  } catch (error) {
+    console.error('Supabase health check failed:', error)
+    return { ok: false, error }
+  }
 }
 
-export interface Testimonial {
-  name: string
-  role: string
-  content: string
-  rating: number
-  location?: string
-  program_attended?: string
-  date_of_experience?: string
-  is_approved?: boolean
-  is_featured?: boolean
-}
-
-export interface Donation {
-  donor_name: string
-  donor_email: string
-  donor_phone?: string
-  amount: number
-  purpose: string
-  donor_pan?: string
-  donor_address?: string
-  payment_id?: string
-  payment_status?: 'pending' | 'success' | 'failed'
+// Utility function for error handling
+export const handleSupabaseError = (error: any) => {
+  if (error.code === '23505') {
+    return 'This record already exists.'
+  }
+  if (error.code === 'PGRST116') {
+    return 'Invalid input data. Please check your form entries.'
+  }
+  return 'An unexpected error occurred. Please try again.'
 }
 
 // Helper functions for database operations
