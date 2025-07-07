@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
-import PerformanceMonitor from "./components/PerformanceMonitor";
 import Index from "./pages/Index";
 import TestIndex from "./pages/TestIndex";
 import OurPrograms from "./pages/OurPrograms";
@@ -46,9 +45,6 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-
-        {/* Only show performance monitor in development environment */}
-        {isDev && <PerformanceMonitor />}
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>
