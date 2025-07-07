@@ -42,19 +42,43 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
     setSubmitStatus('idle');
     setErrorMessage('');
 
+    // Basic validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setErrorMessage('Please fill in all required fields.');
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setErrorMessage('Please enter a valid email address.');
+      setSubmitStatus('error');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('contacts')
         .insert([{
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || null,
-          message: formData.message,
-          type: 'general'
-        }]);
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone?.trim() || null,
+          message: formData.message.trim(),
+          type: 'general',
+          status: 'new',
+          created_at: new Date().toISOString()
+        }])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(`Database error: ${error.message}`);
+      }
 
+      console.log('Contact form submitted successfully:', data);
       setSubmitStatus('success');
       setFormData({
         name: '',
@@ -65,7 +89,16 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = '' }) => {
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
-      setErrorMessage('Failed to send message. Please try again or contact us directly.');
+      
+      if (error instanceof Error) {
+        if (error.message.includes('contacts')) {
+          setErrorMessage('The contacts table is not set up. Please contact the administrator.');
+        } else {
+          setErrorMessage(`Error: ${error.message}`);
+        }
+      } else {
+        setErrorMessage('Failed to send message. Please try again or contact us directly.');
+      }
     } finally {
       setIsSubmitting(false);
     }

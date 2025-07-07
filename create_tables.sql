@@ -30,6 +30,28 @@ CREATE TABLE IF NOT EXISTS event_registrations (
   UNIQUE(event_id, email)
 );
 
+-- Create contacts table for contact form submissions
+CREATE TABLE IF NOT EXISTS contacts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  message TEXT NOT NULL,
+  type TEXT DEFAULT 'general',
+  status TEXT DEFAULT 'new',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- Create newsletter_subscribers table
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  source TEXT DEFAULT 'website',
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
 -- Create a function to update current_participants count
 CREATE OR REPLACE FUNCTION update_event_participants() 
 RETURNS TRIGGER AS $$
@@ -83,3 +105,25 @@ CREATE POLICY "Users can register for events" ON event_registrations
      FROM events 
      WHERE id = event_id)
   );
+
+-- Create RLS policies for contacts table
+ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anonymous contact submissions" ON contacts
+  FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can view contacts" ON contacts
+  FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+-- Create RLS policies for newsletter_subscribers table
+ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow anonymous newsletter signups" ON newsletter_subscribers
+  FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can view subscribers" ON newsletter_subscribers
+  FOR SELECT
+  USING (auth.role() = 'authenticated');
