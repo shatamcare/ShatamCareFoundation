@@ -23,13 +23,16 @@ export const getImagePath = (imagePath: string): string => {
   const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
   const baseUrl = getBaseUrl();
   
+  // Encode the path to handle spaces and special characters
+  const encodedPath = encodeURI(cleanPath);
+  
   // For production, we need to add the base URL
   if (import.meta.env.PROD) {
-    return `${baseUrl}/${cleanPath}`;
+    return `${baseUrl}/${encodedPath}`;
   }
   
   // For development, just add leading slash
-  return `/${cleanPath}`;
+  return `/${encodedPath}`;
 };
 
 /**
