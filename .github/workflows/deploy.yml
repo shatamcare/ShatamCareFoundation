@@ -5,13 +5,19 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Full history for better versioning
+        fetch-depth: 0
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -24,12 +30,27 @@ jobs:
 
     - name: Type check
       run: npm run typecheck || exit 1
+    
+    - name: Clean any previous builds
+      run: |
+        rm -rf dist
+        rm -rf node_modules/.cache/gh-pages
 
     - name: Build
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       run: npm run build
+    
+    - name: Create .nojekyll file
+      run: touch dist/.nojekyll
+
+    - name: Verify build output
+      run: |
+        echo "Verifying build output structure..."
+        ls -la dist/
+        echo "Checking that index.html references correct assets..."
+        grep -n "assets/" dist/index.html || echo "Warning: No assets found in index.html"
 
     - name: Setup Pages
       uses: actions/configure-pages@v5
@@ -52,3 +73,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      
+      - name: Verify deployment (wait for DNS)
+        run: |
+          echo "⏳ Waiting for GitHub Pages to finish deployment (30 seconds)..."
+          sleep 30
+          
+          echo "🔍 Attempting to verify deployed site..."
+          SITE_URL="${{ steps.deployment.outputs.page_url }}"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$SITE_URL")
+          
+          echo "📊 HTTP Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Site appears to be live!"
+          else
+            echo "⚠️ Site may not be fully deployed yet. Check manually in a few minutes."
+          fi

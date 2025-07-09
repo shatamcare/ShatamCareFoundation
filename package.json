@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "predeploy": "npm run typecheck && npm run build",
+    "clean-deploy": "node clean_deploy.js",
     "build:dev": "vite build --mode development"
   },
   "keywords": [
