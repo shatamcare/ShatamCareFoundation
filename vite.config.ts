@@ -4,16 +4,14 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => ({
-  base: mode === 'production' ? '/ShatamCareFoundation/' : '/',
+export default defineConfig({
+  base: '/ShatamCareFoundation/',
   server: {
     host: "::",
     port: 5174,
   },
   publicDir: 'public',
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -21,10 +19,9 @@ export default defineConfig(({ command, mode }) => ({
   },
   build: {
     outDir: "dist",
-    sourcemap: true,
+    emptyOutDir: true,
+    sourcemap: false,
     assetsDir: 'assets',
-    minify: 'esbuild',
-    target: 'esnext',
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
@@ -32,32 +29,27 @@ export default defineConfig(({ command, mode }) => ({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
+          router: ['react-router-dom']
         },
+        entryFileNames: 'assets/js/[name].[hash].js',
+        chunkFileNames: 'assets/js/[name].[hash].js',
         assetFileNames: (assetInfo) => {
-          if (!assetInfo.name) return 'assets/[hash][extname]';
-          const info = assetInfo.name.split('.');
-          const ext = info.pop();
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext || '')) {
-            return `assets/images/[name]-[hash][extname]`;
+          const extType = assetInfo.name ? assetInfo.name.split('.').pop() : '';
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType || '')) {
+            return 'assets/images/[name].[hash][extname]';
           }
-          return `assets/[ext]/[name]-[hash][extname]`;
-        },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-      },
-    },
-    cssCodeSplit: true,
-    modulePreload: {
-      polyfill: true,
-    },
+          if (extType === 'css') {
+            return 'assets/css/[name].[hash][extname]';
+          }
+          return 'assets/[name].[hash][extname]';
+        }
+      }
+    }
   },
-  // Performance optimizations
   optimizeDeps: {
-    include: ['react', 'react-dom', 'lucide-react', 'react-router-dom'],
+    include: ['react', 'react-dom', 'lucide-react', 'react-router-dom']
   },
-  // Define environment variables
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
-  },
-}));
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
+  }
+});
