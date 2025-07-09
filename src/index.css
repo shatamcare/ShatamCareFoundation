@@ -1,10 +1,10 @@
 /* Font Preloading for Performance */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap');
+@import './styles/animations.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './styles/animations.css';
 
 /* Shatam Care Foundation Design System - Enhanced */
 
