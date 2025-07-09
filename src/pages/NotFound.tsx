@@ -2,20 +2,34 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft } from "lucide-react";
+import { isProduction, getBaseUrl } from "@/utils/url-helpers";
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.error(
+    // Check if we're at a legitimate 404 vs just hitting the fallback route
+    const currentPath = location.pathname;
+    const isRootPath = currentPath === "/" || currentPath === "";
+    const isBasePath = isProduction() && currentPath === getBaseUrl();
+    
+    // Don't show 404 if we're at root paths - these should redirect to home
+    if (isRootPath || isBasePath) {
+      console.log('Redirecting from root/base path to home');
+      navigate('/', { replace: true });
+      return;
+    }
+    
+    // Only log actual 404 errors, not redirects
+    console.warn(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      currentPath
     );
     
     // Set page title for SEO
     document.title = "Page Not Found - Shatam Care Foundation";
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-light-gray to-white">
@@ -32,7 +46,12 @@ const NotFound = () => {
         
         <div className="space-y-4">
           <Button 
-            onClick={() => navigate('/')}
+            onClick={() => {
+              // Use the root path based on environment
+              const rootPath = isProduction() ? `${getBaseUrl()}/` : '/';
+              navigate(rootPath);
+              console.log("Navigating to root path:", rootPath);
+            }}
             className="bg-warm-teal hover:bg-warm-teal-600 text-white px-8 py-3 rounded-full font-medium w-full sm:w-auto"
           >
             <Home className="mr-2 h-4 w-4" />

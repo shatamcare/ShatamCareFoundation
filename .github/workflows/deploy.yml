@@ -51,6 +51,19 @@ jobs:
         ls -la dist/
         echo "Checking that index.html references correct assets..."
         grep -n "assets/" dist/index.html || echo "Warning: No assets found in index.html"
+        
+        # Make sure no source files are included
+        echo "Making sure no source files are in the dist folder..."
+        if [ -d "dist/src" ]; then
+          echo "ERROR: Source files found in dist/src! Removing..."
+          rm -rf dist/src
+        else
+          echo "✅ No source files in dist/"
+        fi
+        
+        # Verify that routes will work with static hosting
+        echo "Creating fallback route handling for SPA..."
+        cp dist/index.html dist/404.html
 
     - name: Setup Pages
       uses: actions/configure-pages@v5
@@ -86,6 +99,26 @@ jobs:
           echo "📊 HTTP Status: $HTTP_STATUS"
           if [ "$HTTP_STATUS" -eq 200 ]; then
             echo "✅ Site appears to be live!"
+            
+            # Check for common error indicators in the response
+            echo "🔍 Checking for common deployment issues..."
+            RESPONSE=$(curl -s "$SITE_URL")
+            if echo "$RESPONSE" | grep -q "src/"; then
+              echo "⚠️ WARNING: Response contains references to source files!"
+              echo "This may indicate the wrong version of index.html is being served."
+            else
+              echo "✅ No references to source files found in response."
+            fi
+            
+            # Test a subpath to ensure router is working
+            echo "🔍 Testing a subpath to verify routing..."
+            SUBPATH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${SITE_URL}our-programs")
+            echo "📊 Subpath HTTP Status: $SUBPATH_STATUS"
+            if [ "$SUBPATH_STATUS" -eq 200 ]; then
+              echo "✅ Subpath routing appears to be working!"
+            else
+              echo "⚠️ Subpath returned $SUBPATH_STATUS - may need to verify SPA routing."
+            fi
           else
             echo "⚠️ Site may not be fully deployed yet. Check manually in a few minutes."
           fi

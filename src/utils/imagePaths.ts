@@ -3,15 +3,7 @@
  * This ensures images load correctly both in development and production
  */
 
-// Get the base URL for the application
-const getBaseUrl = (): string => {
-  // In production (GitHub Pages), we need to include the repository name
-  if (import.meta.env.PROD) {
-    return '/ShatamCareFoundation';
-  }
-  // In development, no base path needed
-  return '';
-};
+import { getBaseUrl, isProduction } from './url-helpers';
 
 /**
  * Get the correct image path for the current environment
@@ -19,20 +11,39 @@ const getBaseUrl = (): string => {
  * @returns The correct image path for the current environment
  */
 export const getImagePath = (imagePath: string): string => {
-  // Remove leading slash if present to avoid double slashes
-  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-  const baseUrl = getBaseUrl();
-  
-  // Encode the path to handle spaces and special characters
-  const encodedPath = encodeURI(cleanPath);
-  
-  // For production, we need to add the base URL
-  if (import.meta.env.PROD) {
-    return `${baseUrl}/${encodedPath}`;
+  try {
+    // Check if path is empty or undefined
+    if (!imagePath) {
+      console.error('Empty or undefined image path provided to getImagePath');
+      return '/images/placeholder.jpg'; // Return a placeholder image path
+    }
+
+    // Remove leading slash if present to avoid double slashes
+    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    const baseUrl = getBaseUrl();
+    
+    // Encode the path to handle spaces and special characters
+    const encodedPath = encodeURI(cleanPath);
+    
+    // For production, we need to add the base URL
+    if (isProduction()) {
+      return `${baseUrl}/${encodedPath}`;
+    }
+    
+    // For development, we need a direct path relative to the public folder
+    // Vite serves files from the public folder at the root
+    const devPath = `/${encodedPath}`;
+    
+    // Log paths in development for debugging
+    if (!isProduction() && import.meta.env.DEV) {
+      console.debug(`[Image Path Debug] Original: "${imagePath}", Processed: "${devPath}"`);
+    }
+    
+    return devPath;
+  } catch (error) {
+    console.warn(`Error processing image path: ${imagePath}`, error);
+    return `/images/placeholder.jpg`; // Return a placeholder image path as fallback
   }
-  
-  // For development, just add leading slash
-  return `/${encodedPath}`;
 };
 
 /**
@@ -97,16 +108,27 @@ export const lazyLoadImage = (element: HTMLImageElement) => {
 
 // Preload critical images
 export const preloadCriticalImages = () => {
-  const criticalImagePaths = [
-    imagePaths.team.logo,
-    getImagePath('images/Users/care.jpg')
-  ];
-  
-  criticalImagePaths.forEach(path => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = path;
-    document.head.appendChild(link);
-  });
+  try {
+    const criticalImagePaths = [
+      imagePaths.team.logo,
+      getImagePath('images/Users/care.jpg')
+    ];
+    
+    criticalImagePaths.forEach(path => {
+      try {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = path;
+        link.onerror = () => {
+          console.warn(`Failed to preload image: ${path}`);
+        };
+        document.head.appendChild(link);
+      } catch (err) {
+        console.warn(`Error preloading image ${path}:`, err);
+      }
+    });
+  } catch (error) {
+    console.warn('Error in preloadCriticalImages:', error);
+  }
 };

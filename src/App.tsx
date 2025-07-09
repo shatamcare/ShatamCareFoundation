@@ -31,8 +31,11 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        {/* Use basename only in production, not in development */}
         <BrowserRouter basename={import.meta.env.PROD ? "/ShatamCareFoundation" : ""}>
           <Routes>
+            {/* Make sure the index route is properly configured */}
+            <Route index element={<Index />} />
             <Route path="/" element={<Index />} />
             <Route path="/test" element={<TestIndex />} />
             <Route path="/our-programs" element={<OurPrograms />} />

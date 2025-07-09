@@ -92,15 +92,6 @@ const Index = () => {
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsHeaderScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
   // Initialize enhanced emotional animations with error handling
   useEffect(() => {
     let isComponentMounted = true;
@@ -145,6 +136,16 @@ const Index = () => {
       cleanupAnimations();
     };
   }, []);
+
+  // Handle scroll events for header styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeaderScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   // Refresh ScrollTrigger when expanded program changes
   useEffect(() => {
@@ -155,11 +156,31 @@ const Index = () => {
     }
   }, [expandedProgram, programs]);
 
-  // Handle image errors with better fallback
-  const handleImageError = (imagePath: string) => {
-    setImageErrors(prev => new Set(prev).add(imagePath));
-    console.warn(`Failed to load image: ${imagePath}`);
+  // Handle image loading errors
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imageSrc: string) => {
+    console.warn(`Failed to load image: ${imageSrc}`);
+    
+    // Update error state
+    setImageErrors(prev => {
+      const newErrors = new Set(prev);
+      newErrors.add(imageSrc);
+      return newErrors;
+    });
+    
+    // Set fallback image - use our SVG fallback
+    e.currentTarget.src = getImagePath('images/fallback.svg');
+    e.currentTarget.onerror = null; // Prevent infinite error loop
   };
+
+  useEffect(() => {
+    // Preload critical images to avoid layout shifts
+    preloadCriticalImages();
+    
+    // Log any image errors for debugging
+    if (imageErrors.size > 0) {
+      console.warn('Images failed to load:', Array.from(imageErrors));
+    }
+  }, [imageErrors]);
 
   // Create fallback image component
   const FallbackImage = ({ alt, className }: { alt: string; className?: string }) => (
@@ -270,8 +291,8 @@ const Index = () => {
     return colorMap[type] || 'bg-gray-600 text-white';
   };
 
-  const handleLogoError = () => {
-    handleImageError(imagePaths.team.logo);
+  const handleLogoError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    handleImageError(e, imagePaths.team.logo);
   };
 
   return <div className="min-h-screen bg-background">
@@ -499,19 +520,7 @@ const Index = () => {
                     alt={program.title} 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-warm-teal-100 to-warm-teal-200 flex items-center justify-center">
-                          <div class="text-warm-teal opacity-50">
-                            <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                          </div>
-                        </div>`;
-                      }
-                    }}
+                    onError={(e) => handleImageError(e, program.image)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-3">
@@ -607,6 +616,7 @@ const Index = () => {
                     alt={event.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
+                    onError={(e) => handleImageError(e, event.image)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                   <div className="absolute top-4 left-4">
@@ -747,6 +757,7 @@ const Index = () => {
                   alt="Amrita Patil, Founder" 
                   className="w-64 h-64 lg:w-72 lg:h-72 rounded-2xl object-cover mx-auto lg:mx-0 shadow-xl"
                   loading="lazy"
+                  onError={(e) => handleImageError(e, imagePaths.team.amrita)}
                 />
                 <div className="absolute -bottom-3 -right-3 bg-gradient-to-br from-warm-teal to-sunrise-orange p-3 rounded-xl shadow-lg">
                   <Award className="h-6 w-6 text-white" />

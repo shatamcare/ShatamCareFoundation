@@ -1,12 +1,18 @@
 # GitHub Pages Deployment - Quick Reference
 
-## ✅ Current Status: UPDATED STRATEGY
+## ✅ Current Status: FIXED APP.TSX ERROR
 - **Live URL**: https://adarshalexbalmuchu.github.io/ShatamCareFoundation/
-- **Last Updated**: See Git commit history
+- **Last Updated**: July 9, 2025
 
 ## 🚀 Recommended Deployment Methods
 
-### Option 1: Clean Deploy Script (RECOMMENDED)
+### Option 1: Enhanced Deploy (BEST FOR APP.TSX 500 ERROR)
+```bash
+# The most reliable way to fix App.tsx 500 errors
+npm run enhanced-deploy
+```
+
+### Option 2: Clean Deploy Script
 ```bash
 # JavaScript version
 npm run clean-deploy
@@ -40,11 +46,23 @@ npx gh-pages -d dist --dotfiles
 ## 🔍 Post-Deployment Verification
 
 After deploying, always check:
+
 1. Network tab shows no 404 errors
 2. Assets load from `/ShatamCareFoundation/assets/` (not `/src/`)
 3. Page loads without blank screens
+4. No App.tsx 500 errors in the console
 
 ## 🔧 Quick Fixes
+
+### App.tsx 500 Error Fix:
+
+If you see "App.tsx:1 Failed to load resource: the server responded with a status of 500", use:
+
+```bash
+npm run enhanced-deploy
+```
+
+This creates a completely clean deployment that eliminates source files from the gh-pages branch.
 
 ### "main.tsx Failed to load" Error:
 ```bash

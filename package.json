@@ -5,14 +5,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5174",
+    "start": "node start-dev.js",
     "build": "vite build",
+    "postbuild": "node fix_routing.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "deploy": "gh-pages -d dist",
-    "predeploy": "npm run typecheck && npm run build",
+    "preview": "vite preview --port 5174",
+    "debug:images": "node debug-images.js",
+    "deploy": "npm run build && gh-pages -d dist --dotfiles",
+    "predeploy": "npm run typecheck",
     "clean-deploy": "node clean_deploy.js",
+    "fix-deploy": "git push origin --delete gh-pages && npm run build && npx gh-pages -d dist --dotfiles",
+    "enhanced-deploy": "node enhanced_clean_deploy.js",
     "build:dev": "vite build --mode development"
   },
   "keywords": [
