@@ -47,19 +47,34 @@ jobs:
         # Create .nojekyll to bypass Jekyll processing
         touch dist/.nojekyll
         
+        # Copy public assets to dist if they don't exist
+        cp -n public/* dist/ 2>/dev/null || true
+        
         # Create 404.html for SPA routing
         cp dist/index.html dist/404.html
         
         # Ensure base path is correct in both index.html and 404.html
         for file in dist/index.html dist/404.html; do
-          # Replace href and src attributes
-          sed -i 's|href="/|href="/ShatamCareFoundation/|g' "$file"
-          sed -i 's|src="/|src="/ShatamCareFoundation/|g' "$file"
-          # Replace other potential absolute paths
-          sed -i 's|"/assets/|"/ShatamCareFoundation/assets/|g' "$file"
-          sed -i 's|"/images/|"/ShatamCareFoundation/images/|g' "$file"
-          sed -i 's|"/_app/|"/ShatamCareFoundation/_app/|g' "$file"
+          # Replace absolute paths with relative paths
+          sed -i 's|href="/|href="./|g' "$file"
+          sed -i 's|src="/|src="./|g' "$file"
+          # Fix paths for assets
+          sed -i 's|"./assets/|"./assets/|g' "$file"
+          sed -i 's|"./images/|"./images/|g' "$file"
+          sed -i 's|"./_app/|"./_app/|g' "$file"
+          # Fix main entry point
+          sed -i 's|"/src/main.tsx"|"./src/main.tsx"|g' "$file"
         done
+        
+        # Verify favicon files exist in dist
+        if [ ! -f "dist/favicon.ico" ]; then
+          echo "Copying favicon.ico from public"
+          cp -f public/favicon.ico dist/ 2>/dev/null || echo "No favicon.ico found"
+        fi
+        if [ ! -f "dist/favicon.svg" ]; then
+          echo "Copying favicon.svg from public"
+          cp -f public/favicon.svg dist/ 2>/dev/null || echo "No favicon.svg found"
+        fi
 
     - name: Verify build output
       run: |
