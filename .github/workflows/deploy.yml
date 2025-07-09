@@ -40,14 +40,32 @@ jobs:
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
-      run: npm run build
-
-    - name: Prepare for GitHub Pages
       run: |
+        # Build with proper base URL
+        VITE_BASE_URL="/ShatamCareFoundation/" npm run build
+        
         # Create .nojekyll to bypass Jekyll processing
         touch dist/.nojekyll
         
-        # Copy public assets to dist if they don't exist
+        # Create .mime.types file for proper MIME types
+        echo '{ "*.js": "application/javascript", "*.mjs": "application/javascript", "*.ts": "application/javascript", "*.tsx": "application/javascript" }' > dist/.mime.types
+        
+        # Copy 404.html for SPA routing
+        cp dist/index.html dist/404.html
+        
+        # Update all asset paths in HTML files
+        for file in dist/*.html; do
+          sed -i 's|src="/|src="/ShatamCareFoundation/|g' "$file"
+          sed -i 's|href="/|href="/ShatamCareFoundation/|g' "$file"
+          sed -i 's|from "/|from "/ShatamCareFoundation/|g' "$file"
+          sed -i 's|url(/|url(/ShatamCareFoundation/|g' "$file"
+        done
+        
+        # Verify build artifacts
+        echo "Checking build output..."
+        ls -la dist/
+        echo "Checking asset directories..."
+        ls -la dist/assets/ || echo "No assets directory found"
         cp -n public/* dist/ 2>/dev/null || true
         
         # Create 404.html for SPA routing

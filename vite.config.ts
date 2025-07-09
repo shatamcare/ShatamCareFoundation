@@ -5,8 +5,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
-  // Use base path for GitHub Pages in production only
-  base: mode === 'production' ? "/ShatamCareFoundation/" : "/",
+  base: mode === 'production' ? '/ShatamCareFoundation/' : '/',
   server: {
     host: "::",
     port: 5174,
@@ -15,22 +14,6 @@ export default defineConfig(({ command, mode }) => ({
   plugins: [
     react(),
   ],
-  build: {
-    assetsDir: 'assets',
-    rollupOptions: {
-      output: {
-        assetFileNames: (assetInfo) => {
-          let extType = assetInfo.name.split('.')[1];
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-            extType = 'img';
-          }
-          return `assets/${extType}/[name]-[hash][extname]`;
-        },
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-      },
-    },
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -38,23 +21,36 @@ export default defineConfig(({ command, mode }) => ({
   },
   build: {
     outDir: "dist",
-    sourcemap: false,
-    // Optimize bundle size
+    sourcemap: true,
+    assetsDir: 'assets',
+    minify: 'esbuild',
+    target: 'esnext',
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
       output: {
         manualChunks: {
-          // Separate vendor chunks for better caching
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          icons: ['lucide-react'],
           router: ['react-router-dom'],
         },
+        assetFileNames: (assetInfo) => {
+          if (!assetInfo.name) return 'assets/[hash][extname]';
+          const info = assetInfo.name.split('.');
+          const ext = info.pop();
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext || '')) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          return `assets/[ext]/[name]-[hash][extname]`;
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
       },
     },
-    // Enable compression and optimization
-    minify: 'esbuild', // Use esbuild instead of terser for better compatibility
-    target: 'esnext',
-    assetsDir: 'assets',
+    cssCodeSplit: true,
+    modulePreload: {
+      polyfill: true,
+    },
   },
   // Performance optimizations
   optimizeDeps: {
