@@ -2,7 +2,16 @@
 export const safeInitAnimations = () => {
   try {
     console.log('Simple animations initialized');
+    // Remove loading class immediately
     document.body.classList.remove('loading');
+    
+    // Force remove any potential stuck loading states
+    setTimeout(() => {
+      document.body.classList.remove('loading');
+      const loadingElements = document.querySelectorAll('.loading, [class*="loading"]');
+      loadingElements.forEach(el => el.classList.remove('loading'));
+    }, 50);
+    
   } catch (error) {
     console.error('Animation initialization failed:', error);
     document.body.classList.remove('loading');

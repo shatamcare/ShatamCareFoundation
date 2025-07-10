@@ -30,53 +30,22 @@ const isDev = import.meta.env.DEV;
 
 const App = () => {
   const baseUrl = getBaseUrl();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Start with false - no loading screen
 
-  // More robust loading state management
+  // Minimal loading state management - only if needed
   useEffect(() => {
-    let loadingTimeout: NodeJS.Timeout;
-
-    const handleLoad = () => {
-      // Clear any existing timeout
-      if (loadingTimeout) clearTimeout(loadingTimeout);
-      
-      // Small delay to ensure CSS and fonts are applied
-      loadingTimeout = setTimeout(() => {
+    // If for some reason we need to show loading, make it very brief
+    if (isLoading) {
+      const emergencyTimeout = setTimeout(() => {
+        console.log('Emergency: Forcing loading to complete');
         setIsLoading(false);
-      }, 300);
-    };
+      }, 200);
 
-    // Multiple checks for loaded state
-    const checkLoadingState = () => {
-      if (document.readyState === 'complete') {
-        handleLoad();
-      } else if (document.readyState === 'interactive') {
-        // DOM is ready, but resources might still be loading
-        setTimeout(handleLoad, 100);
-      }
-    };
-
-    // Immediate check
-    checkLoadingState();
-
-    // Fallback - force loading to complete after 2 seconds
-    const fallbackTimeout = setTimeout(() => {
-      console.log('Fallback: Forcing loading to complete');
-      setIsLoading(false);
-    }, 2000);
-
-    // Event listeners
-    window.addEventListener('load', handleLoad);
-    document.addEventListener('DOMContentLoaded', handleLoad);
-
-    // Cleanup
-    return () => {
-      if (loadingTimeout) clearTimeout(loadingTimeout);
-      if (fallbackTimeout) clearTimeout(fallbackTimeout);
-      window.removeEventListener('load', handleLoad);
-      document.removeEventListener('DOMContentLoaded', handleLoad);
-    };
-  }, []);
+      return () => {
+        if (emergencyTimeout) clearTimeout(emergencyTimeout);
+      };
+    }
+  }, [isLoading]);
 
   return (
     <ErrorBoundary>
