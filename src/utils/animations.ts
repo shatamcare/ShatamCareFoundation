@@ -39,14 +39,20 @@ const isLowEndDevice = navigator.hardwareConcurrency && navigator.hardwareConcur
 
 // Initialize all enhanced animations with performance considerations
 export const initAnimations = () => {
-  // Skip complex animations for users who prefer reduced motion
-  if (prefersReducedMotion) {
-    initBasicAnimations();
-    return;
-  }
+  try {
+    // Skip complex animations for users who prefer reduced motion
+    if (prefersReducedMotion) {
+      initBasicAnimations();
+      return;
+    }
 
-  // Set initial loading state
-  document.body.classList.add('loading');
+    // Set initial loading state but ensure it gets removed after a timeout as a fallback
+    document.body.classList.add('loading');
+    
+    // Safety timeout to ensure loading class is removed even if animations fail
+    setTimeout(() => {
+      document.body.classList.remove('loading');
+    }, 2000);
   
   try {
     // Initialize core animations
