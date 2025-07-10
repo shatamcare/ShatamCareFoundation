@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-secure';
 import { Mail, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface NewsletterSignupProps {

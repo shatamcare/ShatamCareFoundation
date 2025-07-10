@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-secure';
 import { Mail, Phone, Calendar, Users, MessageSquare, TrendingUp, RefreshCw } from 'lucide-react';
 
 interface AdminDashboardProps {
