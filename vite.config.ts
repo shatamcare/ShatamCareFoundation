@@ -11,6 +11,7 @@ export default defineConfig({
   },
   publicDir: 'public',
   plugins: [react()],
+  assetsInclude: ['**/*.ico', '**/*.svg'],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
