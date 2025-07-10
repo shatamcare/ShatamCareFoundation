@@ -3,7 +3,7 @@ import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, C
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
-import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages } from '@/utils/imagePaths';
+import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, fallbackImageDataUrl } from '@/utils/imagePaths';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
@@ -158,18 +158,21 @@ const Index = () => {
 
   // Handle image loading errors
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imageSrc: string) => {
-    console.warn(`Failed to load image: ${imageSrc}`);
-    
-    // Update error state
-    setImageErrors(prev => {
-      const newErrors = new Set(prev);
-      newErrors.add(imageSrc);
-      return newErrors;
-    });
-    
-    // Set fallback image - use our SVG fallback
-    e.currentTarget.src = getImagePath('images/fallback.svg');
-    e.currentTarget.onerror = null; // Prevent infinite error loop
+    // Only handle the error if we haven't already set a fallback
+    if (!e.currentTarget.src.startsWith('data:image/svg+xml')) {
+      console.warn(`Failed to load image: ${imageSrc}`);
+      
+      // Update error state
+      setImageErrors(prev => {
+        const newErrors = new Set(prev);
+        newErrors.add(imageSrc);
+        return newErrors;
+      });
+      
+      // Set fallback image using the data URL
+      e.currentTarget.src = fallbackImageDataUrl;
+      e.currentTarget.onerror = null; // Prevent infinite error loop
+    }
   };
 
   useEffect(() => {

@@ -10,39 +10,65 @@ import { getBaseUrl, isProduction } from './url-helpers';
  * @param imagePath - The image path relative to the public directory (e.g., "images/logo.png")
  * @returns The correct image path for the current environment
  */
+// Base64 encoded SVG fallback image
+const fallbackSvg = `<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#f0f0f0"/>
+  <text x="100" y="100" font-family="Arial" font-size="14" fill="#666666" text-anchor="middle" dominant-baseline="middle">Image not available</text>
+  <rect x="60" y="70" width="80" height="60" stroke="#666666" stroke-width="2" fill="none"/>
+  <line x1="60" y1="70" x2="140" y2="130" stroke="#666666" stroke-width="2"/>
+  <line x1="140" y1="70" x2="60" y2="130" stroke="#666666" stroke-width="2"/>
+</svg>`;
+
+// Convert SVG to base64 using btoa (browser's built-in base64 encoder)
+export const fallbackImageDataUrl = `data:image/svg+xml;base64,${btoa(fallbackSvg)}`;
+
+/**
+ * Cache for verified image paths
+ */
+const imagePathCache = new Map<string, boolean>();
+
+/**
+ * Check if an image exists at the given path
+ */
+const verifyImagePath = async (path: string): Promise<boolean> => {
+  if (imagePathCache.has(path)) {
+    return imagePathCache.get(path)!;
+  }
+
+  try {
+    const response = await fetch(path, { method: 'HEAD' });
+    const exists = response.ok;
+    imagePathCache.set(path, exists);
+    return exists;
+  } catch {
+    imagePathCache.set(path, false);
+    return false;
+  }
+};
+
 export const getImagePath = (imagePath: string): string => {
   try {
-    // Check if path is empty or undefined
-    if (!imagePath) {
-      console.error('Empty or undefined image path provided to getImagePath');
-      return '/images/placeholder.jpg'; // Return a placeholder image path
+    // Special case for fallback image or empty paths
+    if (imagePath === 'images/fallback.svg' || !imagePath) {
+      return fallbackImageDataUrl;
     }
 
-    // Remove leading slash if present to avoid double slashes
+    // Normalize the path
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
     const baseUrl = getBaseUrl();
-    
-    // Encode the path to handle spaces and special characters
-    const encodedPath = encodeURI(cleanPath);
-    
-    // For production, we need to add the base URL
-    if (isProduction()) {
-      return `${baseUrl}/${encodedPath}`;
-    }
-    
-    // For development, we need a direct path relative to the public folder
-    // Vite serves files from the public folder at the root
-    const devPath = `/${encodedPath}`;
-    
-    // Log paths in development for debugging
-    if (!isProduction() && import.meta.env.DEV) {
-      console.debug(`[Image Path Debug] Original: "${imagePath}", Processed: "${devPath}"`);
-    }
-    
-    return devPath;
+    const fullPath = `${baseUrl}/${cleanPath}`;
+
+    // Start verification but don't wait for it
+    verifyImagePath(fullPath).then(exists => {
+      if (!exists) {
+        console.warn(`Image not found: ${fullPath}`);
+      }
+    });
+
+    return fullPath;
   } catch (error) {
-    console.warn(`Error processing image path: ${imagePath}`, error);
-    return `/images/placeholder.jpg`; // Return a placeholder image path as fallback
+    console.error('Error in getImagePath:', error);
+    return fallbackImageDataUrl;
   }
 };
 
@@ -107,27 +133,52 @@ export const lazyLoadImage = (element: HTMLImageElement) => {
 };
 
 // Preload critical images
-export const preloadCriticalImages = () => {
+/**
+ * Set of already preloaded image paths
+ */
+const preloadedImages = new Set<string>();
+
+export const preloadCriticalImages = async () => {
   try {
+    // Define critical images that should be preloaded
     const criticalImagePaths = [
       imagePaths.team.logo,
       getImagePath('images/Users/care.jpg')
     ];
     
-    criticalImagePaths.forEach(path => {
+    // Filter out already preloaded images
+    const imagesToPreload = criticalImagePaths.filter(path => !preloadedImages.has(path));
+    
+    if (imagesToPreload.length === 0) {
+      return; // Nothing to preload
+    }
+
+    // Verify and preload images in parallel
+    const preloadTasks = imagesToPreload.map(async (path) => {
       try {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = path;
-        link.onerror = () => {
-          console.warn(`Failed to preload image: ${path}`);
-        };
-        document.head.appendChild(link);
+        // First verify the image exists
+        const exists = await verifyImagePath(path);
+        
+        if (exists) {
+          // Create preload link
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'image';
+          link.href = path;
+          document.head.appendChild(link);
+          
+          // Mark as preloaded
+          preloadedImages.add(path);
+        } else {
+          console.warn(`Skipping preload for non-existent image: ${path}`);
+        }
       } catch (err) {
         console.warn(`Error preloading image ${path}:`, err);
       }
     });
+
+    // Wait for all preload tasks to complete
+    await Promise.all(preloadTasks);
   } catch (error) {
     console.warn('Error in preloadCriticalImages:', error);
   }

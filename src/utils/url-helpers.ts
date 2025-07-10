@@ -16,10 +16,8 @@ export const isProduction = (): boolean => {
  * In development, this is empty
  */
 export const getBaseUrl = (): string => {
-  if (isProduction()) {
-    return '/ShatamCareFoundation';
-  }
-  return '';
+  // Always return the base URL with ShatamCareFoundation
+  return '/ShatamCareFoundation';
 };
 
 /**
