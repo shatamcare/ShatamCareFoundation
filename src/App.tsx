@@ -32,23 +32,50 @@ const App = () => {
   const baseUrl = getBaseUrl();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Add a controlled loading state to ensure resources are properly loaded
+  // More robust loading state management
   useEffect(() => {
-    // Check if all critical resources are loaded before showing content
+    let loadingTimeout: NodeJS.Timeout;
+
     const handleLoad = () => {
-      // Give a small delay to ensure CSS and other resources are applied
-      setTimeout(() => {
+      // Clear any existing timeout
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+      
+      // Small delay to ensure CSS and fonts are applied
+      loadingTimeout = setTimeout(() => {
         setIsLoading(false);
-      }, 500);
+      }, 300);
     };
 
-    // If document is already loaded, call handleLoad immediately
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
-    }
+    // Multiple checks for loaded state
+    const checkLoadingState = () => {
+      if (document.readyState === 'complete') {
+        handleLoad();
+      } else if (document.readyState === 'interactive') {
+        // DOM is ready, but resources might still be loading
+        setTimeout(handleLoad, 100);
+      }
+    };
+
+    // Immediate check
+    checkLoadingState();
+
+    // Fallback - force loading to complete after 2 seconds
+    const fallbackTimeout = setTimeout(() => {
+      console.log('Fallback: Forcing loading to complete');
+      setIsLoading(false);
+    }, 2000);
+
+    // Event listeners
+    window.addEventListener('load', handleLoad);
+    document.addEventListener('DOMContentLoaded', handleLoad);
+
+    // Cleanup
+    return () => {
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
+      window.removeEventListener('load', handleLoad);
+      document.removeEventListener('DOMContentLoaded', handleLoad);
+    };
   }, []);
 
   return (

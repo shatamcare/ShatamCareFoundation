@@ -53,8 +53,7 @@ export const initAnimations = () => {
     setTimeout(() => {
       document.body.classList.remove('loading');
     }, 2000);
-  
-  try {
+
     // Initialize core animations
     initFloatingHeroAnimation();
     initSoftSectionTransitions();
