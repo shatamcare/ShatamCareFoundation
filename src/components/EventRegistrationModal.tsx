@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,6 +44,16 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Scroll the modal content into view with smooth behavior
+      const modalContent = document.querySelector('[role="dialog"]');
+      if (modalContent) {
+        modalContent.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [isOpen]);
 
   const validateForm = () => {
     if (!formData.name.trim()) return 'Name is required';
@@ -120,7 +130,7 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Register for Event</DialogTitle>
         </DialogHeader>
