@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { supabase, EventRegistration, handleSupabaseError } from '@/lib/supabase';
+import { EventRegistration, registerForEvent, handleSupabaseError } from '@/lib/supabase-secure';
 import { Calendar, Clock, MapPin, Users, CheckCircle, AlertCircle, Send } from 'lucide-react';
 
 interface EventRegistrationModalProps {
@@ -80,26 +80,9 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
     setErrorMessage('');
 
     try {
-      // Insert registration - the trigger will handle updating the count
-      const { data, error } = await supabase
-        .from('event_registrations')
-        .insert([{
-          ...formData,
-          status: 'confirmed',
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        if (error.code === '23505') { // Unique constraint violation
-          throw new Error('You have already registered for this event.');
-        } else if (error.code === '23503') { // Foreign key violation
-          throw new Error('This event is no longer available.');
-        } else {
-          throw error;
-        }
-      }
+      // Use the helper function to register
+      const result = await registerForEvent(formData);
+      console.log('Registration successful:', result);
 
       setSubmitStatus('success');
       setTimeout(() => setIsOpen(false), 2000); // Close modal after success
@@ -118,7 +101,9 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
       });
     } catch (error) {
       console.error('Registration error:', error);
-      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.';
+      console.log('Setting error message:', errorMsg);
+      setErrorMessage(errorMsg);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);

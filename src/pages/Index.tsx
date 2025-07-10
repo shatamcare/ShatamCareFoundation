@@ -9,17 +9,39 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import BackToTopButton from '@/components/BackToTopButton';
 import { enhanceAriaAttributes, announceToScreenReader } from '@/utils/accessibility';
+import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [databaseEvents, setDatabaseEvents] = useState<EventForDisplay[]>([]);
+  const [isEventsLoading, setIsEventsLoading] = useState(true);
+  
+  // Fetch events from database
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setIsEventsLoading(true);
+        const events = await getEvents();
+        setDatabaseEvents(events);
+        console.log('Fetched events:', events);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setIsEventsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
   
   // Section refs
   const heroRef = useRef<HTMLDivElement>(null);
   const founderRef = useRef<HTMLDivElement>(null);
-
+  
   // Programs data
   const programs = useMemo(() => [
     {
@@ -47,7 +69,7 @@ const Index = () => {
       image: getImagePath('images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg'),
       cta: "Access Resources",
       impact: "50,000+ resources accessed",
-      details: "Our comprehensive resource library includes educational materials, care guides, activity suggestions, and practical tools. All resources are developed by healthcare professionals and regularly updated to reflect the latest research in dementia care."
+      details: "Our educational resources provide evidence-based information on dementia care and management strategies."
     },
     {
       icon: Home,
@@ -157,7 +179,7 @@ const Index = () => {
   }, [expandedProgram, programs]);
 
   // Handle image loading errors
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imageSrc: string) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, globalThis.Event>, imageSrc: string) => {
     // Only handle the error if we haven't already set a fallback
     if (!e.currentTarget.src.startsWith('data:image/svg+xml')) {
       console.warn(`Failed to load image: ${imageSrc}`);
@@ -239,28 +261,55 @@ const Index = () => {
     popular: false
   }];
 
-  // Enhanced upcoming events
-  const upcomingEvents = [{
-    id: "550e8400-e29b-41d4-a716-446655440001",
-    title: "Caregiver Training Workshop",
-    date: "2025-07-15",
-    time: "10:00 AM - 4:00 PM",
-    location: "Mumbai Community Center",
-    type: "Workshop",
-    description: "Comprehensive training session for aspiring caregivers focusing on elderly care techniques and dementia support.",
-    image: imagePaths.caregivers.training,
-    spots: "15 spots left"
-  }, {
-    id: "550e8400-e29b-41d4-a716-446655440002",
-    title: "Family Support Group Meeting",
-    date: "2025-07-20",
-    time: "2:00 PM - 4:00 PM",
-    location: "Pune Center",
-    type: "Support Group",
-    description: "Monthly gathering for families dealing with dementia. Share experiences, get support, and learn coping strategies.",
-    image: imagePaths.caregivers.sessions,
-    spots: "Open to all"
-  }];
+  // Events from database with fallback to ensure UI works when database is unavailable
+  const eventTypes = {
+    'Caregiver Training Workshop': 'Workshop',
+    'Memory Café Meetup': 'Support Group',
+    'Therapy Session': 'Therapy',
+    'Fundraiser Event': 'Fundraiser'
+  };
+  
+  const eventImages = {
+    'Workshop': imagePaths.caregivers.training,
+    'Support Group': imagePaths.caregivers.sessions,
+    'Therapy': imagePaths.users.care,
+    'Fundraiser': imagePaths.users.care // Changed from activities to care
+  };
+  
+  // Map database events to frontend format with appropriate defaults
+  const upcomingEvents = isEventsLoading || databaseEvents.length === 0
+    ? [{ // Fallback events while loading or if database fetch fails
+        id: "a1fa4dee-b3c6-45b8-ac37-dbdc2e6614cd", 
+        title: "Caregiver Training Workshop",
+        date: "2025-08-15",
+        time: "10:00 AM - 4:00 PM",
+        location: "Shatam Care Center, Mumbai",
+        type: "Workshop",
+        description: "A comprehensive workshop for new caregivers to learn essential skills.",
+        image: imagePaths.caregivers.training,
+        spots: "30 spots left"
+      }, {
+        id: "c2553e2a-7097-48c4-86b0-c080fb479283",
+        title: "Memory Café Meetup",
+        date: "2025-07-30",
+        time: "4:00 PM - 6:00 PM",
+        location: "Community Center, Delhi",
+        type: "Support Group",
+        description: "Monthly gathering for people with dementia and their caregivers.",
+        image: imagePaths.caregivers.sessions,
+        spots: "25 spots left"
+      }]
+    : databaseEvents.map(event => ({
+        id: event.id,
+        title: event.title,
+        date: event.date,
+        time: event.time,
+        location: event.location,
+        type: eventTypes[event.title] || 'Event',
+        description: event.description,
+        image: eventImages[eventTypes[event.title] || 'Event'] || imagePaths.caregivers.sessions,
+        spots: event.spots
+      }));
 
   // Enhanced trust indicators
   const trustIndicators = [
@@ -597,9 +646,7 @@ const Index = () => {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Enhanced Events Section */}
+      </section>      {/* Enhanced Events Section */}
       <section id="events" className="section-padding bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -610,66 +657,73 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {upcomingEvents.map((event, index) => (
-              <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={event.image} 
-                    alt={event.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    onError={(e) => handleImageError(e, event.image)}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
-                  <div className="absolute top-4 left-4">
-                    <span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>
-                      {event.type}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 right-4 bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm font-medium">
-                    {event.spots}
-                  </div>
-                </div>
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-bold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">
-                    {event.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {event.description}
-                  </p>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center text-gray-700">
-                      <Calendar className="h-5 w-5 text-warm-teal mr-3 flex-shrink-0" />
-                      <span className="font-medium">{formatDate(event.date)}</span>
+          {isEventsLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-teal mb-4"></div>
+              <p className="text-gray-600">Loading upcoming events...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              {upcomingEvents.map((event, index) => (
+                <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                      onError={(e) => handleImageError(e, event.image)}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
+                    <div className="absolute top-4 left-4">
+                      <span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>
+                        {event.type}
+                      </span>
                     </div>
-                    <div className="flex items-center text-gray-700">
-                      <Clock className="h-5 w-5 text-sunrise-orange mr-3 flex-shrink-0" />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center text-gray-700">
-                      <MapPinIcon className="h-5 w-5 text-sage-600 mr-3 flex-shrink-0" />
-                      <span>{event.location}</span>
+                    <div className="absolute bottom-4 right-4 bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {event.spots}
                     </div>
                   </div>
-                  
-                  <EventRegistrationModal
-                    eventId={event.id}
-                    eventTitle={event.title}
-                    eventDate={event.date}
-                    eventTime={event.time}
-                    eventLocation={event.location}
-                    spotsLeft={event.spots}
-                  >
-                    <Button className="btn-cta w-full">
-                      Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </EventRegistrationModal>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <CardContent className="p-8">
+                    <h3 className="text-xl font-bold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">
+                      {event.title}
+                    </h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      {event.description}
+                    </p>
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center text-gray-700">
+                        <Calendar className="h-5 w-5 text-warm-teal mr-3 flex-shrink-0" />
+                        <span className="font-medium">{formatDate(event.date)}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <Clock className="h-5 w-5 text-sunrise-orange mr-3 flex-shrink-0" />
+                        <span>{event.time}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <MapPinIcon className="h-5 w-5 text-sage-600 mr-3 flex-shrink-0" />
+                        <span>{event.location}</span>
+                      </div>
+                    </div>
+                    
+                    <EventRegistrationModal
+                      eventId={event.id}
+                      eventTitle={event.title}
+                      eventDate={event.date}
+                      eventTime={event.time}
+                      eventLocation={event.location}
+                      spotsLeft={event.spots}
+                    >
+                      <Button className="btn-cta w-full">
+                        Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </EventRegistrationModal>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
           
           <div className="text-center">
             <Button className="btn-secondary-cta">

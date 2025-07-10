@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, PostgrestError } from '@supabase/supabase-js';
 
 // Supabase configuration
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -12,18 +12,20 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Initialize Supabase client with proper error handling
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'Content-Type': 'application/json'
+export const supabase = createClient(
+  'https://uumavtvxuncetfqwlgvp.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bWF2dHZ4dW5jZXRmcXdsZ3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MjM2NTQsImV4cCI6MjA2NzI5OTY1NH0.AAoykuZmtZ3gLtbAXLjlYkyqaVUsghx84CP9nF1xkHU',
+  {
+    auth: {
+      persistSession: true
+    },
+    global: {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
   }
-})
+)
 
 // Test connection on init
 supabase.auth.getSession().catch(error => {
