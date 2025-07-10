@@ -22,25 +22,12 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     assetsDir: 'assets',
+    // Simplified rollup options - let Vite handle asset paths
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
       output: {
-        entryFileNames: 'assets/js/[name].[hash].js',
-        chunkFileNames: 'assets/js/[name].[hash].js',
-        assetFileNames: (assetInfo) => {
-          if (!assetInfo.name) return 'assets/[name].[hash][extname]';
-          
-          if (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
-            return 'assets/images/[name].[hash][extname]';
-          }
-          
-          if (/\.css$/i.test(assetInfo.name)) {
-            return 'assets/css/[name].[hash][extname]';
-          }
-          
-          return 'assets/[name].[hash][extname]';
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-toast']
         }
       }
     }
