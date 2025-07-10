@@ -56,7 +56,9 @@ export const getImagePath = (imagePath: string): string => {
     // Normalize the path
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
     const baseUrl = getBaseUrl();
-    const fullPath = `${baseUrl}/${cleanPath}`;
+    const fullPath = baseUrl.endsWith('/') 
+      ? `${baseUrl}${cleanPath}` 
+      : `${baseUrl}/${cleanPath}`;
 
     // Start verification but don't wait for it
     verifyImagePath(fullPath).then(exists => {

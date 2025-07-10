@@ -40,7 +40,10 @@ export const getFullUrl = (path: string): string => {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   
   if (isProduction()) {
-    return `${getBaseUrl()}/${cleanPath}`;
+    const baseUrl = getBaseUrl();
+    return baseUrl.endsWith('/') 
+      ? `${baseUrl}${cleanPath}` 
+      : `${baseUrl}/${cleanPath}`;
   }
   
   return `/${cleanPath}`;

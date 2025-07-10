@@ -33,7 +33,7 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <BrowserRouter basename="/ShatamCareFoundation">
+          <BrowserRouter basename={baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/programs" element={<OurPrograms />} />
