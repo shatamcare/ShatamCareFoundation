@@ -122,19 +122,32 @@ const Index = () => {
       try {
         initLoadingAnimation();
         
-        const timer = setTimeout(() => {
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
           if (isComponentMounted) {
             safeInitAnimations();
+          }
+        });
+        
+        // Break up the animation initialization to prevent blocking
+        requestAnimationFrame(() => {
+          if (isComponentMounted) {
             initSmoothScroll();
+          }
+        });
+        
+        requestAnimationFrame(() => {
+          if (isComponentMounted) {
             initMobileOptimizations();
           }
-        }, 100);
+        });
         
+        // Delay refresh for better performance
         const refreshTimer = setTimeout(() => {
           if (isComponentMounted) {
             refreshScrollTrigger();
           }
-        }, 500);
+        }, 200);
         
         // Preload critical images for better performance
         preloadCriticalImages();

@@ -1,16 +1,15 @@
 // Simple animations without GSAP for debugging
 export const safeInitAnimations = () => {
   try {
-    console.log('Simple animations initialized');
+    if (import.meta.env.DEV) console.log('Simple animations initialized');
     // Remove loading class immediately
     document.body.classList.remove('loading');
     
-    // Force remove any potential stuck loading states
-    setTimeout(() => {
-      document.body.classList.remove('loading');
+    // Use requestAnimationFrame for better performance
+    requestAnimationFrame(() => {
       const loadingElements = document.querySelectorAll('.loading, [class*="loading"]');
       loadingElements.forEach(el => el.classList.remove('loading'));
-    }, 50);
+    });
     
   } catch (error) {
     console.error('Animation initialization failed:', error);
@@ -19,21 +18,32 @@ export const safeInitAnimations = () => {
 };
 
 export const initSmoothScroll = () => {
-  console.log('Smooth scroll initialized');
+  if (import.meta.env.DEV) console.log('Smooth scroll initialized');
+  // Lightweight scroll implementation
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const target = targetId ? document.querySelector(targetId) : null;
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
 };
 
 export const initLoadingAnimation = () => {
-  console.log('Loading animation initialized');
+  if (import.meta.env.DEV) console.log('Loading animation initialized');
 };
 
 export const initMobileOptimizations = () => {
-  console.log('Mobile optimizations initialized');
+  if (import.meta.env.DEV) console.log('Mobile optimizations initialized');
 };
 
 export const refreshScrollTrigger = () => {
-  console.log('Scroll trigger refreshed');
+  if (import.meta.env.DEV) console.log('Scroll trigger refreshed');
 };
 
 export const cleanupAnimations = () => {
-  console.log('Animations cleaned up');
+  if (import.meta.env.DEV) console.log('Animations cleaned up');
 };

@@ -53,13 +53,24 @@ export const getImagePath = (imagePath: string): string => {
       return fallbackImageDataUrl;
     }
 
-    // Normalize the path
-    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    // Normalize the path - ensure it starts with /
+    const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+    
+    // In development, use the path directly
+    if (!isProduction()) {
+      // Start verification but don't wait for it
+      verifyImagePath(cleanPath).then(exists => {
+        if (!exists) {
+          console.warn(`Image not found: ${cleanPath}`);
+        }
+      });
+      return cleanPath;
+    }
+    
+    // In production, use the base URL
     const baseUrl = getBaseUrl();
-    const fullPath = baseUrl.endsWith('/') 
-      ? `${baseUrl}${cleanPath}` 
-      : `${baseUrl}/${cleanPath}`;
-
+    const fullPath = `${baseUrl.slice(0, -1)}${cleanPath}`; // Remove trailing slash from baseUrl
+    
     // Start verification but don't wait for it
     verifyImagePath(fullPath).then(exists => {
       if (!exists) {
