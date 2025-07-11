@@ -107,12 +107,13 @@ export async function getEvents(): Promise<EventForDisplay[]> {
       'Fundraiser Event': 'Fundraiser'
     };
     
-    // Format the events for frontend display
+    // Format the events for frontend display with optimized processing
     return data.map(event => {
-      // Format time for display (e.g., "10:00 AM")
-      const timeStr = event.time.substring(0, 5);
-      const hour = parseInt(timeStr.split(':')[0]);
-      const formattedTime = `${hour > 12 ? hour - 12 : hour}:${timeStr.split(':')[1]} ${hour >= 12 ? 'PM' : 'AM'}`;
+      // Optimized time formatting
+      const [hour, minute] = event.time.substring(0, 5).split(':').map(Number);
+      const formattedTime = hour > 12 
+        ? `${hour - 12}:${minute.toString().padStart(2, '0')} PM`
+        : `${hour}:${minute.toString().padStart(2, '0')} ${hour === 12 ? 'PM' : 'AM'}`;
       
       return {
         id: event.id,

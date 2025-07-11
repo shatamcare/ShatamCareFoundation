@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
 import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, fallbackImageDataUrl } from '@/utils/imagePaths';
+import { throttle } from '@/utils/performance';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
@@ -20,22 +21,38 @@ const Index = () => {
   const [databaseEvents, setDatabaseEvents] = useState<EventForDisplay[]>([]);
   const [isEventsLoading, setIsEventsLoading] = useState(true);
   
-  // Fetch events from database
+  // Fetch events from database with error boundary
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchEvents = async () => {
       try {
         setIsEventsLoading(true);
         const events = await getEvents();
-        setDatabaseEvents(events);
-        console.log('Fetched events:', events);
+        
+        // Only update state if component is still mounted
+        if (isMounted) {
+          setDatabaseEvents(events);
+          console.log('Fetched events:', events);
+        }
       } catch (error) {
-        console.error('Error fetching events:', error);
+        if (isMounted) {
+          console.error('Error fetching events:', error);
+        }
       } finally {
-        setIsEventsLoading(false);
+        if (isMounted) {
+          setIsEventsLoading(false);
+        }
       }
     };
 
-    fetchEvents();
+    // Add small delay to prevent immediate execution on mount
+    const timer = setTimeout(fetchEvents, 100);
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, []);
   
   // Section refs
@@ -156,7 +173,6 @@ const Index = () => {
         enhanceAriaAttributes();
         
         return () => {
-          clearTimeout(timer);
           clearTimeout(refreshTimer);
         };
       } catch (error) {
@@ -172,14 +188,17 @@ const Index = () => {
     };
   }, []);
 
-  // Handle scroll events for header styling
+  // Handle scroll events for header styling with performance optimization
   useEffect(() => {
     const handleScroll = () => {
       setIsHeaderScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Use throttled scroll handler to prevent performance violations
+    const throttledHandleScroll = throttle(handleScroll, 16); // ~60fps
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', throttledHandleScroll);
   }, []);
   
   // Refresh ScrollTrigger when expanded program changes

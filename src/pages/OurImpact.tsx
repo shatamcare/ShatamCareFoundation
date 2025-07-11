@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Heart, Users, MapPin, Award, Star, Building2, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const OurImpact = () => {
   const navigate = useNavigate();
+  const metricsRef = useRef<HTMLDivElement>(null);
   const [counters, setCounters] = useState({
     caregivers: 0,
     families: 0,
@@ -53,39 +54,49 @@ const OurImpact = () => {
     { name: "Alzheimer's Association", logo: "🧠" }
   ];
 
+  // Use Intersection Observer to start animation only when metrics are visible
   useEffect(() => {
-    // Only start animation when component is mounted and visible
-    if (animationStarted) return;
-    
-    const duration = 2000;
-    const steps = 30; // Reduced from 60 for better performance
-    const interval = duration / steps;
+    if (animationStarted || !metricsRef.current) return;
 
-    setAnimationStarted(true);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !animationStarted) {
+          setAnimationStarted(true);
+          
+          const duration = 2000;
+          const startTime = performance.now();
 
-    const timer = setInterval(() => {
-      setCounters(prev => {
-        const newCounters = { ...prev };
-        let allComplete = true;
+          const animate = (currentTime: number) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
 
-        // Optimize the loop to avoid excessive calculations
-        for (const { key, target } of metrics) {
-          if (newCounters[key] < target) {
-            const increment = Math.ceil(target / steps);
-            newCounters[key] = Math.min(newCounters[key] + increment, target);
-            allComplete = false;
-          }
+            setCounters(prev => {
+              const newCounters = { ...prev };
+              
+              // Use eased progress for smoother animation
+              const easedProgress = 1 - Math.pow(1 - progress, 3); // Ease-out cubic
+              
+              for (const { key, target } of metrics) {
+                newCounters[key] = Math.floor(target * easedProgress);
+              }
+
+              return newCounters;
+            });
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            }
+          };
+
+          const rafId = requestAnimationFrame(animate);
+          return () => cancelAnimationFrame(rafId);
         }
+      },
+      { threshold: 0.3, rootMargin: '50px' }
+    );
 
-        if (allComplete) {
-          clearInterval(timer);
-        }
-
-        return newCounters;
-      });
-    }, interval);
-
-    return () => clearInterval(timer);
+    observer.observe(metricsRef.current);
+    return () => observer.disconnect();
   }, [metrics, animationStarted]);
 
   return (
@@ -121,7 +132,7 @@ const OurImpact = () => {
       {/* Animated Metrics */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div ref={metricsRef} className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {metrics.map(({ key, target, label, icon: Icon }) => (
               <div key={key} className="text-center">
                 <div className="mx-auto mb-4 p-4 bg-warm-teal/10 rounded-full w-fit">
