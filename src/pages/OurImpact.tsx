@@ -14,6 +14,7 @@ const OurImpact = () => {
     sessions: 0,
     locations: 0
   });
+  const [animationStarted, setAnimationStarted] = useState(false);
 
   const metrics = useMemo(() => [
     { key: 'caregivers', target: 1500, label: 'Trained Caregivers', icon: Users },
@@ -53,21 +54,28 @@ const OurImpact = () => {
   ];
 
   useEffect(() => {
+    // Only start animation when component is mounted and visible
+    if (animationStarted) return;
+    
     const duration = 2000;
-    const steps = 60;
+    const steps = 30; // Reduced from 60 for better performance
     const interval = duration / steps;
+
+    setAnimationStarted(true);
 
     const timer = setInterval(() => {
       setCounters(prev => {
         const newCounters = { ...prev };
         let allComplete = true;
 
-        metrics.forEach(({ key, target }) => {
+        // Optimize the loop to avoid excessive calculations
+        for (const { key, target } of metrics) {
           if (newCounters[key] < target) {
-            newCounters[key] = Math.min(newCounters[key] + Math.ceil(target / steps), target);
+            const increment = Math.ceil(target / steps);
+            newCounters[key] = Math.min(newCounters[key] + increment, target);
             allComplete = false;
           }
-        });
+        }
 
         if (allComplete) {
           clearInterval(timer);
@@ -78,7 +86,7 @@ const OurImpact = () => {
     }, interval);
 
     return () => clearInterval(timer);
-  }, [metrics]);
+  }, [metrics, animationStarted]);
 
   return (
     <div className="min-h-screen bg-background">
