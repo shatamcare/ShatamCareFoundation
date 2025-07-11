@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Path Debug</title>
+</head>
+<body>
+    <h1>Debug Asset Paths</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        // Debug script to check what's happening with asset paths
+        const debugInfo = document.getElementById('debug-info');
+        
+        // Get all script and link tags
+        const scripts = Array.from(document.querySelectorAll('script[src]'));
+        const links = Array.from(document.querySelectorAll('link[href]'));
+        
+        console.log('Current location:', window.location.href);
+        console.log('Base URL:', document.baseURI);
+        
+        // Check if there's a base tag
+        const baseTag = document.querySelector('base');
+        if (baseTag) {
+            console.log('Base tag found:', baseTag.href);
+        } else {
+            console.log('No base tag found');
+        }
+        
+        // Log all asset URLs
+        scripts.forEach(script => {
+            console.log('Script src:', script.src);
+        });
+        
+        links.forEach(link => {
+            console.log('Link href:', link.href);
+        });
+        
+        // Check if any URLs have repeated paths
+        const allUrls = [...scripts.map(s => s.src), ...links.map(l => l.href)];
+        const duplicatedPaths = allUrls.filter(url => {
+            const matches = url.match(/ShatamCareFoundation/g);
+            return matches && matches.length > 1;
+        });
+        
+        if (duplicatedPaths.length > 0) {
+            console.error('Found URLs with duplicated ShatamCareFoundation path:', duplicatedPaths);
+        }
+        
+        // Display debug info
+        debugInfo.innerHTML = `
+            <p><strong>Current URL:</strong> ${window.location.href}</p>
+            <p><strong>Base URI:</strong> ${document.baseURI}</p>
+            <p><strong>Base tag:</strong> ${baseTag ? baseTag.href : 'None'}</p>
+            <p><strong>Duplicated paths found:</strong> ${duplicatedPaths.length}</p>
+            ${duplicatedPaths.length > 0 ? `<pre>${duplicatedPaths.join('\n')}</pre>` : ''}
+        `;
+    </script>
+</body>
+</html>

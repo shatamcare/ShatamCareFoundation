@@ -29,8 +29,10 @@ const queryClient = new QueryClient({
 const isDev = import.meta.env.DEV;
 
 const App = () => {
-  const baseUrl = getBaseUrl();
   const [isLoading, setIsLoading] = useState(false); // Start with false - no loading screen
+  
+  // Determine basename for router
+  const basename = import.meta.env.PROD ? '/ShatamCareFoundation' : undefined;
 
   // Minimal loading state management - only if needed
   useEffect(() => {
@@ -56,7 +58,7 @@ const App = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : (
-            <BrowserRouter basename={baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl}>
+            <BrowserRouter basename={basename}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/programs" element={<OurPrograms />} />

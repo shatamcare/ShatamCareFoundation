@@ -3,7 +3,7 @@ import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, C
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
-import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, fallbackImageDataUrl } from '@/utils/imagePaths';
+import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, preloadNearbyImages, preloadHeroImage, optimizeImageLoading, fallbackImageDataUrl } from '@/utils/imagePaths';
 import { throttle } from '@/utils/performance';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -168,6 +168,21 @@ const Index = () => {
         
         // Preload critical images for better performance
         preloadCriticalImages();
+        
+        // Preload hero background image immediately after critical images
+        setTimeout(() => {
+          if (isComponentMounted) {
+            preloadHeroImage();
+          }
+        }, 100);
+        
+        // Setup nearby image preloading after initial load
+        setTimeout(() => {
+          if (isComponentMounted) {
+            preloadNearbyImages();
+            optimizeImageLoading(); // Clean up unused preloads
+          }
+        }, 1000);
         
         // Enhance accessibility
         enhanceAriaAttributes();

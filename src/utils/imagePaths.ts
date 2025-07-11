@@ -153,10 +153,10 @@ const preloadedImages = new Set<string>();
 
 export const preloadCriticalImages = async () => {
   try {
-    // Define critical images that should be preloaded
+    // Only preload absolutely critical images (header logo)
     const criticalImagePaths = [
-      imagePaths.team.logo,
-      getImagePath('images/Users/care.jpg')
+      imagePaths.team.logo // Logo is always visible in header
+      // Hero background will be loaded via CSS, no need to preload
     ];
     
     // Filter out already preloaded images
@@ -166,22 +166,24 @@ export const preloadCriticalImages = async () => {
       return; // Nothing to preload
     }
 
-    // Verify and preload images in parallel
+    // Use a more efficient preloading approach with proper timing
     const preloadTasks = imagesToPreload.map(async (path) => {
       try {
         // First verify the image exists
         const exists = await verifyImagePath(path);
         
         if (exists) {
-          // Create preload link
-          const link = document.createElement('link');
-          link.rel = 'preload';
-          link.as = 'image';
-          link.href = path;
-          document.head.appendChild(link);
+          // Use Image constructor for immediate loading without adding to DOM
+          const img = new Image();
+          img.src = path;
           
           // Mark as preloaded
           preloadedImages.add(path);
+          
+          return new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = () => reject(new Error(`Failed to load ${path}`));
+          });
         } else {
           console.warn(`Skipping preload for non-existent image: ${path}`);
         }
@@ -191,8 +193,116 @@ export const preloadCriticalImages = async () => {
     });
 
     // Wait for all preload tasks to complete
-    await Promise.all(preloadTasks);
+    await Promise.allSettled(preloadTasks);
   } catch (error) {
     console.warn('Error in preloadCriticalImages:', error);
+  }
+};
+
+/**
+ * Preload hero background image specifically
+ */
+export const preloadHeroImage = async () => {
+  const heroImagePath = getImagePath('images/Users/care.jpg');
+  
+  if (!preloadedImages.has(heroImagePath)) {
+    try {
+      const exists = await verifyImagePath(heroImagePath);
+      if (exists) {
+        const img = new Image();
+        img.src = heroImagePath;
+        preloadedImages.add(heroImagePath);
+        
+        return new Promise<void>((resolve, reject) => {
+          img.onload = () => {
+            console.log('Hero background image preloaded successfully');
+            resolve();
+          };
+          img.onerror = () => reject(new Error(`Failed to load hero image: ${heroImagePath}`));
+        });
+      }
+    } catch (error) {
+      console.warn('Error preloading hero image:', error);
+    }
+  }
+};
+
+/**
+ * Preload images that are about to become visible using Intersection Observer
+ */
+export const preloadNearbyImages = () => {
+  if (typeof window === 'undefined') return;
+
+  const imageElements = document.querySelectorAll('img[data-src], [style*="background-image"]');
+  
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const element = entry.target as HTMLElement;
+        
+        // Handle img elements with data-src
+        if (element.tagName === 'IMG' && element.hasAttribute('data-src')) {
+          const img = element as HTMLImageElement;
+          const src = img.getAttribute('data-src');
+          if (src && !preloadedImages.has(src)) {
+            const preloadImg = new Image();
+            preloadImg.src = src;
+            preloadedImages.add(src);
+          }
+        }
+        
+        // Handle background images
+        const style = element.getAttribute('style');
+        if (style && style.includes('background-image')) {
+          const urlMatch = style.match(/url\(['"]?([^'"]+)['"]?\)/);
+          if (urlMatch && urlMatch[1] && !preloadedImages.has(urlMatch[1])) {
+            const preloadImg = new Image();
+            preloadImg.src = urlMatch[1];
+            preloadedImages.add(urlMatch[1]);
+          }
+        }
+        
+        imageObserver.unobserve(element);
+      }
+    });
+  }, {
+    root: null,
+    rootMargin: '200px', // Start loading when element is 200px away from viewport
+    threshold: 0.1
+  });
+
+  imageElements.forEach(img => imageObserver.observe(img));
+};
+
+/**
+ * Performance-optimized image preloading strategies
+ */
+export const optimizeImageLoading = () => {
+  // Remove any existing preload links that aren't being used
+  const existingPreloadLinks = document.querySelectorAll('link[rel="preload"][as="image"]');
+  existingPreloadLinks.forEach(link => {
+    const href = (link as HTMLLinkElement).href;
+    // Check if image is actually being used in the DOM
+    const isImageUsed = document.querySelector(`img[src="${href}"], [style*="${href}"]`);
+    if (!isImageUsed) {
+      console.log(`Removing unused preload link: ${href}`);
+      link.remove();
+    }
+  });
+
+  // Setup performance observer to monitor preload efficiency
+  if ('PerformanceObserver' in window) {
+    try {
+      const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+          if (entry.name.includes('preload') && entry.duration > 100) {
+            console.warn(`Slow preload detected: ${entry.name} took ${entry.duration}ms`);
+          }
+        });
+      });
+      observer.observe({ entryTypes: ['navigation', 'resource'] });
+    } catch (error) {
+      console.log('Performance observer not supported');
+    }
   }
 };
