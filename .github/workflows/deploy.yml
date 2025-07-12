@@ -41,58 +41,23 @@ jobs:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-key' }}
       run: |
-        # Build with proper base URL
-        VITE_BASE_URL="/ShatamCareFoundation/" npm run build
+        # Build with the correct base URL (Vite config already handles this)
+        npm run build
         
         # Create .nojekyll to bypass Jekyll processing
         touch dist/.nojekyll
         
-        # Create .mime.types file for proper MIME types
-        echo '{ "*.js": "application/javascript", "*.mjs": "application/javascript", "*.ts": "application/javascript", "*.tsx": "application/javascript" }' > dist/.mime.types
-        
         # Copy 404.html for SPA routing
         cp dist/index.html dist/404.html
         
-        # Update all asset paths in HTML files
-        for file in dist/*.html; do
-          sed -i 's|src="/|src="/ShatamCareFoundation/|g' "$file"
-          sed -i 's|href="/|href="/ShatamCareFoundation/|g' "$file"
-          sed -i 's|from "/|from "/ShatamCareFoundation/|g' "$file"
-          sed -i 's|url(/|url(/ShatamCareFoundation/|g' "$file"
-        done
+        # Copy public assets to dist
+        cp -n public/* dist/ 2>/dev/null || true
         
         # Verify build artifacts
         echo "Checking build output..."
         ls -la dist/
         echo "Checking asset directories..."
         ls -la dist/assets/ || echo "No assets directory found"
-        cp -n public/* dist/ 2>/dev/null || true
-        
-        # Create 404.html for SPA routing
-        cp dist/index.html dist/404.html
-        
-        # Ensure base path is correct in both index.html and 404.html
-        for file in dist/index.html dist/404.html; do
-          # Replace absolute paths with relative paths
-          sed -i 's|href="/|href="./|g' "$file"
-          sed -i 's|src="/|src="./|g' "$file"
-          # Fix paths for assets
-          sed -i 's|"./assets/|"./assets/|g' "$file"
-          sed -i 's|"./images/|"./images/|g' "$file"
-          sed -i 's|"./_app/|"./_app/|g' "$file"
-          # Fix main entry point
-          sed -i 's|"/src/main.tsx"|"./src/main.tsx"|g' "$file"
-        done
-        
-        # Verify favicon files exist in dist
-        if [ ! -f "dist/favicon.ico" ]; then
-          echo "Copying favicon.ico from public"
-          cp -f public/favicon.ico dist/ 2>/dev/null || echo "No favicon.ico found"
-        fi
-        if [ ! -f "dist/favicon.svg" ]; then
-          echo "Copying favicon.svg from public"
-          cp -f public/favicon.svg dist/ 2>/dev/null || echo "No favicon.svg found"
-        fi
 
     - name: Verify build output
       run: |
@@ -121,7 +86,7 @@ jobs:
         # Verify base path in HTML files
         echo "Checking base paths in HTML files..."
         for file in dist/*.html; do
-          if grep -q '"/ShatamCareFoundation/' "$file"; then
+          if grep -q '/ShatamCareFoundation/' "$file"; then
             echo "✅ Base path correctly set in $(basename "$file")"
           else
             echo "⚠️ Base path might be missing in $(basename "$file")"
