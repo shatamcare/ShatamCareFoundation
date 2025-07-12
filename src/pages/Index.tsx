@@ -432,8 +432,8 @@ const Index = () => {
               <a href="#programs" onClick={(e) => handleNavigation(e, 'programs')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Programs</a>
               <a href="#impact" onClick={(e) => handleNavigation(e, 'impact')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Impact</a>
               <a href="#events" onClick={(e) => handleNavigation(e, 'events')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Events</a>
-              <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Get Involved</a>
               <a href="#founder" onClick={(e) => handleNavigation(e, 'founder')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Our Founder</a>
+              <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Get Involved</a>
             </nav>
 
             <div className="flex items-center space-x-4">
@@ -463,8 +463,8 @@ const Index = () => {
                 <a href="#programs" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Programs</a>
                 <a href="#impact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Impact</a>
                 <a href="#events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Events</a>
-                <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Get Involved</a>
                 <a href="#founder" onClick={(e) => handleNavigation(e, 'founder')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Our Founder</a>
+                <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Get Involved</a>
                 <div className="px-4 py-3">
                   <Button 
                     className="btn-cta w-full"
