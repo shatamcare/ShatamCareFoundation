@@ -888,11 +888,11 @@ const Index = () => {
               
               <div className="bg-gradient-to-br from-warm-teal-50 to-white p-5 rounded-xl border border-warm-teal-100">
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Recognized by L'Oréal Paris and The Better India for her dedication to elderly care, Amrita has pioneered sustainable solutions for India's aging population.
+                  Recognized by The Better India for her dedication to elderly care, Amrita has pioneered sustainable solutions for India's aging population.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="bg-warm-teal text-white px-3 py-1 rounded-full text-sm font-medium">L'Oréal Award Winner</span>
                   <span className="bg-sunrise-orange text-white px-3 py-1 rounded-full text-sm font-medium">Social Impact Leader</span>
+                  <span className="bg-warm-teal text-white px-3 py-1 rounded-full text-sm font-medium">Healthcare Innovation</span>
                 </div>
               </div>
             </div>
@@ -998,7 +998,7 @@ const Index = () => {
               </div>
               <div className="text-sm text-gray-300">
                 <p>80G Tax Benefits Available</p>
-                <p>L'Oréal Award Winner</p>
+                <p>Healthcare Innovation Leader</p>
               </div>
             </div>
           </div>
