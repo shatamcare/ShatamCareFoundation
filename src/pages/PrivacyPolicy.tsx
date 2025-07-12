@@ -20,29 +20,32 @@ const PrivacyPolicy = () => {
         </Button>
 
         <Card className="p-8 bg-white shadow-lg rounded-lg">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
+            <p className="text-gray-600">Last updated: January 2025</p>
+          </div>
           
-          <div className="space-y-6 text-gray-600">
+          <div className="space-y-8 text-gray-600">
             <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Introduction</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">1. Information We Collect</h2>
               <p className="mb-4">
-                Shatam Care Foundation ("we," "our," or "us") respects your privacy and is committed to protecting it through our compliance with this policy. This policy describes:
+                At Shatam Care Foundation, we collect information that you provide directly to us, such as when you:
               </p>
-              <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li>The types of information we collect from you or that you may provide when you visit our website</li>
-                <li>Our practices for collecting, using, maintaining, protecting, and disclosing that information</li>
-                <li>Your rights regarding the information we hold about you</li>
+              <ul className="list-disc pl-6 space-y-2 mb-4">
+                <li>Register for events or programs</li>
+                <li>Make donations through our website</li>
+                <li>Subscribe to our newsletter</li>
+                <li>Contact us through our contact forms</li>
+                <li>Participate in surveys or feedback forms</li>
               </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Information We Collect</h2>
-              <p className="mb-4">We collect several types of information from and about users of our website, including:</p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Personal identification information (Name, email address, phone number)</li>
-                <li>Demographic information (City, state, preferences)</li>
-                <li>Usage data (How you interact with our website)</li>
-                <li>Donation history and preferences (if applicable)</li>
+              
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Personal Information may include:</h3>
+              <ul className="list-disc pl-6 space-y-1 mb-4">
+                <li>Name and contact information (email, phone, address)</li>
+                <li>Demographic information (age, gender)</li>
+                <li>Payment information (processed securely through third-party providers)</li>
+                <li>Communication preferences</li>
+                <li>Information about your caregiving experience or needs</li>
               </ul>
             </section>
 

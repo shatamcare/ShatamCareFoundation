@@ -63,6 +63,9 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/programs" element={<OurPrograms />} />
                 <Route path="/impact" element={<OurImpact />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
                 <Route path="/test" element={<TestIndex />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />

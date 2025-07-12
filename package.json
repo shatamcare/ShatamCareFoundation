@@ -9,10 +9,11 @@
     "dev": "vite --port 5174",
     "start": "vite preview --port 5174",
     "build": "tsc && vite build",
+    "build:gh": "tsc && vite build && node scripts/fix-paths.js",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview --port 5174",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build:gh",
     "deploy": "gh-pages -d dist"
   },
   "keywords": [

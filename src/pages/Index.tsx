@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon, Star, Shield, CheckCircle, ArrowRight, Play, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
@@ -1006,8 +1007,9 @@ const Index = () => {
           <div className="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
             <p>© 2025 Shatam Care Foundation. All rights reserved.</p>
             <div className="flex space-x-4 mt-4 md:mt-0">
-              <a href="/privacy-policy" className="hover:text-warm-teal transition-colors">Privacy</a>
-              <a href="/terms-of-service" className="hover:text-warm-teal transition-colors">Terms</a>
+              <Link to="/privacy-policy" className="hover:text-warm-teal transition-colors">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="hover:text-warm-teal transition-colors">Terms of Service</Link>
+              <Link to="/cookie-policy" className="hover:text-warm-teal transition-colors">Cookie Policy</Link>
             </div>
           </div>
         </div>
