@@ -6,6 +6,143 @@
 @tailwind components;
 @tailwind utilities;
 
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 300ms;
+}
+
+.sticky-header.scrolled {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sticky-header-logo {
+  height: 3rem;
+  display: flex;
+  align-items: center;
+}
+
+.sticky-header-nav {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sticky-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+}
+
+.sticky-header-nav.mobile-menu-open {
+  position: fixed;
+  top: 4rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 1024px) {
+  .sticky-header-nav.mobile-menu-open {
+    display: none;
+  }
+}
+
+.sticky-header-nav.mobile-menu-open .nav-link {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.nav-link {
+  color: #4B5563;
+  transition: color 200ms;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.sticky-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-cta {
+  padding: 0.5rem 1.5rem;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 9999px;
+  transition: background-color 200ms;
+}
+
+.btn-cta:hover {
+  background-color: color-mix(in srgb, var(--primary) 90%, transparent);
+}
+
+@layer components {
+  .sticky-header {
+    @apply fixed top-0 left-0 right-0 z-50 bg-white shadow-md transition-all duration-300;
+  }
+
+  .sticky-header.scrolled {
+    @apply shadow-lg;
+  }
+
+  .sticky-header-inner {
+    @apply container mx-auto px-4 h-16 flex items-center justify-between;
+  }
+
+  .sticky-header-logo {
+    @apply h-12 flex items-center;
+  }
+
+  .sticky-header-nav {
+    @apply hidden lg:flex items-center space-x-6;
+  }
+
+  .sticky-header-nav.mobile-menu-open {
+    @apply fixed top-16 left-0 right-0 flex flex-col items-start p-4 bg-white shadow-lg lg:hidden;
+  }
+
+  .sticky-header-nav.mobile-menu-open .nav-link {
+    @apply block w-full py-2;
+  }
+
+  .nav-link {
+    @apply text-gray-600 hover:text-primary transition-colors duration-200;
+  }
+
+  .sticky-header-actions {
+    @apply flex items-center space-x-4;
+  }
+
+  .btn-cta {
+    @apply px-6 py-2 bg-primary text-white rounded-full hover:bg-primary/90 transition-colors duration-200;
+  }
+}
+
 /* Shatam Care Foundation Design System - Enhanced */
 
 @layer base {
@@ -295,35 +432,184 @@
     animation: gentleFloat 6s ease-in-out infinite;
   }
 
-   /* Enhanced sticky header */
+   /* Enhanced sticky header with better alignment */
   .sticky-header {
-    @apply sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200;
-    /* Make the header a flex container to align items inside */
-    @apply sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 flex items-center;
-    transition: all 0.3s ease;
-    height: 80px; /* Default height */
-    /* Use padding instead of fixed height to be more flexible */
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    @apply sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 w-full;
+    transition: box-shadow 0.3s, min-height 0.3s;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
   }
 
-  .sticky-header .h-20 {
-    transition: height 0.3s ease;
-    /* Allow the inner container to wrap its content on smaller screens */
-    @apply flex items-center justify-between w-full flex-wrap;
-    transition: all 0.3s ease;
+  .sticky-header-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    min-height: 80px;
+    box-sizing: border-box;
   }
+
+  .sticky-header-logo {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    min-width: 120px;
+    margin-right: 2.5rem;
+  }
+
+  .sticky-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    height: 56px;
+  }
+
+  .sticky-header-nav .nav-link {
+    font-size: 1rem;
+    color: hsl(var(--dark-charcoal));
+    text-decoration: none;
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    transition: color 0.2s;
+  }
+
+  .sticky-header-nav .nav-link:hover {
+    color: hsl(var(--warm-teal));
+  }
+
+  .sticky-header-actions {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    margin-left: 3.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .sticky-header-actions::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    height: 24px;
+    width: 1px;
+    background-color: #e5e7eb;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .sticky-header-actions .btn-cta {
+    margin-left: 0;
+    margin-right: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Add spacing between header nav buttons */
 
   .sticky-header.scrolled {
     @apply shadow-lg;
-    height: 70px; /* Scrolled height */
+    min-height: 64px;
   }
 
-  .sticky-header.scrolled .h-20 {
-    height: 70px;
-    /* Reduce padding on scroll */
+  .sticky-header.scrolled .sticky-header-inner {
+    min-height: 64px;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+  }
+
+  /* Responsive header improvements */
+  @media (max-width: 1024px) {
+    .sticky-header-inner {
+      padding: 0 1rem;
+      min-height: 64px;
+    }
+    .sticky-header-logo {
+      margin-right: 1.5rem;
+      height: 48px;
+    }
+    .sticky-header-nav {
+      gap: 1.5rem;
+      height: 48px;
+    }
+    .sticky-header-actions {
+      height: 48px;
+      margin-left: 1rem;
+    }
+    .sticky-header-actions .btn-cta {
+      height: 36px;
+      font-size: 0.95rem;
+      padding: 0.5rem 1rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sticky-header {
+      min-height: 56px;
+      padding: 0 0.5rem;
+    }
+    .sticky-header-inner {
+      min-height: 56px;
+      flex-direction: row;
+      padding: 0 0.5rem;
+    }
+    .sticky-header-logo {
+      height: 32px;
+      min-width: 80px;
+      margin-right: 0.5rem;
+    }
+    .sticky-header-nav {
+      display: none;
+    }
+    .sticky-header-actions {
+      height: 32px;
+      margin-left: 1rem;
+    }
+    .sticky-header-actions::before {
+      display: none;
+    }
+    .sticky-header-actions .btn-cta {
+      height: 32px;
+      font-size: 0.9rem;
+      padding: 0.4rem 1rem;
+    }
+    .sticky-header-nav.mobile-menu-open {
+      display: flex;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      padding: 1rem;
+      border-bottom: 1px solid hsl(var(--border));
+      z-index: 100;
+    }
+    .sticky-header-nav.mobile-menu-open .nav-link {
+      height: 40px;
+      align-items: center;
+      display: flex;
+    }
+    .sticky-header-nav.mobile-menu-open .btn-cta,
+    .sticky-header-nav.mobile-menu-open .btn-secondary-cta {
+      margin-left: 0;
+      margin-top: 1rem;
+      height: 40px;
+      display: flex;
+      align-items: center;
+    }
   }
   /* Enhanced card styles */
   .card-hover {

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
+import Header from "./components/Header";
 import Index from "./pages/Index";
 import OurPrograms from "./pages/OurPrograms";
 import OurImpact from "./pages/OurImpact";
@@ -60,19 +61,22 @@ const App = () => {
             </div>
           ) : (
             <BrowserRouter basename={basename}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/programs" element={<OurPrograms />} />
-                <Route path="/impact" element={<OurImpact />} />
-                <Route path="/events" element={<EventsPage />} />
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/cookie-policy" element={<CookiePolicy />} />
-                <Route path="/404" element={<NotFound />} />
-                <Route path="*" element={<Navigate to="/404" replace />} />
-              </Routes>
+              <Header />
+              <main className="min-h-screen">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/programs" element={<OurPrograms />} />
+                  <Route path="/impact" element={<OurImpact />} />
+                  <Route path="/events" element={<EventsPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/admin/login" element={<AdminLoginPage />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/cookie-policy" element={<CookiePolicy />} />
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" replace />} />
+                </Routes>
+              </main>
               <Toaster />
               <Sonner />
             </BrowserRouter>
