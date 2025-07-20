@@ -22,12 +22,18 @@ export default defineConfig(({ command }) => ({
     emptyOutDir: true,
     sourcemap: true,
     assetsDir: 'assets',
-    // Simplified rollup options - let Vite handle asset paths
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-toast']
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react';
+            if (id.includes('@radix-ui')) return 'vendor-radix';
+            if (id.includes('@supabase')) return 'vendor-supabase';
+            return 'vendor'; // all other node_modules
+          }
+          if (id.includes('components/admin')) return 'admin';
+        }
         }
       }
     }

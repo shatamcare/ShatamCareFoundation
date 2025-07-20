@@ -47,21 +47,29 @@ const AdminLoginPage: React.FC = () => {
       }
 
       // Check if user is an admin
-      console.log('Checking admin status for user:', authData.user.id);
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
+      try {
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('id', authData.user.id)
+          .single();
 
-      console.log('Admin query result:', { adminData, adminError });
-
-      if (adminError) {
-        console.error('Admin check error details:', adminError);
-        // Sign out the user since they're not an admin
-        await supabase.auth.signOut();
-        throw new Error(`Admin check failed: ${adminError.message}`);
-      }
+        if (adminError) {
+          if (adminError.code === 'PGRST116') {
+            // Table doesn't exist or no permissions
+            console.error('Admin table access error:', adminError);
+            await supabase.auth.signOut();
+            throw new Error('Admin verification failed. If you believe this is an error, please contact support.');
+          }
+          if (adminError.code === 'PGRST104') {
+            // No matching admin record
+            await supabase.auth.signOut();
+            throw new Error('Access denied. Your account does not have admin privileges.');
+          }
+          // For any other error
+          await supabase.auth.signOut();
+          throw new Error('Admin verification failed. Please try again or contact support.');
+        }
 
       if (!adminData) {
         // Sign out the user since they're not an admin
@@ -135,16 +143,18 @@ const AdminLoginPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Error Message */}
             {error && (
-              <Alert className="mb-4 border-red-200 bg-red-50">
+              <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-
+            
+            {/* Success Message */}
             {successMessage && (
               <Alert className="mb-4 border-green-200 bg-green-50">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">{successMessage}</AlertDescription>
               </Alert>
             )}
@@ -201,17 +211,19 @@ const AdminLoginPage: React.FC = () => {
                 disabled={loading || !email || !password}
                 className="w-full bg-warm-teal hover:bg-warm-teal-600 text-white font-medium py-3"
               >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    {isSignUp ? 'Creating account...' : 'Signing in...'}
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {isSignUp ? 'Create Account' : 'Sign In'}
-                  </>
-                )}
+                <div className="flex items-center justify-center">
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-t-2 border-white mr-2" />
+                      <span>{isSignUp ? 'Creating Account...' : 'Verifying Access...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="h-4 w-4 mr-2" />
+                      <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
+                    </>
+                  )}
+                </div>
               </Button>
             </form>
 
@@ -265,18 +277,12 @@ const AdminLoginPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* Development Note */}
+        {/* Admin Note */}
         <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">For Development/Testing:</h3>
           <p className="text-sm text-blue-700">
-            To get admin access after creating an account:
+            Need admin access? Please contact the system administrator for assistance.
           </p>
-          <ol className="text-sm text-blue-700 mt-2 list-decimal list-inside space-y-1">
-            <li>Create an account using the "Create account" option above</li>
-            <li>Run the admin setup SQL commands in your Supabase dashboard</li>
-            <li>Use: <code className="bg-blue-100 px-1 rounded">SELECT add_admin_by_email('your-email@example.com');</code></li>
-            <li>Then sign in with admin privileges</li>
-          </ol>
+        </div>
         </div>
       </div>
     </div>

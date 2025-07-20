@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Header from "./components/Header";
 import Index from "./pages/Index";
@@ -11,8 +11,10 @@ import OurPrograms from "./pages/OurPrograms";
 import OurImpact from "./pages/OurImpact";
 import EventsPage from "./pages/EventsPage";
 import AdminPage from "./pages/AdminPage";
-import AdminLoginPage from "./components/admin/AdminLoginPage";
 import NotFound from "./pages/NotFound";
+
+// Lazy load the admin login page
+const AdminLoginPage = lazy(() => import("./components/admin/AdminLoginPage"));
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -69,7 +71,16 @@ const App = () => {
                   <Route path="/impact" element={<OurImpact />} />
                   <Route path="/events" element={<EventsPage />} />
                   <Route path="/admin" element={<AdminPage />} />
-                  <Route path="/admin/login" element={<AdminLoginPage />} />
+                  <Route 
+                    path="/admin/login" 
+                    element={
+                      <Suspense fallback={<LoadingSpinner />}>
+                        <ErrorBoundary>
+                          <AdminLoginPage />
+                        </ErrorBoundary>
+                      </Suspense>
+                    } 
+                  />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms-of-service" element={<TermsOfService />} />
                   <Route path="/cookie-policy" element={<CookiePolicy />} />

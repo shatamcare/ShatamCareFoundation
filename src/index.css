@@ -436,7 +436,7 @@
   .sticky-header {
     @apply sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 w-full;
     transition: box-shadow 0.3s, min-height 0.3s;
-    min-height: 80px;
+    min-height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -449,33 +449,33 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2rem;
+    padding: 0 1rem;
     max-width: 1280px;
     margin: 0 auto;
-    min-height: 80px;
+    min-height: 64px;
     box-sizing: border-box;
   }
 
   .sticky-header-logo {
     display: flex;
     align-items: center;
-    height: 56px;
-    min-width: 120px;
-    margin-right: 2.5rem;
+    height: 40px;
+    min-width: 100px;
+    margin-right: 1.5rem;
   }
 
   .sticky-header-nav {
     display: flex;
     align-items: center;
-    gap: 2.5rem;
-    height: 56px;
+    gap: 1.5rem;
+    height: 40px;
   }
 
   .sticky-header-nav .nav-link {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: hsl(var(--dark-charcoal));
     text-decoration: none;
-    padding: 0.5rem 0;
+    padding: 0.25rem 0;
     display: flex;
     align-items: center;
     height: 100%;
@@ -489,9 +489,9 @@
   .sticky-header-actions {
     display: flex;
     align-items: center;
-    height: 56px;
-    margin-left: 3.5rem;
-    padding-left: 1.5rem;
+    height: 40px;
+    margin-left: 2rem;
+    padding-left: 1rem;
     position: relative;
   }
 
@@ -499,7 +499,7 @@
     content: "";
     position: absolute;
     left: 0;
-    height: 24px;
+    height: 20px;
     width: 1px;
     background-color: #e5e7eb;
     top: 50%;
@@ -509,9 +509,11 @@
   .sticky-header-actions .btn-cta {
     margin-left: 0;
     margin-right: 0;
-    height: 40px;
+    height: 32px;
     display: flex;
     align-items: center;
+    padding: 0 1rem;
+    font-size: 0.9rem;
   }
 
   /* Add spacing between header nav buttons */
@@ -530,41 +532,43 @@
   /* Responsive header improvements */
   @media (max-width: 1024px) {
     .sticky-header-inner {
-      padding: 0 1rem;
-      min-height: 64px;
+      padding: 0 0.75rem;
+      min-height: 56px;
     }
     .sticky-header-logo {
-      margin-right: 1.5rem;
-      height: 48px;
+      margin-right: 1rem;
+      height: 36px;
+      min-width: 90px;
     }
     .sticky-header-nav {
-      gap: 1.5rem;
-      height: 48px;
+      gap: 1rem;
+      height: 36px;
     }
     .sticky-header-actions {
-      height: 48px;
+      height: 36px;
       margin-left: 1rem;
+      padding-left: 0.75rem;
     }
     .sticky-header-actions .btn-cta {
-      height: 36px;
-      font-size: 0.95rem;
-      padding: 0.5rem 1rem;
+      height: 32px;
+      font-size: 0.85rem;
+      padding: 0 0.75rem;
     }
   }
 
   @media (max-width: 768px) {
     .sticky-header {
-      min-height: 56px;
+      min-height: 48px;
       padding: 0 0.5rem;
     }
     .sticky-header-inner {
-      min-height: 56px;
+      min-height: 48px;
       flex-direction: row;
       padding: 0 0.5rem;
     }
     .sticky-header-logo {
-      height: 32px;
-      min-width: 80px;
+      height: 28px;
+      min-width: 70px;
       margin-right: 0.5rem;
     }
     .sticky-header-nav {
