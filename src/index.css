@@ -295,17 +295,20 @@
     animation: gentleFloat 6s ease-in-out infinite;
   }
 
-  /* Enhanced sticky header */
+   /* Enhanced sticky header */
   .sticky-header {
+    @apply sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200;
     /* Make the header a flex container to align items inside */
     @apply sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 flex items-center;
     transition: all 0.3s ease;
+    height: 80px; /* Default height */
     /* Use padding instead of fixed height to be more flexible */
     padding-top: 1rem;
     padding-bottom: 1rem;
   }
 
   .sticky-header .h-20 {
+    transition: height 0.3s ease;
     /* Allow the inner container to wrap its content on smaller screens */
     @apply flex items-center justify-between w-full flex-wrap;
     transition: all 0.3s ease;
@@ -313,11 +316,15 @@
 
   .sticky-header.scrolled {
     @apply shadow-lg;
+    height: 70px; /* Scrolled height */
+  }
+
+  .sticky-header.scrolled .h-20 {
+    height: 70px;
     /* Reduce padding on scroll */
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
-
   /* Enhanced card styles */
   .card-hover {
     @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
