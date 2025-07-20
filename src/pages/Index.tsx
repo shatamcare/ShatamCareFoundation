@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon, Star, Shield, CheckCircle, ArrowRight, Play, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getEvents, getPrograms, type EventForDisplay, type ProgramForDisplay } from '@/lib/supabase-secure';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
 import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, preloadNearbyImages, preloadHeroImage, optimizeImageLoading, fallbackImageDataUrl } from '@/utils/imagePaths';
 import { throttle } from '@/utils/performance';
@@ -11,94 +12,109 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import BackToTopButton from '@/components/BackToTopButton';
 import { enhanceAriaAttributes, announceToScreenReader } from '@/utils/accessibility';
-import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
+// Optimized icon mapping for programs (reduced to essential icons)
+const ICON_MAP = {
+  Heart,
+  Users,
+  BookOpen,
+  Home,
+  Award,
+  Shield,
+  MessageCircle,
+  Calendar,
+  Phone,
+  Mail,
+  MapPin
+} as const;
+
+// Force reload after cleanup
 const Index = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [databaseEvents, setDatabaseEvents] = useState<EventForDisplay[]>([]);
+  const [databasePrograms, setDatabasePrograms] = useState<ProgramForDisplay[]>([]);
   const [isEventsLoading, setIsEventsLoading] = useState(true);
+  const [isProgramsLoading, setIsProgramsLoading] = useState(true);
+  const [refreshCount, setRefreshCount] = useState(0);
   
-  // Fetch events from database with error boundary
+  // Manual refresh function to force reload data
+  const refreshData = async () => {
+    setRefreshCount(prev => prev + 1);
+  };
+
+  // Fetch events and programs from database with error boundary and periodic refresh
   useEffect(() => {
     let isMounted = true;
     
-    const fetchEvents = async () => {
+    const fetchData = async () => {
       try {
         setIsEventsLoading(true);
-        const events = await getEvents();
+        setIsProgramsLoading(true);
+        
+        // Fetch both events and programs
+        const [events, programs] = await Promise.all([
+          getEvents(),
+          getPrograms()
+        ]);
         
         // Only update state if component is still mounted
         if (isMounted) {
           setDatabaseEvents(events);
-          console.log('Fetched events:', events);
+          setDatabasePrograms(programs);
         }
       } catch (error) {
         if (isMounted) {
-          console.error('Error fetching events:', error);
+          console.error('Error fetching data:', error);
         }
       } finally {
         if (isMounted) {
           setIsEventsLoading(false);
+          setIsProgramsLoading(false);
         }
       }
     };
 
-    // Add small delay to prevent immediate execution on mount
-    const timer = setTimeout(fetchEvents, 100);
+    // Initial fetch with small delay
+    const timer = setTimeout(fetchData, 100);
+    
+    // Set up periodic refresh every 10 seconds to catch admin changes
+    const refreshInterval = setInterval(fetchData, 10000);
     
     return () => {
       isMounted = false;
       clearTimeout(timer);
+      clearInterval(refreshInterval);
     };
-  }, []);
+  }, [refreshCount]);
   
   // Section refs
   const heroRef = useRef<HTMLDivElement>(null);
   const founderRef = useRef<HTMLDivElement>(null);
   
-  // Programs data
-  const programs = useMemo(() => [
-    {
-      icon: Heart,
-      title: "Caregiver Training Workshops",
-      description: "Comprehensive training programs equipping family caregivers with essential skills for dementia care and emotional support techniques.",
-      image: getImagePath('images/Caregivers/training.jpg'),
-      cta: "Join Training",
-      impact: "1,200+ caregivers trained",
-      details: "Our comprehensive training workshops provide hands-on learning experiences, covering topics from basic care techniques to advanced dementia support strategies. Participants gain practical skills in communication, medication management, behavioral interventions, and self-care for caregivers."
-    },
-    {
-      icon: Users,
-      title: "Memory Care Support Groups",
-      description: "Safe spaces for caregivers and families to share experiences, learn from each other, and build lasting support networks.",
-      image: getImagePath('images/Caregivers/sessions.jpg'),
-      cta: "Find Group",
-      impact: "80+ active support groups",
-      details: "Our support groups offer a caring environment where families can connect with others facing similar challenges. Led by experienced facilitators, these sessions provide emotional support, practical advice, and lasting friendships that make the caregiving journey less isolating."
-    },
-    {
-      icon: BookOpen,
-      title: "Educational Resources",
-      description: "Evidence-based materials, guides, and toolkits designed to enhance understanding of dementia care and management strategies.",
-      image: getImagePath('images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg'),
-      cta: "Access Resources",
-      impact: "50,000+ resources accessed",
-      details: "Our educational resources provide evidence-based information on dementia care and management strategies."
-    },
-    {
-      icon: Home,
-      title: "Home Care Consultation",
-      description: "Personalized assessments and recommendations to create safe, comfortable living environments for those with dementia.",
-      image: getImagePath('images/Users/care.jpg'),
-      cta: "Book Consultation",
-      impact: "500+ homes assessed",
-      details: "Our home care consultations provide personalized assessments to optimize living environments for individuals with dementia. Our experts evaluate safety, accessibility, and comfort factors to create recommendations that enhance quality of life for both patients and caregivers."
+  const getIconComponent = useCallback((iconName: string) => {
+    return ICON_MAP[iconName as keyof typeof ICON_MAP] || Heart;
+  }, []);
+  
+  // Process programs from database with fallback images
+  const programs = useMemo(() => {
+    if (!databasePrograms || databasePrograms.length === 0) {
+      return [];
     }
-  ], []);
+    
+    return databasePrograms.map(program => ({
+      icon: getIconComponent(program.icon),
+      title: program.title,
+      description: program.description,
+      image: program.image_url ? getImagePath(program.image_url) : getImagePath('images/fallback.svg'),
+      cta: program.cta_text,
+      impact: program.impact_text,
+      details: program.details
+    }));
+  }, [databasePrograms, getIconComponent]);
 
   const handleNavigation = (event: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     event.preventDefault();
@@ -309,55 +325,50 @@ const Index = () => {
     popular: false
   }];
 
-  // Events from database with fallback to ensure UI works when database is unavailable
-  const eventTypes = {
-    'Caregiver Training Workshop': 'Workshop',
-    'Memory Café Meetup': 'Support Group',
-    'Therapy Session': 'Therapy',
-    'Fundraiser Event': 'Fundraiser'
+  // Events from database with flexible event type mapping
+  const getEventType = (title: string): string => {
+    const titleLower = title.toLowerCase();
+    if (titleLower.includes('workshop') || titleLower.includes('training')) return 'Workshop';
+    if (titleLower.includes('support') || titleLower.includes('group') || titleLower.includes('café')) return 'Support Group';
+    if (titleLower.includes('therapy') || titleLower.includes('session')) return 'Therapy';
+    if (titleLower.includes('fundraiser') || titleLower.includes('fund')) return 'Fundraiser';
+    if (titleLower.includes('seminar') || titleLower.includes('education')) return 'Workshop';
+    return 'Event'; // Default fallback
   };
   
   const eventImages = {
     'Workshop': imagePaths.caregivers.training,
     'Support Group': imagePaths.caregivers.sessions,
     'Therapy': imagePaths.users.care,
-    'Fundraiser': imagePaths.users.care // Changed from activities to care
+    'Fundraiser': imagePaths.users.eha1,
+    'Event': imagePaths.caregivers.sessions // Default fallback
   };
   
-  // Map database events to frontend format with appropriate defaults
-  const upcomingEvents = isEventsLoading || databaseEvents.length === 0
-    ? [{ // Fallback events while loading or if database fetch fails
-        id: "a1fa4dee-b3c6-45b8-ac37-dbdc2e6614cd", 
-        title: "Caregiver Training Workshop",
-        date: "2025-08-15",
-        time: "10:00 AM - 4:00 PM",
-        location: "Shatam Care Center, Mumbai",
-        type: "Workshop",
-        description: "A comprehensive workshop for new caregivers to learn essential skills.",
-        image: imagePaths.caregivers.training,
-        spots: "30 spots left"
-      }, {
-        id: "c2553e2a-7097-48c4-86b0-c080fb479283",
-        title: "Memory Café Meetup",
-        date: "2025-07-30",
-        time: "4:00 PM - 6:00 PM",
-        location: "Community Center, Delhi",
-        type: "Support Group",
-        description: "Monthly gathering for people with dementia and their caregivers.",
-        image: imagePaths.caregivers.sessions,
-        spots: "25 spots left"
-      }]
-    : databaseEvents.map(event => ({
-        id: event.id,
-        title: event.title,
-        date: event.date,
-        time: event.time,
-        location: event.location,
-        type: eventTypes[event.title] || 'Event',
-        description: event.description,
-        image: eventImages[eventTypes[event.title] || 'Event'] || imagePaths.caregivers.sessions,
-        spots: event.spots
-      }));
+  // Map database events to frontend format
+  const allUpcomingEvents = (databaseEvents && databaseEvents.length > 0) 
+    ? databaseEvents.map(event => {
+        // Determine event type dynamically
+        const eventType = getEventType(event.title);
+        
+        // Priority: 1) Database image_url, 2) Type-based fallback, 3) Default fallback
+        const finalImage = event.image_url || eventImages[eventType] || eventImages['Event'];
+        
+        return {
+          id: event.id,
+          title: event.title,
+          date: event.date,
+          time: event.time,
+          location: event.location,
+          type: eventType,
+          description: event.description,
+          image: finalImage,
+          spots: event.spots
+        };
+      })
+    : []; // Return empty array if no database events
+
+  // Show only first 4 events on homepage
+  const upcomingEvents = allUpcomingEvents.slice(0, 4);
 
   // Enhanced trust indicators
   const trustIndicators = [
@@ -432,8 +443,10 @@ const Index = () => {
               <a href="#programs" onClick={(e) => handleNavigation(e, 'programs')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Programs</a>
               <a href="#impact" onClick={(e) => handleNavigation(e, 'impact')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Impact</a>
               <a href="#events" onClick={(e) => handleNavigation(e, 'events')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Events</a>
+              <Link to="/events" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">All Events</Link>
               <a href="#founder" onClick={(e) => handleNavigation(e, 'founder')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Our Founder</a>
               <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Get Involved</a>
+              <Link to="/admin/login" className="text-gray-700 hover:text-warm-teal transition-colors font-medium">Admin</Link>
             </nav>
 
             <div className="flex items-center space-x-4">
@@ -463,8 +476,10 @@ const Index = () => {
                 <a href="#programs" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Programs</a>
                 <a href="#impact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Impact</a>
                 <a href="#events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Events</a>
+                <Link to="/events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">All Events</Link>
                 <a href="#founder" onClick={(e) => handleNavigation(e, 'founder')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Our Founder</a>
                 <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Get Involved</a>
+                <Link to="/admin/login" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Admin</Link>
                 <div className="px-4 py-3">
                   <Button 
                     className="btn-cta w-full"
@@ -480,6 +495,7 @@ const Index = () => {
 
       {/* Enhanced Hero Section */}
       <main id="main-content">
+      
       <section id="home" className="relative overflow-hidden min-h-screen flex items-center" ref={heroRef}>
         <div className="hero-overlay absolute inset-0 bg-gradient-to-r from-dark-charcoal/70 to-dark-charcoal/50 z-10"></div>
         <div 
@@ -611,56 +627,71 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {programs.map((program, index) => (
-              <Card key={index} className="program-card bg-white hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-lg group overflow-hidden">
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={program.image} 
-                    alt={program.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    onError={(e) => handleImageError(e, program.image)}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-3">
-                    <program.icon className="h-6 w-6 text-warm-teal" />
-                  </div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <div className="text-sm font-medium bg-warm-teal/80 px-3 py-1 rounded-full">
-                      {program.impact}
+          {isProgramsLoading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-teal mb-4"></div>
+              <p className="text-gray-600">Loading programs...</p>
+            </div>
+          ) : programs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              {programs.map((program, index) => (
+                <Card key={index} className="program-card bg-white hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-lg group overflow-hidden">
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={program.image} 
+                      alt={program.title} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                      onError={(e) => handleImageError(e, program.image)}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-3">
+                      <program.icon className="h-6 w-6 text-warm-teal" />
+                    </div>
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <div className="text-sm font-medium bg-warm-teal/80 px-3 py-1 rounded-full">
+                        {program.impact}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <CardContent className="p-8">
-                  <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">
-                    {program.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
-                  <button 
-                    onClick={() => setExpandedProgram(expandedProgram === index ? null : index)} 
-                    className="flex items-center text-warm-teal hover:text-warm-teal-600 font-medium transition-colors"
-                    aria-expanded={expandedProgram === index}
-                    aria-controls={`program-details-${index}`}
-                  >
-                    Learn More
-                    {expandedProgram === index ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
-                  </button>
-                  {expandedProgram === index && (
-                    <div 
-                      id={`program-details-${index}`}
-                      className="mt-6 p-6 bg-warm-teal rounded-xl animate-accordion-down"
+                  <CardContent className="p-8">
+                    <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">
+                      {program.title}
+                    </h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
+                    <button 
+                      onClick={() => setExpandedProgram(expandedProgram === index ? null : index)} 
+                      className="flex items-center text-warm-teal hover:text-warm-teal-600 font-medium transition-colors"
+                      aria-expanded={expandedProgram === index}
+                      aria-controls={`program-details-${index}`}
                     >
-                      <p className="text-white leading-relaxed mb-4">{program.details}</p>
-                      <Button className="btn-cta">
-                        Get Involved <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      Learn More
+                      {expandedProgram === index ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
+                    </button>
+                    {expandedProgram === index && (
+                      <div 
+                        id={`program-details-${index}`}
+                        className="mt-6 p-6 bg-warm-teal rounded-xl animate-accordion-down"
+                      >
+                        <p className="text-white leading-relaxed mb-4">{program.details}</p>
+                        <Button className="btn-cta">
+                          {program.cta} <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <BookOpen className="h-16 w-16 text-gray-400 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No Programs Available</h3>
+              <p className="text-gray-500 text-center max-w-md">
+                Our programs are being updated. Please check back soon or contact us for more information.
+              </p>
+            </div>
+          )}
           
           {/* Removed "View All Programs" button since all programs are now always shown */}
         </div>
@@ -710,7 +741,7 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-teal mb-4"></div>
               <p className="text-gray-600">Loading upcoming events...</p>
             </div>
-          ) : (
+          ) : upcomingEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
               {upcomingEvents.map((event, index) => (
                 <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
@@ -771,12 +802,22 @@ const Index = () => {
                 </Card>
               ))}
             </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Calendar className="h-16 w-16 text-gray-400 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">No Events Available</h3>
+              <p className="text-gray-500 text-center max-w-md">
+                There are currently no upcoming events. Check back soon or contact us for more information about future programs.
+              </p>
+            </div>
           )}
           
           <div className="text-center">
-            <Button className="btn-secondary-cta">
-              View All Events <Calendar className="ml-2 h-4 w-4" />
-            </Button>
+            <Link to="/events">
+              <Button className="btn-secondary-cta">
+                View All Events <Calendar className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

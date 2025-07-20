@@ -8,7 +8,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import OurPrograms from "./pages/OurPrograms";
 import OurImpact from "./pages/OurImpact";
+import EventsPage from "./pages/EventsPage";
 import AdminPage from "./pages/AdminPage";
+import AdminLoginPage from "./components/admin/AdminLoginPage";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -62,6 +64,9 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/programs" element={<OurPrograms />} />
                 <Route path="/impact" element={<OurImpact />} />
+                <Route path="/events" element={<EventsPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
