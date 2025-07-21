@@ -166,7 +166,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onPage
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open('/', '_blank')}
+              onClick={() => navigate('/')}
               className="flex-1 text-xs"
             >
               <Home className="h-3 w-3 mr-1" />
