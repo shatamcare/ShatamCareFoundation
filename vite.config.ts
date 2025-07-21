@@ -35,17 +35,22 @@ export default defineConfig(({ command, mode }) => ({
       input: {
         main: path.resolve(__dirname, 'index.html')
       },
+      external: (id) => {
+        // Don't externalize React in our build - keep it bundled to avoid multiple instances
+        return false;
+      },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
-            // Keep React and React-DOM together in one chunk
-            if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+            // Keep React, React-DOM, and React-Router together in one chunk to prevent context issues
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'react-vendor';
+            }
             if (id.includes('@radix-ui')) return 'vendor-radix';
             if (id.includes('@supabase')) return 'vendor-supabase';
-            if (id.includes('react-router')) return 'vendor-router';
             return 'vendor';
           }
           if (id.includes('admin')) return 'admin';

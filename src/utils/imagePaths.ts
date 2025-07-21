@@ -60,9 +60,6 @@ export const getImagePath = (imagePath: string): string => {
     const baseUrl = getBaseUrl();
     const fullPath = `${baseUrl}${cleanPath}`.replace(/\/+/g, '/'); // Remove double slashes
     
-    // Debug: Log path generation
-    console.log(`getImagePath: ${imagePath} -> ${fullPath} (dev: ${!isProduction()})`);
-    
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProduction()) {
       verifyImagePath(fullPath).then(exists => {
