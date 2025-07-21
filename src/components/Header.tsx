@@ -1,22 +1,57 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // FIX: Create a reliable, dynamic path for the logo
+  const logoPath = `${import.meta.env.BASE_URL}images/shatam-care-foundation-logo.png`;
+
+  // Check if we are on the homepage
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+
+    if (isHomePage) {
+      // If we are on the homepage, just scroll
+      const section = document.getElementById(sectionId);
+      if (section) {
+        const headerOffset = 80; // Adjust if your header height is different
+        const elementPosition = section.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      }
+    } else {
+      // If on another page, navigate to homepage and then jump to the section
+      navigate(`/#${sectionId}`);
+    }
+  };
+
+  const navLinks = [
+    { label: "Home", sectionId: "home" },
+    { label: "Our Mission", sectionId: "mission" },
+    { label: "Programs", sectionId: "programs" },
+    { label: "Impact", sectionId: "impact" },
+    { label: "Events", sectionId: "events" },
+    { label: "Our Founder", sectionId: "founder" },
+    { label: "Get Involved", sectionId: "contact" }
+  ];
+
   return (
     <header 
-      className={`sticky top-0 z-50 w-full bg-white/95 transition-shadow duration-300
+      className={`sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm transition-shadow duration-300
       ${isScrolled ? 'shadow-lg' : 'shadow-sm'}`}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -25,7 +60,7 @@ const Header = () => {
         <div className="flex-shrink-0">
           <Link to="/">
             <img 
-              src="/images/shatam-care-foundation-logo.png" 
+              src={logoPath} 
               alt="Shatam Care Foundation" 
               className="h-10 w-auto object-contain"
             />
@@ -34,24 +69,31 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 lg:flex">
-          <Link to="/" className="font-medium text-gray-700 transition-colors hover:text-primary">Home</Link>
-          <Link to="/about" className="font-medium text-gray-700 transition-colors hover:text-primary">About</Link>
-          <Link to="/programs" className="font-medium text-gray-700 transition-colors hover:text-primary">Programs</Link>
+          {navLinks.map((link) => (
+            <a 
+              key={link.label}
+              href={`#${link.sectionId}`} 
+              onClick={(e) => handleNavClick(e, link.sectionId)}
+              className="font-medium text-gray-700 transition-colors hover:text-primary"
+            >
+              {link.label}
+            </a>
+          ))}
           <Link to="/admin" className="font-medium text-gray-700 transition-colors hover:text-primary">Admin</Link>
         </nav>
 
         {/* Actions & Mobile Toggle */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:block">
-            <Link 
-              to="/donate" 
+            <a 
+              href="/#donate" 
+              onClick={(e) => handleNavClick(e, 'donate')}
               className="inline-block rounded-full bg-primary px-5 py-2 font-bold text-white no-underline transition-colors hover:bg-primary/90"
             >
               Donate Now
-            </Link>
+            </a>
           </div>
           
-          {/* Mobile Menu Button */}
           <button
             className="ml-2 lg:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -66,17 +108,24 @@ const Header = () => {
       {isMobileMenuOpen && (
         <div className="border-t border-gray-200 bg-white lg:hidden">
           <nav className="container mx-auto flex flex-col px-4 py-4">
-            <Link to="/" className="w-full py-2 text-lg" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
-            <Link to="/about" className="w-full py-2 text-lg" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
-            <Link to="/programs" className="w-full py-2 text-lg" onClick={() => setIsMobileMenuOpen(false)}>Programs</Link>
+            {navLinks.map((link) => (
+              <a 
+                key={link.label}
+                href={`#${link.sectionId}`} 
+                onClick={(e) => handleNavClick(e, link.sectionId)}
+                className="w-full py-2 text-lg"
+              >
+                {link.label}
+              </a>
+            ))}
             <Link to="/admin" className="w-full py-2 text-lg" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>
-            <Link 
-              to="/donate" 
+            <a 
+              href="/#donate" 
+              onClick={(e) => handleNavClick(e, 'donate')}
               className="mt-4 w-full rounded-full bg-primary py-2 text-center font-bold text-white"
-              onClick={() => setIsMobileMenuOpen(false)}
             >
               Donate Now
-            </Link>
+            </a>
           </nav>
         </div>
       )}
