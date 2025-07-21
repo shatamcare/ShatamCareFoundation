@@ -12,6 +12,11 @@ export default defineConfig(({ command, mode }) => ({
   publicDir: 'public',
   plugins: [react()],
   assetsInclude: ['**/*.ico', '**/*.svg'],
+  define: {
+    // Ensure consistent React environment
+    'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+    __DEV__: mode !== 'production'
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -23,7 +28,11 @@ export default defineConfig(({ command, mode }) => ({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
     exclude: ['@radix-ui/react-tooltip'],
-    force: true
+    force: true,
+    // Ensure React is pre-bundled correctly
+    esbuildOptions: {
+      target: 'es2020'
+    }
   },
   build: {
     outDir: "dist",
@@ -43,17 +52,12 @@ export default defineConfig(({ command, mode }) => ({
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            // Keep React, React-DOM, and React-Router together in one chunk to prevent context issues
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'react-vendor';
-            }
-            if (id.includes('@radix-ui')) return 'vendor-radix';
-            if (id.includes('@supabase')) return 'vendor-supabase';
-            return 'vendor';
-          }
-          if (id.includes('admin')) return 'admin';
+        manualChunks: {
+          // Force all React-related code into a single chunk
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Keep other vendors separate
+          'vendor-supabase': ['@supabase/supabase-js'],
+          // Admin chunk for admin-related code
         }
       }
     }
