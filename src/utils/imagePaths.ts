@@ -19,8 +19,21 @@ const fallbackSvg = `<svg width="200" height="200" viewBox="0 0 200 200" xmlns="
   <line x1="140" y1="70" x2="60" y2="130" stroke="#666666" stroke-width="2"/>
 </svg>`;
 
-// Convert SVG to base64 using btoa (browser's built-in base64 encoder)
-export const fallbackImageDataUrl = `data:image/svg+xml;base64,${btoa(fallbackSvg)}`;
+// Convert SVG to base64 using Buffer (Node.js compatible) or btoa (browser)
+const encodeBase64 = (str: string): string => {
+  if (typeof Buffer !== 'undefined') {
+    // Node.js environment (build time)
+    return Buffer.from(str).toString('base64');
+  } else if (typeof btoa !== 'undefined') {
+    // Browser environment (runtime)
+    return btoa(str);
+  } else {
+    // Fallback - return the SVG directly as data URL
+    return encodeURIComponent(str);
+  }
+};
+
+export const fallbackImageDataUrl = `data:image/svg+xml;base64,${encodeBase64(fallbackSvg)}`;
 
 /**
  * Cache for verified image paths
