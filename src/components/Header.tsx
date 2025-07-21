@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { getImagePath } from '../utils/imagePaths';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -8,8 +9,8 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Use direct path for logo in public/images/
-  const logoPath = "/images/shatam-care-foundation-logo.png";
+  // Use the proper image path function
+  const logoPath = getImagePath('images/Team/SC_LOGO-removebg-preview.png');
 
   // Check if we are on the homepage
   const isHomePage = location.pathname === '/';
@@ -54,15 +55,15 @@ const Header = () => {
       className={`sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm transition-shadow duration-300
       ${isScrolled ? 'shadow-lg' : 'shadow-sm'}`}
     >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between px-6">
         
         {/* Logo */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 ml-4">
           <Link to="/">
             <img 
               src={logoPath} 
               alt="Shatam Care Foundation" 
-              className="h-10 w-auto object-contain"
+              className="h-14 w-auto object-contain"
             />
           </Link>
         </div>

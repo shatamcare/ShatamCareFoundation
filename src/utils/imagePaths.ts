@@ -56,25 +56,23 @@ export const getImagePath = (imagePath: string): string => {
     // Normalize the path - ensure it starts with /
     const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
     
-    if (!isProduction()) {
-      // Development: use the path directly
-      verifyImagePath(cleanPath).then(exists => {
+    // Use the base URL from url-helpers
+    const baseUrl = getBaseUrl();
+    const fullPath = `${baseUrl}${cleanPath}`.replace(/\/+/g, '/'); // Remove double slashes
+    
+    // Debug: Log path generation
+    console.log(`getImagePath: ${imagePath} -> ${fullPath} (dev: ${!isProduction()})`);
+    
+    // Verify the image path exists (only in production to avoid dev server issues)
+    if (isProduction()) {
+      verifyImagePath(fullPath).then(exists => {
         if (!exists) {
-          console.warn(`Image not found: ${cleanPath}`);
+          console.warn(`Image not found: ${fullPath}`);
         }
       });
-      return cleanPath;
     }
-
-    // Production: prepend base path
-    const basePath = '/ShatamCareFoundation';
-    const prodPath = `${basePath}${cleanPath}`;
-    verifyImagePath(prodPath).then(exists => {
-      if (!exists) {
-        console.warn(`Image not found: ${prodPath}`);
-      }
-    });
-    return prodPath;
+    
+    return fullPath;
   } catch (error) {
     console.error('Error in getImagePath:', error);
     return fallbackImageDataUrl;
@@ -87,9 +85,8 @@ export const getImagePath = (imagePath: string): string => {
  * @returns The correct image path wrapped in url() for CSS
  */
 export const getBackgroundImagePath = (imagePath: string): string => {
-  // Remove leading slash if present to avoid double slashes
-  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-  return `url("${getImagePath(cleanPath)}")`;
+  const imageSrc = getImagePath(imagePath);
+  return `url("${imageSrc}")`;
 };
 
 /**
