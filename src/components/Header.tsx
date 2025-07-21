@@ -8,8 +8,8 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // FIX: Create a reliable, dynamic path for the logo
-  const logoPath = `${import.meta.env.BASE_URL}images/shatam-care-foundation-logo.png`;
+  // Use direct path for logo in public/images/
+  const logoPath = "/images/shatam-care-foundation-logo.png";
 
   // Check if we are on the homepage
   const isHomePage = location.pathname === '/';
