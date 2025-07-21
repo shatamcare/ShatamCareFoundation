@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
-import Header from "./components/Header";
 import Index from "./pages/Index";
 import OurPrograms from "./pages/OurPrograms";
 import OurImpact from "./pages/OurImpact";
@@ -63,7 +62,6 @@ const App = () => {
             </div>
           ) : (
             <BrowserRouter basename={basename}>
-              <Header />
               <main className="min-h-screen">
                 <Routes>
                   <Route path="/" element={<Index />} />

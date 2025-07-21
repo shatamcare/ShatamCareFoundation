@@ -16,6 +16,11 @@ export default defineConfig(({ command }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', '@supabase/supabase-js'],
+    exclude: ['@radix-ui/react-tooltip']
   },
   build: {
     outDir: "dist",
@@ -30,10 +35,9 @@ export default defineConfig(({ command }) => ({
             if (id.includes('react')) return 'vendor-react';
             if (id.includes('@radix-ui')) return 'vendor-radix';
             if (id.includes('@supabase')) return 'vendor-supabase';
-            return 'vendor'; // all other node_modules
+            return 'vendor';
           }
-          if (id.includes('components/admin')) return 'admin';
-        }
+          if (id.includes('admin')) return 'admin';
         }
       }
     }

@@ -90,6 +90,19 @@ const Index = () => {
       clearInterval(refreshInterval);
     };
   }, [refreshCount]);
+
+  // Handle scroll events for header styling with performance optimization
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeaderScrolled(window.scrollY > 50);
+    };
+
+    // Use throttled scroll handler to prevent performance violations
+    const throttledHandleScroll = throttle(handleScroll, 16); // ~60fps
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', throttledHandleScroll);
+  }, []);
   
   // Section refs
   const heroRef = useRef<HTMLDivElement>(null);
@@ -218,19 +231,6 @@ const Index = () => {
       isComponentMounted = false;
       cleanupAnimations();
     };
-  }, []);
-
-  // Handle scroll events for header styling with performance optimization
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsHeaderScrolled(window.scrollY > 50);
-    };
-
-    // Use throttled scroll handler to prevent performance violations
-    const throttledHandleScroll = throttle(handleScroll, 16); // ~60fps
-
-    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', throttledHandleScroll);
   }, []);
   
   // Refresh ScrollTrigger when expanded program changes
@@ -469,13 +469,14 @@ const Index = () => {
           </div>
           
           {/* Enhanced Mobile Navigation */}
-          {isMenuOpen && <div className="lg:hidden bg-white border-t border-gray-100">
+          {isMenuOpen && (
+            <div className="lg:hidden bg-white border-t border-gray-100">
               <div className="px-2 pt-2 pb-3 space-y-1">
-                <a href="#home" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Home</a>
-                <a href="#mission" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Our Mission</a>
-                <a href="#programs" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Programs</a>
-                <a href="#impact" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Impact</a>
-                <a href="#events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Events</a>
+                <a href="#home" onClick={(e) => handleNavigation(e, 'home')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Home</a>
+                <a href="#mission" onClick={(e) => handleNavigation(e, 'mission')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Our Mission</a>
+                <a href="#programs" onClick={(e) => handleNavigation(e, 'programs')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Programs</a>
+                <a href="#impact" onClick={(e) => handleNavigation(e, 'impact')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Impact</a>
+                <a href="#events" onClick={(e) => handleNavigation(e, 'events')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Events</a>
                 <Link to="/events" className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">All Events</Link>
                 <a href="#founder" onClick={(e) => handleNavigation(e, 'founder')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Our Founder</a>
                 <a href="#contact" onClick={(e) => handleNavigation(e, 'contact')} className="block px-4 py-3 text-gray-700 hover:text-warm-teal hover:bg-gray-50 rounded-lg transition-colors">Get Involved</a>
@@ -489,7 +490,8 @@ const Index = () => {
                   </Button>
                 </div>
               </div>
-            </div>}
+            </div>
+          )}
         </div>
       </header>
 

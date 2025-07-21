@@ -1,11 +1,9 @@
 
-import { Heart, Users, BookOpen, Home, Clock, Award, ArrowLeft } from "lucide-react";
+import { Heart, Users, BookOpen, Home, Clock, Award } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 
 const OurPrograms = () => {
-  const navigate = useNavigate();
   const programs = [
     {
       icon: Heart,
@@ -47,24 +45,6 @@ const OurPrograms = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="flex items-center space-x-2 text-warm-teal hover:text-warm-teal-600"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Home</span>
-            </Button>
-            <h1 className="text-lg font-semibold text-dark-charcoal">Our Programs</h1>
-            <div className="w-20"></div> {/* Spacer for center alignment */}
-          </div>
-        </div>
-      </header>
-
       {/* Header */}
       <section className="bg-warm-teal text-white py-20">
         <div className="container mx-auto px-4 text-center">
