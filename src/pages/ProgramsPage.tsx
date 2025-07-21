@@ -445,6 +445,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                         alt="Preview" 
                         className="w-32 h-24 object-cover rounded-md border"
                         onError={(e) => {
+                          console.warn(`Failed to load preview image: ${formData.image_url}`);
                           e.currentTarget.style.display = 'none';
                         }}
                       />
@@ -538,6 +539,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                                 alt={program.title}
                                 className="w-24 h-16 object-cover rounded-md border"
                                 onError={(e) => {
+                                  console.warn(`Failed to load image: ${program.image_url}`);
                                   e.currentTarget.style.display = 'none';
                                 }}
                               />

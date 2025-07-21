@@ -77,8 +77,17 @@ export const getImagePath = (imagePath: string): string => {
       return imagePath;
     }
 
+    // Handle legacy image paths that might have problematic characters
+    let cleanImagePath = imagePath;
+    
+    // Fix known problematic paths
+    if (cleanImagePath.includes('art 1.jpg')) {
+      cleanImagePath = cleanImagePath.replace('art 1.jpg', 'art.jpg');
+      console.warn(`Fixed problematic image path: ${imagePath} -> ${cleanImagePath}`);
+    }
+
     // Normalize the path - ensure it starts with /
-    const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+    const cleanPath = cleanImagePath.startsWith('/') ? cleanImagePath : `/${cleanImagePath}`;
     
     // Combine base URL with clean path
     const fullPath = `${baseUrl}${cleanPath}`.replace(/\/+/g, '/'); // Remove double slashes
