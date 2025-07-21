@@ -56,9 +56,8 @@ export const getImagePath = (imagePath: string): string => {
     // Normalize the path - ensure it starts with /
     const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
     
-    // In development, use the path directly
     if (!isProduction()) {
-      // Start verification but don't wait for it
+      // Development: use the path directly
       verifyImagePath(cleanPath).then(exists => {
         if (!exists) {
           console.warn(`Image not found: ${cleanPath}`);
@@ -66,19 +65,16 @@ export const getImagePath = (imagePath: string): string => {
       });
       return cleanPath;
     }
-    
-    // In production, use the base URL
-    const baseUrl = getBaseUrl();
-    const fullPath = `${baseUrl.slice(0, -1)}${cleanPath}`; // Remove trailing slash from baseUrl
-    
-    // Start verification but don't wait for it
-    verifyImagePath(fullPath).then(exists => {
+
+    // Production: prepend base path
+    const basePath = '/ShatamCareFoundation';
+    const prodPath = `${basePath}${cleanPath}`;
+    verifyImagePath(prodPath).then(exists => {
       if (!exists) {
-        console.warn(`Image not found: ${fullPath}`);
+        console.warn(`Image not found: ${prodPath}`);
       }
     });
-
-    return fullPath;
+    return prodPath;
   } catch (error) {
     console.error('Error in getImagePath:', error);
     return fallbackImageDataUrl;
@@ -111,7 +107,7 @@ export const imagePaths = {
     care: getImagePath('images/Users/care.jpg'),
   },
   
-  // Caregiver images  
+  // Caregiver images 
   caregivers: {
     sessions: getImagePath('images/Caregivers/sessions.jpg'),
     training: getImagePath('images/Caregivers/training.jpg'),
