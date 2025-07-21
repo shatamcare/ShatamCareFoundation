@@ -7,6 +7,8 @@ import { getEvents, getPrograms, type EventForDisplay, type ProgramForDisplay } 
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
 import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, preloadNearbyImages, preloadHeroImage, optimizeImageLoading, fallbackImageDataUrl } from '@/utils/imagePaths';
 import { throttle } from '@/utils/performance';
+import { enhanceAriaAttributes, announceToScreenReader } from '@/utils/accessibility';
+import { throttle } from '@/utils/performance';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
