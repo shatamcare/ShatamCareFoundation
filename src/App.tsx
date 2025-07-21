@@ -39,6 +39,22 @@ const App = () => {
   // Determine basename for router
   const basename = import.meta.env.PROD ? '/ShatamCareFoundation' : undefined;
 
+  // Handle GitHub Pages SPA redirects
+  useEffect(() => {
+    // Handle redirects from 404.html for GitHub Pages SPA
+    const handleRedirect = () => {
+      const search = window.location.search;
+      if (search.includes('?/')) {
+        const redirectPath = search.slice(2).replace(/&/g, '&').replace(/~and~/g, '&');
+        if (redirectPath) {
+          window.history.replaceState(null, null, basename ? `${basename}${redirectPath}` : redirectPath);
+        }
+      }
+    };
+
+    handleRedirect();
+  }, [basename]);
+
   // Minimal loading state management - only if needed
   useEffect(() => {
     // If for some reason we need to show loading, make it very brief
