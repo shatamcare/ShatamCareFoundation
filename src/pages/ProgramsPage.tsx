@@ -79,22 +79,22 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
 
   // Memoized available images to prevent recreation on every render
   const availableImages = useMemo(() => [
-    getImagePath('images/Caregivers/training.jpg'),
-    getImagePath('images/Caregivers/sessions.jpg'),
-    getImagePath('images/Caregivers/career discussion.jpg'),
-    getImagePath('images/Caregivers/hospital.jpg'),
-    getImagePath('images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg'),
-    getImagePath('images/Brain Kit/EHA4.jpg'),
-    getImagePath('images/Brain Kit/kit.jpg'),
-    getImagePath('images/Users/care.jpg'),
-    getImagePath('images/Users/activities.jpg'),
-    getImagePath('images/Users/art.jpg'),
-    getImagePath('images/Users/dementia care 1.jpg'),
-    getImagePath('images/Users/Dementia.jpg'),
-    getImagePath('images/Users/EHA.jpg'),
-    getImagePath('images/Users/memory cafe.jpeg'),
-    getImagePath('images/Media/EHA9.jpg'),
-    getImagePath('images/Media/News.jpg')
+    'images/Caregivers/training.jpg',
+    'images/Caregivers/sessions.jpg',
+    'images/Caregivers/career discussion.jpg',
+    'images/Caregivers/hospital.jpg',
+    'images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg',
+    'images/Brain Kit/EHA4.jpg',
+    'images/Brain Kit/kit.jpg',
+    'images/Users/care.jpg',
+    'images/Users/activities.jpg',
+    'images/Users/art.jpg',
+    'images/Users/dementia care 1.jpg',
+    'images/Users/Dementia.jpg',
+    'images/Users/EHA.jpg',
+    'images/Users/memory cafe.jpeg',
+    'images/Media/EHA9.jpg',
+    'images/Media/News.jpg'
   ], []);
 
   const fetchPrograms = useCallback(async () => {

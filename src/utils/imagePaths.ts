@@ -53,12 +53,25 @@ export const getImagePath = (imagePath: string): string => {
       return fallbackImageDataUrl;
     }
 
+    // Check if the path is already a full URL (starts with http/https)
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+
+    // Check if the path already has the base URL applied
+    const baseUrl = getBaseUrl();
+    if (imagePath.startsWith(baseUrl)) {
+      return imagePath;
+    }
+
     // Normalize the path - ensure it starts with /
     const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
     
-    // Use the base URL from url-helpers
-    const baseUrl = getBaseUrl();
+    // Combine base URL with clean path
     const fullPath = `${baseUrl}${cleanPath}`.replace(/\/+/g, '/'); // Remove double slashes
+    
+    // Add debug logging to see what's happening
+    console.log(`getImagePath: "${imagePath}" -> "${fullPath}"`);
     
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProduction()) {
