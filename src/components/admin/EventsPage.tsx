@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase-secure';
+import { getImagePath } from '@/utils/imagePaths';
 import { 
   Calendar,
   Plus,
@@ -144,11 +145,11 @@ const EventsPage: React.FC = () => {
       { id: '17', name: 'activities 1.jpg', url: '/images/Users/activities 1.jpg', type: 'image', size: 234567, uploaded_at: '2024-01-17T00:00:00Z', category: 'Users' },
       { id: '18', name: 'activities 2.jpg', url: '/images/Users/activities 2.jpg', type: 'image', size: 223456, uploaded_at: '2024-01-18T00:00:00Z', category: 'Users' },
       { id: '19', name: 'activities.jpg', url: '/images/Users/activities.jpg', type: 'image', size: 245678, uploaded_at: '2024-01-19T00:00:00Z', category: 'Users' },
-      { id: '20', name: 'art 1.jpg', url: '/images/Users/art 1.jpg', type: 'image', size: 198765, uploaded_at: '2024-01-20T00:00:00Z', category: 'Users' },
+      { id: '20', name: 'art 1.jpg', url: getImagePath('images/Users/art 1.jpg'), type: 'image', size: 198765, uploaded_at: '2024-01-20T00:00:00Z', category: 'Users' },
       { id: '21', name: 'art.jpg', url: '/images/Users/art.jpg', type: 'image', size: 187234, uploaded_at: '2024-01-21T00:00:00Z', category: 'Users' },
       { id: '22', name: 'care.jpg', url: '/images/Users/care.jpg', type: 'image', size: 156789, uploaded_at: '2024-01-22T00:00:00Z', category: 'Users' },
       { id: '23', name: 'dementia care 1.jpg', url: '/images/Users/dementia care 1.jpg', type: 'image', size: 212345, uploaded_at: '2024-01-23T00:00:00Z', category: 'Users' },
-      { id: '24', name: 'Dementia.jpg', url: '/images/Users/Dementia.jpg', type: 'image', size: 234567, uploaded_at: '2024-01-24T00:00:00Z', category: 'Users' },
+      { id: '24', name: 'Dementia.jpg', url: getImagePath('images/Users/Dementia.jpg'), type: 'image', size: 234567, uploaded_at: '2024-01-24T00:00:00Z', category: 'Users' },
       { id: '25', name: 'EHA (1).jpg', url: '/images/Users/EHA (1).jpg', type: 'image', size: 189234, uploaded_at: '2024-01-25T00:00:00Z', category: 'Users' },
       { id: '26', name: 'EHA (2).jpg', url: '/images/Users/EHA (2).jpg', type: 'image', size: 167890, uploaded_at: '2024-01-26T00:00:00Z', category: 'Users' },
       { id: '27', name: 'EHA.jpg', url: '/images/Users/EHA.jpg', type: 'image', size: 203456, uploaded_at: '2024-01-27T00:00:00Z', category: 'Users' },

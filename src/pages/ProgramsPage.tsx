@@ -9,6 +9,7 @@ import {
   deleteProgram, 
   Program 
 } from '@/lib/supabase-secure';
+import { getImagePath } from '@/utils/imagePaths';
 import { 
   Plus, 
   Edit, 
@@ -78,22 +79,22 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
 
   // Memoized available images to prevent recreation on every render
   const availableImages = useMemo(() => [
-    'images/Caregivers/training.jpg',
-    'images/Caregivers/sessions.jpg',
-    'images/Caregivers/career discussion.jpg',
-    'images/Caregivers/hospital.jpg',
-    'images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg',
-    'images/Brain Kit/EHA4.jpg',
-    'images/Brain Kit/kit.jpg',
-    'images/Users/care.jpg',
-    'images/Users/activities.jpg',
-    'images/Users/art.jpg',
-    'images/Users/dementia care 1.jpg',
-    'images/Users/Dementia.jpg',
-    'images/Users/EHA.jpg',
-    'images/Users/memory cafe.jpeg',
-    'images/Media/EHA9.jpg',
-    'images/Media/News.jpg'
+    getImagePath('images/Caregivers/training.jpg'),
+    getImagePath('images/Caregivers/sessions.jpg'),
+    getImagePath('images/Caregivers/career discussion.jpg'),
+    getImagePath('images/Caregivers/hospital.jpg'),
+    getImagePath('images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg'),
+    getImagePath('images/Brain Kit/EHA4.jpg'),
+    getImagePath('images/Brain Kit/kit.jpg'),
+    getImagePath('images/Users/care.jpg'),
+    getImagePath('images/Users/activities.jpg'),
+    getImagePath('images/Users/art.jpg'),
+    getImagePath('images/Users/dementia care 1.jpg'),
+    getImagePath('images/Users/Dementia.jpg'),
+    getImagePath('images/Users/EHA.jpg'),
+    getImagePath('images/Users/memory cafe.jpeg'),
+    getImagePath('images/Media/EHA9.jpg'),
+    getImagePath('images/Media/News.jpg')
   ], []);
 
   const fetchPrograms = useCallback(async () => {
@@ -437,7 +438,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                   {formData.image_url && (
                     <div className="mt-2">
                       <img 
-                        src={`/${formData.image_url}`} 
+                        src={getImagePath(formData.image_url)} 
                         alt="Preview" 
                         className="w-32 h-24 object-cover rounded-md border"
                         onError={(e) => {
@@ -530,7 +531,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                           {program.image_url && (
                             <div className="mt-3">
                               <img 
-                                src={`/${program.image_url}`} 
+                                src={getImagePath(program.image_url)} 
                                 alt={program.title}
                                 className="w-24 h-16 object-cover rounded-md border"
                                 onError={(e) => {
