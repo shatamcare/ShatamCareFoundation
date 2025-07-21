@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,6 +14,18 @@ const NewsletterSignup: React.FC<NewsletterSignupProps> = ({ className = '' }) =
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Auto-dismiss error and success messages after 2 seconds
+  useEffect(() => {
+    if (submitStatus === 'error' || submitStatus === 'success') {
+      const timer = setTimeout(() => {
+        setSubmitStatus('idle');
+        setErrorMessage('');
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [submitStatus]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
