@@ -93,7 +93,7 @@ const MediaPage: React.FC = () => {
       { id: '17', name: 'activities 1.jpg', url: getImagePath('images/Users/activities 1.jpg'), type: 'image', size: 234567, uploaded_at: '2024-01-17T00:00:00Z', category: 'Users' },
       { id: '18', name: 'activities 2.jpg', url: getImagePath('images/Users/activities 2.jpg'), type: 'image', size: 223456, uploaded_at: '2024-01-18T00:00:00Z', category: 'Users' },
       { id: '19', name: 'activities.jpg', url: getImagePath('images/Users/activities.jpg'), type: 'image', size: 245678, uploaded_at: '2024-01-19T00:00:00Z', category: 'Users' },
-      { id: '20', name: 'art 1.jpg', url: getImagePath('images/Users/art 1.jpg'), type: 'image', size: 198765, uploaded_at: '2024-01-20T00:00:00Z', category: 'Users' },
+      { id: '20', name: 'art.jpg', url: getImagePath('images/Users/art.jpg'), type: 'image', size: 198765, uploaded_at: '2024-01-20T00:00:00Z', category: 'Users' },
       { id: '21', name: 'art.jpg', url: getImagePath('images/Users/art.jpg'), type: 'image', size: 187234, uploaded_at: '2024-01-21T00:00:00Z', category: 'Users' },
       { id: '22', name: 'care.jpg', url: getImagePath('images/Users/care.jpg'), type: 'image', size: 156789, uploaded_at: '2024-01-22T00:00:00Z', category: 'Users' },
       { id: '23', name: 'dementia care 1.jpg', url: getImagePath('images/Users/dementia care 1.jpg'), type: 'image', size: 212345, uploaded_at: '2024-01-23T00:00:00Z', category: 'Users' },
