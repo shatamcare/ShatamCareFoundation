@@ -59,6 +59,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onPage
         .single();
 
       if (adminError || !adminData) {
+        console.warn('User not found in admin_users table:', adminError);
         navigate('/admin/login');
         return;
       }
@@ -66,8 +67,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onPage
       setUser({
         id: session.user.id,
         email: session.user.email || '',
-        name: session.user.user_metadata?.full_name || adminData.name || 'Admin User',
-        avatar_url: session.user.user_metadata?.avatar_url,
+        name: adminData.name || session.user.user_metadata?.name || 'Admin',
+        avatar_url: adminData.avatar_url || session.user.user_metadata?.avatar_url,
         role: adminData.role || 'admin'
       });
     } catch (error) {
@@ -78,12 +79,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onPage
     }
   };
 
-  const handleSignOut = async () => {
+  const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       navigate('/admin/login');
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('Logout error:', error);
     }
   };
 
@@ -91,42 +92,53 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onPage
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'programs', label: 'Programs', icon: BookOpen },
-    { id: 'contacts', label: 'Contacts & Newsletter', icon: Users },
-    { id: 'media', label: 'Media Library', icon: ImageIcon },
-    { id: 'content', label: 'Content Management', icon: FileText },
+    { id: 'contacts', label: 'Contacts', icon: Users },
+    { id: 'media', label: 'Media', icon: ImageIcon },
+    { id: 'content', label: 'Content', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-warm-teal"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b">
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
+        
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-warm-teal rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">SC</span>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Home className="w-5 h-5 text-white" />
             </div>
             <span className="font-semibold text-gray-900">Admin Panel</span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
+            className="lg:hidden p-1 rounded-md hover:bg-gray-100"
           >
-            <X className="h-5 w-5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="mt-6 px-3">
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const isActive = currentPage === item.id;
+            
             return (
               <button
                 key={item.id}
@@ -134,82 +146,69 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onPage
                   onPageChange(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors duration-200 mb-1 ${
-                  currentPage === item.id
-                    ? 'bg-warm-teal text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                <span className="font-medium">{item.label}</span>
+                <Icon className="w-5 h-5 mr-3" />
+                {item.label}
               </button>
             );
           })}
         </nav>
 
-        {/* User info at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-gray-50">
+        {/* User Info & Logout */}
+        <div className="p-4 border-t border-gray-200">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="w-8 h-8 bg-warm-teal rounded-full flex items-center justify-center">
-              {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="User" className="w-8 h-8 rounded-full" />
-              ) : (
-                <User className="h-4 w-4 text-white" />
-              )}
+            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-gray-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user.name}
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                {user.email}
+              </p>
             </div>
           </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="flex-1 text-xs"
-            >
-              <Home className="h-3 w-3 mr-1" />
-              Website
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="flex-1 text-xs text-red-600 hover:text-red-700"
-            >
-              <LogOut className="h-3 w-3 mr-1" />
-              Sign Out
-            </Button>
-          </div>
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="sm"
+            className="w-full justify-start"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="flex-1 lg:ml-0">
-        {/* Top header for mobile */}
-        <div className="lg:hidden bg-white shadow-sm border-b">
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-700"
+              className="p-2 rounded-md hover:bg-gray-100"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">
-              {menuItems.find(item => item.id === currentPage)?.label || 'Admin Panel'}
-            </h1>
-            <div className="w-6"></div>
+            <span className="font-semibold text-gray-900">Admin Panel</span>
+            <div className="w-9"></div> {/* Spacer for centering */}
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="p-6">
+        {/* Page Content */}
+        <main className="flex-1">
           {children}
         </main>
       </div>
 
-      {/* Sidebar overlay for mobile */}
+      {/* Mobile Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"

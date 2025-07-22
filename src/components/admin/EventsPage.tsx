@@ -267,36 +267,40 @@ const EventsPage: React.FC = () => {
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event? This will also delete all registrations.')) {
+    if (!confirm('Are you sure you want to delete this event? This will also delete all registrations for this event.')) {
       return;
     }
 
     try {
-      console.log('Attempting to delete event:', eventId);
-      
-      const { error, data } = await supabase
+      // First, delete all registrations for this event
+      const { error: registrationsError } = await supabase
+        .from('event_registrations')
+        .delete()
+        .eq('event_id', eventId);
+
+      if (registrationsError) {
+        throw new Error(`Failed to delete event registrations: ${registrationsError.message}`);
+      }
+
+      // Then delete the event itself
+      const { error: eventError, data } = await supabase
         .from('events')
         .delete()
         .eq('id', eventId)
-        .select(); // Add select to see what was actually deleted
+        .select();
 
-      console.log('Delete response:', { error, data });
-
-      if (error) {
-        console.error('Supabase delete error:', error);
-        throw error;
+      if (eventError) {
+        throw new Error(`Failed to delete event: ${eventError.message}`);
       }
 
       // Check if anything was actually deleted
       if (!data || data.length === 0) {
-        console.warn('No rows were deleted. Event may not exist or RLS prevented deletion.');
         setError('Event could not be deleted. Please check your permissions.');
         return;
       }
 
-      console.log('Successfully deleted event:', data);
       setEvents(events.filter(event => event.id !== eventId));
-      setSuccess('Event deleted successfully!');
+      setSuccess('Event and all its registrations deleted successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       console.error('Error deleting event:', error);

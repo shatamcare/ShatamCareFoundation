@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/lib/supabase-secure';
-import { Mail, Phone, Calendar, Users, MessageSquare, TrendingUp, RefreshCw } from 'lucide-react';
+import { runDeploymentCheck, type DeploymentCheckResult } from '@/utils/deployment-checker';
+import { Mail, Phone, Calendar, Users, MessageSquare, TrendingUp, RefreshCw, CheckCircle, XCircle, AlertTriangle, Settings } from 'lucide-react';
 
 interface AdminDashboardProps {
   className?: string;
@@ -15,6 +16,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ className = '' }) => {
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deploymentStatus, setDeploymentStatus] = useState<DeploymentCheckResult | null>(null);
+  const [checkingDeployment, setCheckingDeployment] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -61,7 +64,20 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ className = '' }) => {
 
   useEffect(() => {
     fetchData();
+    checkDeploymentStatus();
   }, []);
+
+  const checkDeploymentStatus = async () => {
+    setCheckingDeployment(true);
+    try {
+      const status = await runDeploymentCheck();
+      setDeploymentStatus(status);
+    } catch (error) {
+      console.error('Deployment check failed:', error);
+    } finally {
+      setCheckingDeployment(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -93,6 +109,129 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ className = '' }) => {
               {error}
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* Deployment Status */}
+        {deploymentStatus && (
+          <Card className="mb-6">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                System Status
+              </CardTitle>
+              <Button 
+                onClick={checkDeploymentStatus} 
+                disabled={checkingDeployment}
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${checkingDeployment ? 'animate-spin' : ''}`} />
+                Check
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Overall Status */}
+                <div className={`flex items-center gap-2 p-3 rounded-lg ${
+                  deploymentStatus.isReady 
+                    ? 'bg-green-50 text-green-800' 
+                    : 'bg-yellow-50 text-yellow-800'
+                }`}>
+                  {deploymentStatus.isReady ? (
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                  )}
+                  <span className="font-medium">
+                    {deploymentStatus.isReady ? 'All systems operational' : 'Setup required'}
+                  </span>
+                </div>
+
+                {/* Check Details */}
+                {!deploymentStatus.isReady && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Database Checks */}
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Database</h4>
+                      {deploymentStatus.checks.database.map((check, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm mb-1">
+                          {check.status === 'success' ? (
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          ) : check.status === 'warning' ? (
+                            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          )}
+                          <span className={
+                            check.status === 'success' ? 'text-green-700' :
+                            check.status === 'warning' ? 'text-yellow-700' : 'text-red-700'
+                          }>
+                            {check.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Storage Checks */}
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Storage</h4>
+                      {deploymentStatus.checks.storage.map((check, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm mb-1">
+                          {check.status === 'success' ? (
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          ) : check.status === 'warning' ? (
+                            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          )}
+                          <span className={
+                            check.status === 'success' ? 'text-green-700' :
+                            check.status === 'warning' ? 'text-yellow-700' : 'text-red-700'
+                          }>
+                            {check.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Auth Checks */}
+                    <div>
+                      <h4 className="font-medium text-sm text-gray-700 mb-2">Authentication</h4>
+                      {deploymentStatus.checks.auth.map((check, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm mb-1">
+                          {check.status === 'success' ? (
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          ) : check.status === 'warning' ? (
+                            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                          ) : (
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          )}
+                          <span className={
+                            check.status === 'success' ? 'text-green-700' :
+                            check.status === 'warning' ? 'text-yellow-700' : 'text-red-700'
+                          }>
+                            {check.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Next Steps */}
+                {deploymentStatus.nextSteps.length > 0 && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-800 mb-2">Next Steps:</h4>
+                    <ul className="text-blue-700 text-sm space-y-1">
+                      {deploymentStatus.nextSteps.map((step, idx) => (
+                        <li key={idx}>{step}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Stats Cards */}

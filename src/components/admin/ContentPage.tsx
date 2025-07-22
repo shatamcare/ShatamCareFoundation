@@ -20,18 +20,14 @@ import {
   Globe,
   Lock
 } from 'lucide-react';
-
-interface ContentItem {
-  id: string;
-  title: string;
-  content: string;
-  type: 'page' | 'section' | 'component';
-  page: string;
-  section?: string;
-  status: 'published' | 'draft';
-  created_at: string;
-  updated_at: string;
-}
+import {
+  getContentItems,
+  createContentItem,
+  updateContentItem,
+  deleteContentItem,
+  logAdminActivity,
+  type ContentItem
+} from '../../lib/supabase-secure';
 
 const ContentPage: React.FC = () => {
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
@@ -69,154 +65,146 @@ const ContentPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    loadMockContent();
+    loadContent();
   }, []);
 
-  const loadMockContent = () => {
-    // Mock content data - in real app, this would come from database
-    const mockContent: ContentItem[] = [
-      {
-        id: '1',
-        title: 'Hero Section Title',
-        content: 'Caring for Our Elderly with Compassion and Dignity',
-        type: 'section',
-        page: 'home',
-        section: 'hero',
-        status: 'published',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-15T00:00:00Z',
-      },
-      {
-        id: '2',
-        title: 'Hero Section Subtitle',
-        content: 'Shatam Care Foundation is dedicated to improving the quality of life for elderly individuals through comprehensive care, support services, and community engagement.',
-        type: 'section',
-        page: 'home',
-        section: 'hero',
-        status: 'published',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-10T00:00:00Z',
-      },
-      {
-        id: '3',
-        title: 'About Us Introduction',
-        content: 'Our mission is to provide compassionate, dignified care and support services that enable elderly individuals to live fulfilling lives while maintaining their independence and connection to their communities.',
-        type: 'section',
-        page: 'about',
-        section: 'introduction',
-        status: 'published',
-        created_at: '2024-01-02T00:00:00Z',
-        updated_at: '2024-01-12T00:00:00Z',
-      },
-      {
-        id: '4',
-        title: 'Programs Overview',
-        content: 'We offer comprehensive programs including dementia care, caregiver training, memory cafes, and community support services designed to address the diverse needs of elderly individuals and their families.',
-        type: 'section',
-        page: 'programs',
-        section: 'overview',
-        status: 'published',
-        created_at: '2024-01-03T00:00:00Z',
-        updated_at: '2024-01-13T00:00:00Z',
-      },
-      {
-        id: '5',
-        title: 'Contact Information',
-        content: 'Phone: +91 9158566665\nEmail: shatamcare@gmail.com\nAddress: Mumbai, Maharashtra, India',
-        type: 'section',
-        page: 'contact',
-        section: 'info',
-        status: 'published',
-        created_at: '2024-01-04T00:00:00Z',
-        updated_at: '2024-01-14T00:00:00Z',
-      },
-      {
-        id: '6',
-        title: 'Privacy Policy Content',
-        content: 'This privacy policy explains how Shatam Care Foundation collects, uses, and protects your personal information when you interact with our services and website.',
-        type: 'page',
-        page: 'privacy',
-        status: 'published',
-        created_at: '2024-01-05T00:00:00Z',
-        updated_at: '2024-01-16T00:00:00Z',
-      },
-      {
-        id: '7',
-        title: 'New Program Announcement',
-        content: 'We are excited to announce our new Brain Health Training Program starting next month. This comprehensive program will focus on cognitive exercises and memory enhancement techniques.',
-        type: 'section',
-        page: 'home',
-        section: 'announcements',
-        status: 'draft',
-        created_at: '2024-01-20T00:00:00Z',
-        updated_at: '2024-01-20T00:00:00Z',
-      },
-    ];
-
-    setContentItems(mockContent);
-    setLoading(false);
+  const loadContent = async () => {
+    try {
+      setLoading(true);
+      const data = await getContentItems();
+      setContentItems(data);
+    } catch (error) {
+      console.error('Error loading content:', error);
+      setError('Failed to load content items');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCreateContent = () => {
+  const handleCreateContent = async () => {
     if (!newContent.title || !newContent.content) {
       setError('Please fill in all required fields');
       return;
     }
 
-    const contentItem: ContentItem = {
-      id: Date.now().toString(),
-      ...newContent,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
+      const contentData = {
+        title: newContent.title,
+        content: newContent.content,
+        type: newContent.type,
+        page: newContent.page,
+        section: newContent.section || undefined,
+        status: newContent.status,
+        meta_description: '',
+        meta_keywords: ''
+      };
 
-    setContentItems([contentItem, ...contentItems]);
-    setNewContent({
-      title: '',
-      content: '',
-      type: 'section',
-      page: 'home',
-      section: '',
-      status: 'draft',
-    });
-    setShowCreateForm(false);
-    setSuccess('Content created successfully!');
-    setTimeout(() => setSuccess(''), 3000);
+      await createContentItem(contentData);
+      await logAdminActivity(
+        'create_content',
+        'content_item',
+        null,
+        { title: newContent.title, page: newContent.page }
+      );
+
+      setNewContent({
+        title: '',
+        content: '',
+        type: 'section',
+        page: 'home',
+        section: '',
+        status: 'draft',
+      });
+      setShowCreateForm(false);
+      setSuccess('Content created successfully!');
+      await loadContent(); // Reload content list
+    } catch (error) {
+      console.error('Error creating content:', error);
+      setError('Failed to create content');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdateContent = () => {
+  const handleUpdateContent = async () => {
     if (!editingItem) return;
 
-    setContentItems(contentItems.map(item => 
-      item.id === editingItem.id 
-        ? { ...editingItem, updated_at: new Date().toISOString() }
-        : item
-    ));
-    setEditingItem(null);
-    setSuccess('Content updated successfully!');
-    setTimeout(() => setSuccess(''), 3000);
+    try {
+      setLoading(true);
+      await updateContentItem(editingItem.id, {
+        title: editingItem.title,
+        content: editingItem.content,
+        type: editingItem.type,
+        page: editingItem.page,
+        section: editingItem.section || undefined,
+        status: editingItem.status,
+        meta_description: editingItem.meta_description || '',
+        meta_keywords: editingItem.meta_keywords || ''
+      });
+      await logAdminActivity(
+        'update_content',
+        'content_item',
+        editingItem.id,
+        { title: editingItem.title }
+      );
+
+      setEditingItem(null);
+      setSuccess('Content updated successfully!');
+      await loadContent(); // Reload content list
+    } catch (error) {
+      console.error('Error updating content:', error);
+      setError('Failed to update content');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteContent = (itemId: string) => {
+  const handleDeleteContent = async (itemId: string) => {
     if (!confirm('Are you sure you want to delete this content?')) return;
 
-    setContentItems(contentItems.filter(item => item.id !== itemId));
-    setSuccess('Content deleted successfully!');
-    setTimeout(() => setSuccess(''), 3000);
+    try {
+      setLoading(true);
+      await deleteContentItem(itemId);
+      await logAdminActivity(
+        'delete_content',
+        'content_item',
+        itemId,
+        { action: 'deleted content item' }
+      );
+
+      setSuccess('Content deleted successfully!');
+      await loadContent(); // Reload content list
+    } catch (error) {
+      console.error('Error deleting content:', error);
+      setError('Failed to delete content');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const toggleContentStatus = (itemId: string) => {
-    setContentItems(contentItems.map(item => 
-      item.id === itemId 
-        ? { 
-            ...item, 
-            status: item.status === 'published' ? 'draft' : 'published',
-            updated_at: new Date().toISOString()
-          }
-        : item
-    ));
-    setSuccess('Content status updated!');
-    setTimeout(() => setSuccess(''), 3000);
+  const toggleContentStatus = async (itemId: string) => {
+    const item = contentItems.find(item => item.id === itemId);
+    if (!item) return;
+
+    try {
+      const newStatus = item.status === 'published' ? 'draft' : 'published';
+      await updateContentItem(itemId, {
+        ...item,
+        status: newStatus
+      });
+      await logAdminActivity(
+        'toggle_content_status',
+        'content_item',
+        itemId,
+        { newStatus }
+      );
+
+      await loadContent(); // Reload content list
+    } catch (error) {
+      console.error('Error toggling content status:', error);
+      setError('Failed to update content status');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -255,7 +243,7 @@ const ContentPage: React.FC = () => {
         <div className="mt-4 sm:mt-0 flex space-x-3">
           <Button
             variant="outline"
-            onClick={loadMockContent}
+            onClick={loadContent}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -318,7 +306,7 @@ const ContentPage: React.FC = () => {
                 </label>
                 <select
                   value={newContent.type}
-                  onChange={(e) => setNewContent({ ...newContent, type: e.target.value as any })}
+                  onChange={(e) => setNewContent({ ...newContent, type: e.target.value as 'page' | 'section' | 'component' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
                 >
                   {contentTypes.map(type => (
@@ -356,7 +344,7 @@ const ContentPage: React.FC = () => {
                 </label>
                 <select
                   value={newContent.status}
-                  onChange={(e) => setNewContent({ ...newContent, status: e.target.value as any })}
+                  onChange={(e) => setNewContent({ ...newContent, status: e.target.value as 'published' | 'draft' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
                 >
                   <option value="draft">Draft</option>
@@ -500,7 +488,7 @@ const ContentPage: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <select
                         value={editingItem.type}
-                        onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value as any })}
+                        onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value as 'page' | 'section' | 'component' })}
                         className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white"
                       >
                         {contentTypes.map(type => (

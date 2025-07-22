@@ -31,7 +31,8 @@ import {
   ChevronDown,
   ChevronUp,
   Save,
-  X
+  X,
+  CheckCircle
 } from 'lucide-react';
 
 // Optimized icon mapping - only includes commonly used icons
@@ -431,24 +432,64 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Program Image
                   </label>
-                  <select
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-warm-teal"
-                  >
-                    <option value="">Select an image...</option>
-                    {availableImages.map((image) => (
-                      <option key={image} value={image}>
-                        {image.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '')}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="border border-gray-300 rounded-md p-4 max-h-96 overflow-y-auto">
+                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+                      {/* Empty state option */}
+                      <div
+                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                        className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
+                          formData.image_url === '' 
+                            ? 'border-warm-teal bg-warm-teal/10' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="aspect-square flex items-center justify-center bg-gray-100 rounded">
+                          <X className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <p className="text-xs text-center mt-1 truncate">No Image</p>
+                      </div>
+                      
+                      {/* Image options */}
+                      {availableImages.map((image) => (
+                        <div
+                          key={image}
+                          onClick={() => setFormData({ ...formData, image_url: image })}
+                          className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
+                            formData.image_url === image 
+                              ? 'border-warm-teal bg-warm-teal/10' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="aspect-square overflow-hidden rounded">
+                            <img 
+                              src={getImagePath(image)} 
+                              alt={image.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '')}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.warn(`Failed to load image: ${image}`);
+                                e.currentTarget.src = '/images/placeholder.jpg';
+                              }}
+                            />
+                          </div>
+                          <p className="text-xs text-center mt-1 truncate">
+                            {image.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '')}
+                          </p>
+                          {formData.image_url === image && (
+                            <div className="absolute top-1 right-1 bg-warm-teal text-white rounded-full p-1">
+                              <CheckCircle className="h-3 w-3" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   {formData.image_url && (
-                    <div className="mt-2">
+                    <div className="mt-3 p-3 bg-gray-50 rounded-md">
+                      <p className="text-sm text-gray-600 mb-2">Selected Image Preview:</p>
                       <img 
                         src={getImagePath(formData.image_url)} 
-                        alt="Preview" 
-                        className="w-32 h-24 object-cover rounded-md border"
+                        alt="Selected preview" 
+                        className="w-40 h-30 object-cover rounded-md border"
                         onError={(e) => {
                           console.warn(`Failed to load preview image: ${formData.image_url}`);
                           e.currentTarget.style.display = 'none';

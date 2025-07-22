@@ -21,32 +21,13 @@ import {
   X,
   Plus
 } from 'lucide-react';
-import { 
-  checkBucketExistsAlternative,
-  testStorageUpload,
-  uploadFile,
-  listMediaFiles,
-  deleteFile 
-} from '../../utils/storage-alternative';
-import { logAdminActivity } from '../../lib/supabase-secure';
-import SetupAssistant from './SetupAssistant';
-import StorageDiagnostic from './StorageDiagnostic';
-import ProjectVerifier from './ProjectVerifier';
-
-// Define MediaFile type locally to match file structure
-interface MediaFile {
-  id?: string;
-  name: string;
-  path?: string;
-  url?: string;
-  type?: string;
-  size?: number;
-  category?: string;
-  uploaded_at?: string;
-  uploaded_by?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import {
+  getMediaFiles,
+  uploadMediaFile,
+  deleteMediaFile,
+  logAdminActivity,
+  type MediaFile
+} from '../../lib/supabase-secure';
 
 const MediaPage: React.FC = () => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -59,9 +40,6 @@ const MediaPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [bucketExists, setBucketExists] = useState<boolean | null>(null);
-  const [showSetupAssistant, setShowSetupAssistant] = useState(false);
-  const [showDiagnostic, setShowDiagnostic] = useState(false);
 
   // Categories for media organization
   const categories = [
@@ -77,50 +55,13 @@ const MediaPage: React.FC = () => {
 
   useEffect(() => {
     loadMediaFiles();
-    checkStorageSetup();
   }, []);
-
-  const checkStorageSetup = async () => {
-    try {
-      // Use alternative method that doesn't rely on getBucket()
-      const exists = await checkBucketExistsAlternative();
-      setBucketExists(exists);
-      if (!exists) {
-        setShowSetupAssistant(true);
-      }
-    } catch (error) {
-      console.error('Error checking bucket:', error);
-      // Assume bucket exists to avoid blocking the UI
-      setBucketExists(true);
-    }
-  };
 
   const loadMediaFiles = async () => {
     try {
       setLoading(true);
-      const result = await listMediaFiles();
-      
-      if (result.success && result.files) {
-        // Convert storage files to our MediaFile format
-        const mediaFiles = result.files
-          .filter(file => file.name !== '.emptyFolderPlaceholder')
-          .map(file => ({
-            id: file.name, // Full path as ID
-            name: file.name.split('/').pop() || file.name, // Just filename for display
-            path: file.name, // Full path for operations
-            url: `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/media/${file.name}`,
-            type: file.metadata?.mimetype || (file.name.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' : 'unknown'),
-            size: file.metadata?.size || 0,
-            category: file.folder || 'uncategorized',
-            uploaded_at: file.created_at || file.updated_at || new Date().toISOString(),
-            uploaded_by: 'admin'
-          }));
-          
-        setMediaFiles(mediaFiles);
-      } else {
-        console.warn('Failed to load media files:', result.error);
-        setError(result.error || 'Failed to load media files');
-      }
+      const data = await getMediaFiles();
+      setMediaFiles(data);
     } catch (error) {
       console.error('Error loading media files:', error);
       setError('Failed to load media files');
@@ -136,72 +77,34 @@ const MediaPage: React.FC = () => {
     setError('');
     
     try {
-      const uploadPromises = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
-        // Validate file before upload
-        if (file.size > 10 * 1024 * 1024) {
-          throw new Error(`File "${file.name}" exceeds 10MB limit`);
-        }
-        
-        const category = selectedCategory === 'all' ? 'uncategorized' : selectedCategory;
-        const filePath = `${category}/${Date.now()}-${file.name}`;
-        
-        uploadPromises.push(
-          uploadFile(file, filePath).then(result => {
-            if (!result.success) {
-              throw new Error(result.error || 'Upload failed');
-            }
-            return logAdminActivity(
-              'upload_media',
-              'media_file',
-              null,
-              { fileName: file.name, fileSize: file.size, path: filePath }
-            );
-          })
+        await uploadMediaFile(file);
+        await logAdminActivity(
+          'upload_media',
+          'media_file',
+          null,
+          { fileName: file.name, fileSize: file.size }
         );
       }
-      
-      await Promise.all(uploadPromises);
       
       setSuccess(`Successfully uploaded ${files.length} file(s)!`);
       await loadMediaFiles(); // Reload media files
       setShowUploadModal(false);
     } catch (error) {
       console.error('Error uploading files:', error);
-      
-      // Provide specific error messages
-      let errorMessage = 'Failed to upload files';
-      if (error instanceof Error) {
-        if (error.message.includes('bucket')) {
-          errorMessage = 'Storage bucket not found. Please contact administrator to set up media storage.';
-        } else if (error.message.includes('10MB')) {
-          errorMessage = error.message;
-        } else if (error.message.includes('Database error')) {
-          errorMessage = 'Database tables not set up. Please apply the database schema first.';
-        } else {
-          errorMessage = `Upload failed: ${error.message}`;
-        }
-      }
-      
-      setError(errorMessage);
+      setError('Failed to upload files');
     } finally {
       setUploading(false);
     }
   };
 
-  const deleteFileLocal = async (fileId: string) => {
+  const deleteFile = async (fileId: string) => {
     if (!confirm('Are you sure you want to delete this file?')) return;
     
     try {
       const fileToDelete = mediaFiles.find(f => f.id === fileId);
-      const result = await deleteFile(fileToDelete?.path || fileId);
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete file');
-      }
-      
+      await deleteMediaFile(fileId);
       await logAdminActivity(
         'delete_media',
         'media_file',
@@ -345,8 +248,6 @@ const MediaPage: React.FC = () => {
               <Button
                 onClick={() => setShowUploadModal(true)}
                 size="sm"
-                disabled={!bucketExists}
-                title={!bucketExists ? 'Storage bucket not set up' : 'Upload files'}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Upload Files
@@ -368,40 +269,15 @@ const MediaPage: React.FC = () => {
             </div>
             <div>
               <span className="text-gray-500">Images:</span>
-              <span className="ml-2 font-medium">{mediaFiles.filter(f => f.type?.includes('image')).length}</span>
+              <span className="ml-2 font-medium">{mediaFiles.filter(f => f.type === 'image').length}</span>
             </div>
             <div>
               <span className="text-gray-500">Documents:</span>
-              <span className="ml-2 font-medium">{mediaFiles.filter(f => !f.type?.includes('image')).length}</span>
+              <span className="ml-2 font-medium">{mediaFiles.filter(f => f.type === 'document').length}</span>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Setup Assistant */}
-      {showSetupAssistant && bucketExists === false && (
-        <div className="mb-6">
-          <SetupAssistant />
-          <div className="mt-4 flex gap-3 justify-center">
-            <Button 
-              onClick={() => {
-                setShowSetupAssistant(false);
-                checkStorageSetup();
-              }}
-              variant="outline"
-            >
-              Check Setup Again
-            </Button>
-            <Button 
-              onClick={() => setShowDiagnostic(true)}
-              variant="outline"
-              className="bg-blue-50 hover:bg-blue-100"
-            >
-              Run Diagnostic
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Loading State */}
       {loading && (
@@ -411,53 +287,8 @@ const MediaPage: React.FC = () => {
         </div>
       )}
 
-      {/* Storage Not Ready Warning */}
-      {bucketExists === false && !showSetupAssistant && (
-        <Alert className="mb-6 border-red-200 bg-red-50">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <div className="flex items-center justify-between">
-              <span className="text-red-800">
-                Storage bucket not found. Media upload functionality is disabled.
-              </span>
-              <Button 
-                onClick={() => setShowSetupAssistant(true)}
-                size="sm"
-                variant="outline"
-                className="ml-4"
-              >
-                Setup Storage
-              </Button>
-              <Button 
-                onClick={() => setShowDiagnostic(true)}
-                size="sm"
-                variant="outline"
-                className="ml-2 bg-blue-50 hover:bg-blue-100"
-              >
-                Diagnose Issue
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Diagnostic Tool */}
-      {showDiagnostic && (
-        <div className="mb-6">
-          <StorageDiagnostic />
-          <div className="mt-4 text-center">
-            <Button 
-              onClick={() => setShowDiagnostic(false)}
-              variant="outline"
-            >
-              Close Diagnostic
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* File Grid/List */}
-      {!loading && filteredFiles.length === 0 && bucketExists !== false && (
+      {!loading && filteredFiles.length === 0 && (
         <div className="text-center py-12">
           <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No files found</h3>
@@ -466,10 +297,7 @@ const MediaPage: React.FC = () => {
               ? 'Try adjusting your search or filter criteria.' 
               : 'Upload some files to get started.'}
           </p>
-          <Button 
-            onClick={() => setShowUploadModal(true)}
-            disabled={!bucketExists}
-          >
+          <Button onClick={() => setShowUploadModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Upload Files
           </Button>
@@ -488,15 +316,11 @@ const MediaPage: React.FC = () => {
                 <Card className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                      {file.type?.includes('image') ? (
+                      {file.type === 'image' ? (
                         <img
                           src={file.url}
                           alt={file.name}
                           className="w-full h-full object-cover"
-                          style={{ display: 'block' }}
-                          onLoad={(e) => {
-                            (e.target as HTMLImageElement).style.backgroundColor = 'transparent';
-                          }}
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = '/images/fallback.svg';
                           }}
@@ -545,7 +369,7 @@ const MediaPage: React.FC = () => {
                           <Download className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => deleteFileLocal(file.id)}
+                          onClick={() => deleteFile(file.id)}
                           className="p-1 hover:bg-red-200 rounded text-red-600"
                           title="Delete"
                         >
@@ -560,12 +384,11 @@ const MediaPage: React.FC = () => {
                 <div className="bg-white border rounded-lg p-4 hover:shadow-sm transition-shadow">
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded overflow-hidden">
-                      {file.type?.includes('image') ? (
+                      {file.type === 'image' ? (
                         <img
                           src={file.url}
                           alt={file.name}
                           className="w-full h-full object-cover"
-                          onLoad={() => {}}
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = '/images/fallback.svg';
                           }}
@@ -614,7 +437,7 @@ const MediaPage: React.FC = () => {
                         <Download className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => deleteFileLocal(file.id)}
+                        onClick={() => deleteFile(file.id)}
                         className="p-2 hover:bg-red-100 rounded text-red-600"
                         title="Delete"
                       >
@@ -696,20 +519,18 @@ const MediaPage: React.FC = () => {
                 </button>
               </div>
               
-                <div className="space-y-4">
-                {selectedFile.type?.includes('image') && (
+              <div className="space-y-4">
+                {selectedFile.type === 'image' && (
                   <div className="bg-gray-100 rounded-lg overflow-hidden">
                     <img
                       src={selectedFile.url}
                       alt={selectedFile.name}
                       className="w-full h-auto max-h-96 object-contain"
-                      onLoad={() => {}}
-                      onError={(e) => {
-                        console.error('Failed to load image in modal');
-                      }}
                     />
                   </div>
-                )}                <div className="grid grid-cols-2 gap-4 text-sm">
+                )}
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <label className="font-medium text-gray-700">Name:</label>
                     <p className="mt-1">{selectedFile.name}</p>
@@ -763,7 +584,7 @@ const MediaPage: React.FC = () => {
                   </button>
                   <button
                     onClick={() => {
-                      deleteFileLocal(selectedFile.id);
+                      deleteFile(selectedFile.id);
                       setSelectedFile(null);
                     }}
                     className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"

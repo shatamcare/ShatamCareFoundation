@@ -79,7 +79,13 @@ const App = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : (
-            <BrowserRouter basename={basename}>
+            <BrowserRouter 
+              basename={basename}
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true
+              }}
+            >
               <Header /> {/* FIX: Added the Header component here */}
               <main className="min-h-screen">
                 <Routes>

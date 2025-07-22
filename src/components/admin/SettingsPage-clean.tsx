@@ -19,7 +19,7 @@ import {
   createAdminUser,
   deleteAdminUser,
   logAdminActivity,
-  type SiteSettings,
+  type SiteSettingsType,
   type AdminUser
 } from '../../lib/supabase-secure';
 
@@ -31,7 +31,7 @@ const SettingsPage: React.FC = () => {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
 
-  const [settings, setSettings] = useState<SiteSettings>({
+  const [settings, setSettings] = useState<SiteSettingsType>({
     siteName: 'Shatam Care Foundation',
     siteDescription: 'Caring for Our Elderly with Compassion and Dignity',
     contactEmail: 'shatamcare@gmail.com',
@@ -77,18 +77,10 @@ const SettingsPage: React.FC = () => {
   const loadAdmins = async () => {
     try {
       const data = await getAdminUsers();
-      if (data && Array.isArray(data)) {
-        setAdmins(data);
-      } else {
-        // If we get an empty or invalid response, set an empty array
-        setAdmins([]);
-        console.warn('No admin users returned or invalid data format');
-      }
+      setAdmins(data);
     } catch (error) {
       console.error('Error loading admins:', error);
-      setError('Failed to load admin users - you may not have sufficient permissions');
-      // Still set an empty array to prevent UI errors
-      setAdmins([]);
+      setError('Failed to load admin users');
     }
   };
 
@@ -99,31 +91,15 @@ const SettingsPage: React.FC = () => {
       setSuccess('');
       
       await updateSiteSettings(settings);
-      
-      // Only log activity if the settings were successfully updated
-      try {
-        await logAdminActivity(
-          'update_settings',
-          'site_settings',
-          null,
-          { message: 'Site settings updated' }
-        );
-      } catch (logError) {
-        console.warn('Failed to log admin activity, but settings were saved', logError);
-      }
+      await logAdminActivity({
+        action: 'update_settings',
+        details: 'Site settings updated',
+      });
       
       setSuccess('Settings saved successfully!');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving settings:', error);
-      
-      // Provide more specific error messages based on the error
-      if (error?.message?.includes('duplicate key')) {
-        setError('Failed to save settings: duplicate key detected. Try refreshing the page.');
-      } else if (error?.status === 403) {
-        setError('Permission denied: You may not have admin rights to update settings.');
-      } else {
-        setError(`Failed to save settings: ${error?.message || 'Unknown error'}`);
-      }
+      setError('Failed to save settings');
     } finally {
       setLoading(false);
     }
@@ -134,13 +110,15 @@ const SettingsPage: React.FC = () => {
 
     try {
       setLoading(true);
-      await createAdminUser(newAdminEmail, 'admin');
-      await logAdminActivity(
-        'create_admin',
-        'admin_user',
-        null,
-        { email: newAdminEmail }
-      );
+      await createAdminUser({
+        email: newAdminEmail,
+        name: '',
+        role: 'admin'
+      });
+      await logAdminActivity({
+        action: 'create_admin',
+        details: `Created admin user: ${newAdminEmail}`,
+      });
       
       setNewAdminEmail('');
       setSuccess('Admin user added successfully!');
@@ -157,12 +135,10 @@ const SettingsPage: React.FC = () => {
     try {
       setLoading(true);
       await deleteAdminUser(adminId);
-      await logAdminActivity(
-        'delete_admin',
-        'admin_user',
-        adminId,
-        { message: 'Admin user deleted' }
-      );
+      await logAdminActivity({
+        action: 'delete_admin',
+        details: `Deleted admin user: ${adminId}`,
+      });
       
       setSuccess('Admin user removed successfully!');
       await loadAdmins();
@@ -188,7 +164,7 @@ const SettingsPage: React.FC = () => {
   ] as const;
 
   const TabButton = ({ tab, isActive, onClick }: {
-    tab: { id: string; label: string; icon: React.ComponentType<{ className?: string }> };
+    tab: typeof tabs[0];
     isActive: boolean;
     onClick: () => void;
   }) => {
@@ -326,7 +302,7 @@ const SettingsPage: React.FC = () => {
                       </label>
                       <input
                         type="url"
-                        value={url as string}
+                        value={url}
                         onChange={(e) => setSettings(prev => ({
                           ...prev,
                           socialLinks: { ...prev.socialLinks, [platform]: e.target.value }

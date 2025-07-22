@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { EventRegistration, registerForEvent, handleSupabaseError } from '@/lib/supabase-secure';
 import { Calendar, Clock, MapPin, Users, CheckCircle, AlertCircle, Send } from 'lucide-react';
 
@@ -118,6 +118,9 @@ const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
       <DialogContent className="sm:max-w-[500px] fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Register for Event</DialogTitle>
+          <DialogDescription>
+            Fill out the form below to register for this event. Required fields are marked with *.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Event Details */}

@@ -474,29 +474,11 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
     
     // Update each setting
     for (const update of updates) {
-      // First check if the setting exists
-      const { data: existing } = await supabase
+      const { error } = await supabase
         .from('site_settings')
-        .select('id')
-        .eq('key', update.key)
-        .single();
+        .upsert({ key: update.key, value: update.value });
       
-      if (existing) {
-        // Update existing setting
-        const { error } = await supabase
-          .from('site_settings')
-          .update({ value: update.value, updated_at: new Date() })
-          .eq('key', update.key);
-        
-        if (error) throw error;
-      } else {
-        // Insert new setting
-        const { error } = await supabase
-          .from('site_settings')
-          .insert({ key: update.key, value: update.value });
-        
-        if (error) throw error;
-      }
+      if (error) throw error;
     }
     
     await logAdminActivity('update', 'site_settings', null, { updates });
@@ -599,50 +581,28 @@ export async function getMediaFiles(category?: string): Promise<MediaFile[]> {
 
 export async function uploadMediaFile(file: File, category: string = 'uncategorized'): Promise<MediaFile> {
   try {
-    // Check if file is valid
-    if (!file || file.size === 0) {
-      throw new Error('Invalid file provided');
-    }
-
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      throw new Error('File size exceeds 10MB limit');
-    }
-
     // Upload file to Supabase Storage
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${category}/${fileName}`; // Simplified path structure
+    const filePath = `media/${category}/${fileName}`;
     
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('media')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+      .upload(filePath, file);
     
-    if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      throw new Error(`Upload failed: ${uploadError.message}`);
-    }
+    if (uploadError) throw uploadError;
     
     // Get public URL
     const { data: urlData } = supabase.storage
       .from('media')
       .getPublicUrl(filePath);
     
-    if (!urlData.publicUrl) {
-      throw new Error('Failed to get public URL for uploaded file');
-    }
-
     // Save file metadata to database
     const mediaData = {
       name: fileName,
       original_name: file.name,
       url: urlData.publicUrl,
-      type: file.type.startsWith('image/') ? 'image' as const : 
-            file.type.startsWith('video/') ? 'video' as const :
-            file.type.includes('pdf') || file.type.includes('document') ? 'document' as const : 'other' as const,
+      type: file.type.startsWith('image/') ? 'image' as const : 'document' as const,
       mime_type: file.type,
       size: file.size,
       category,
@@ -654,24 +614,9 @@ export async function uploadMediaFile(file: File, category: string = 'uncategori
       .select()
       .single();
     
-    if (error) {
-      console.error('Database insert error:', error);
-      // If database insert fails, try to clean up the uploaded file
-      try {
-        await supabase.storage.from('media').remove([filePath]);
-      } catch (cleanupError) {
-        console.error('Failed to cleanup uploaded file:', cleanupError);
-      }
-      throw new Error(`Database error: ${error.message}`);
-    }
+    if (error) throw error;
     
-    // Log activity (optional, don't fail if this fails)
-    try {
-      await logAdminActivity('upload', 'media_file', data.id, { filename: file.name, size: file.size });
-    } catch (logError) {
-      console.warn('Failed to log activity:', logError);
-    }
-    
+    await logAdminActivity('upload', 'media_file', data.id, { filename: file.name, size: file.size });
     return data;
   } catch (error) {
     console.error('Error uploading media file:', error);
@@ -716,8 +661,6 @@ export async function deleteMediaFile(id: string): Promise<void> {
 // Admin User Management
 export async function getAdminUsers(): Promise<AdminUser[]> {
   try {
-    // Use a direct join query to get admin users with their emails
-    // Since we can't directly access auth.users, we'll use what's available
     const { data, error } = await supabase
       .from('admin_users')
       .select('*')
@@ -725,18 +668,24 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     
     if (error) throw error;
     
-    // Since we may not have direct access to auth.users due to permissions,
-    // Let's at least return the admin users we have
-    const users: AdminUser[] = (data || []).map(admin => ({
-      ...admin,
-      email: admin.email || 'User ID: ' + admin.id,  // Use any email field if it exists, otherwise use ID
-    }));
+    // Get user emails from auth.users
+    const userIds = data?.map(admin => admin.id) || [];
+    const users: AdminUser[] = [];
+    
+    for (const admin of data || []) {
+      // Get user email from auth
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(admin.id);
+      
+      users.push({
+        ...admin,
+        email: userData?.user?.email || 'Unknown',
+      });
+    }
     
     return users;
   } catch (error) {
     console.error('Error fetching admin users:', error);
-    // Return empty array instead of throwing to prevent UI errors
-    return [];
+    throw error;
   }
 }
 
