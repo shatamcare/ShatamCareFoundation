@@ -11,7 +11,7 @@ export default defineConfig(({ command, mode }) => ({
   },
   publicDir: 'public',
   plugins: [react()],
-  assetsInclude: ['**/*.ico', '**/*.svg'],
+  assetsInclude: ['**/*.ico', '**/*.svg', '**/*.jpg', '**/*.jpeg', '**/*.png'],
   define: {
     // Ensure consistent React environment
     'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),

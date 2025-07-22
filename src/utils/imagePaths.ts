@@ -71,8 +71,9 @@ export const getImagePath = (imagePath: string): string => {
       return imagePath;
     }
 
-    // Check if the path already has the base URL applied
     const baseUrl = getBaseUrl();
+    
+    // Check if the path already has the base URL applied
     if (imagePath.startsWith(baseUrl)) {
       return imagePath;
     }
@@ -86,14 +87,23 @@ export const getImagePath = (imagePath: string): string => {
       console.warn(`Fixed problematic image path: ${imagePath} -> ${cleanImagePath}`);
     }
 
-    // Normalize the path - ensure it starts with /
-    const cleanPath = cleanImagePath.startsWith('/') ? cleanImagePath : `/${cleanImagePath}`;
+    // Remove leading slash if present to avoid double slashes
+    const cleanPath = cleanImagePath.startsWith('/') ? cleanImagePath.slice(1) : cleanImagePath;
     
-    // Combine base URL with clean path
-    const fullPath = `${baseUrl}${cleanPath}`.replace(/\/+/g, '/'); // Remove double slashes
+    // For production (GitHub Pages), combine base URL with path
+    // For development, just add a leading slash
+    let fullPath: string;
+    if (isProduction()) {
+      // Ensure baseUrl ends with slash, then add clean path
+      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      fullPath = `${normalizedBase}${cleanPath}`;
+    } else {
+      // In development, just ensure it starts with /
+      fullPath = `/${cleanPath}`;
+    }
     
     // Add debug logging to see what's happening
-    console.log(`getImagePath: "${imagePath}" -> "${fullPath}"`);
+    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProduction()})`);
     
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProduction()) {

@@ -80,13 +80,21 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
 
   // Memoized available images to prevent recreation on every render
   const availableImages = useMemo(() => [
+    // Caregivers images
     'images/Caregivers/training.jpg',
     'images/Caregivers/sessions.jpg',
     'images/Caregivers/career discussion.jpg',
     'images/Caregivers/hospital.jpg',
+    'images/Caregivers/trainng 2.jpg',
+    'images/Caregivers/Vaishali.jpg',
+    
+    // Brain Kit images
     'images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg',
     'images/Brain Kit/EHA4.jpg',
     'images/Brain Kit/kit.jpg',
+    'images/Brain Kit/tool kit.jpg',
+    
+    // Users images
     'images/Users/care.jpg',
     'images/Users/activities 1.jpg',
     'images/Users/activities 2.jpg',
@@ -102,8 +110,12 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
     'images/Users/EHA8.jpg',
     'images/Users/eha3.jpg',
     'images/Users/memory cafe.jpeg',
+    
+    // Media images
     'images/Media/EHA9.jpg',
-    'images/Media/News.jpg'
+    'images/Media/News.jpg',
+    'images/Media/News2.jpg',
+    'images/Media/tweet.jpg'
   ], []);
 
   const fetchPrograms = useCallback(async () => {

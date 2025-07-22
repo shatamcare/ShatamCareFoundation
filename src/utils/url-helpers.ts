@@ -18,9 +18,12 @@ export const isProduction = (): boolean => {
 export const getBaseUrl = (): string => {
   // Only use the ShatamCareFoundation path in production (GitHub Pages)
   if (isProduction()) {
-    return '/ShatamCareFoundation/';
+    const baseUrl = '/ShatamCareFoundation';
+    console.log('Production base URL:', baseUrl);
+    return baseUrl;
   }
   // In development, use empty string
+  console.log('Development base URL: (empty)');
   return '';
 };
 
