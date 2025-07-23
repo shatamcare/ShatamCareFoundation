@@ -479,7 +479,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 console.warn(`Failed to load image: ${image}`);
-                                e.currentTarget.src = '/images/placeholder.jpg';
+                                e.currentTarget.src = getImagePath('images/placeholder.jpg');
                               }}
                             />
                           </div>

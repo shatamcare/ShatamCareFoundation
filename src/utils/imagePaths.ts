@@ -94,16 +94,15 @@ export const getImagePath = (imagePath: string): string => {
     // For development, just add a leading slash
     let fullPath: string;
     if (isProduction()) {
-      // Ensure baseUrl ends with slash, then add clean path
-      const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      fullPath = `${normalizedBase}${cleanPath}`;
+      // Base URL already has trailing slash, just concatenate
+      fullPath = `${baseUrl}${cleanPath}`;
     } else {
       // In development, just ensure it starts with /
       fullPath = `/${cleanPath}`;
     }
     
     // Add debug logging to see what's happening
-    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProduction()})`);
+    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProduction()}, base: "${baseUrl}")`);
     
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProduction()) {
