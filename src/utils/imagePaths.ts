@@ -72,6 +72,10 @@ export const getImagePath = (imagePath: string): string => {
     }
 
     const baseUrl = getBaseUrl();
+    const isProd = isProduction();
+    
+    // Additional check for GitHub Pages - if we're on github.io domain, force production mode
+    const isGitHubPagesDirect = typeof window !== 'undefined' && window.location.hostname === 'adarshalexbalmuchu.github.io';
     
     // Check if the path already has the base URL applied
     if (imagePath.startsWith(baseUrl)) {
@@ -93,19 +97,20 @@ export const getImagePath = (imagePath: string): string => {
     // For production (GitHub Pages), combine base URL with path
     // For development, just add a leading slash
     let fullPath: string;
-    if (isProduction()) {
-      // Base URL already has trailing slash, just concatenate
-      fullPath = `${baseUrl}${cleanPath}`;
+    if (isProd || isGitHubPagesDirect) {
+      // Use base URL with trailing slash, concatenate clean path
+      const productionBase = isGitHubPagesDirect ? '/ShatamCareFoundation/' : baseUrl;
+      fullPath = `${productionBase}${cleanPath}`;
     } else {
       // In development, just ensure it starts with /
       fullPath = `/${cleanPath}`;
     }
     
     // Add debug logging to see what's happening
-    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProduction()}, base: "${baseUrl}")`);
+    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProd}, github: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
     
     // Verify the image path exists (only in production to avoid dev server issues)
-    if (isProduction()) {
+    if (isProd || isGitHubPagesDirect) {
       verifyImagePath(fullPath).then(exists => {
         if (!exists) {
           console.warn(`Image not found: ${fullPath}`);

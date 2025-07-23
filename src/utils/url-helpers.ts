@@ -7,7 +7,15 @@
  * Determines if the current environment is production
  */
 export const isProduction = (): boolean => {
-  return import.meta.env.PROD;
+  // Check multiple ways to detect production
+  const isViteProd = import.meta.env.PROD;
+  const isGitHubPages = typeof window !== 'undefined' && window.location.hostname === 'adarshalexbalmuchu.github.io';
+  const isProductionDomain = typeof window !== 'undefined' && window.location.href.includes('github.io');
+  
+  const result = isViteProd || isGitHubPages || isProductionDomain;
+  console.log('Environment detection:', { isViteProd, isGitHubPages, isProductionDomain, result, hostname: typeof window !== 'undefined' ? window.location.hostname : 'server' });
+  
+  return result;
 };
 
 /**
