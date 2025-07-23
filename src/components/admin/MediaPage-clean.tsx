@@ -28,6 +28,7 @@ import {
   logAdminActivity,
   type MediaFile
 } from '../../lib/supabase-secure';
+import { getImagePath } from '../../utils/imagePaths';
 
 const MediaPage: React.FC = () => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
@@ -322,7 +323,7 @@ const MediaPage: React.FC = () => {
                           alt={file.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/images/fallback.svg';
+                            (e.target as HTMLImageElement).src = getImagePath('images/fallback.svg');
                           }}
                         />
                       ) : (
@@ -390,7 +391,7 @@ const MediaPage: React.FC = () => {
                           alt={file.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/images/fallback.svg';
+                            (e.target as HTMLImageElement).src = getImagePath('images/fallback.svg');
                           }}
                         />
                       ) : (
