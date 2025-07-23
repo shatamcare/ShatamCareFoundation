@@ -93,6 +93,13 @@ export const getImagePath = (imagePath: string): string => {
       return imagePath;
     }
 
+    // Check if the path already starts with ShatamCareFoundation/ to prevent double-prefixing
+    if (imagePath.startsWith('ShatamCareFoundation/')) {
+      // If it already has the base path, just add leading slash and encode
+      const encodedPath = encodeImagePath(imagePath);
+      return `/${encodedPath}`;
+    }
+
     // Handle legacy image paths that might have problematic characters
     let cleanImagePath = imagePath;
     
@@ -114,10 +121,6 @@ export const getImagePath = (imagePath: string): string => {
       // Use base URL with trailing slash, concatenate clean path
       const productionBase = isGitHubPagesDirect ? '/ShatamCareFoundation/' : baseUrl;
       fullPath = `${productionBase}${cleanPath}`;
-      // Temporary debug log to see what's happening
-      if (typeof window !== 'undefined' && window.location.hostname === 'adarshalexbalmuchu.github.io') {
-        console.log(`🔍 Image path debug: "${imagePath}" -> "${fullPath}" (isProd: ${isProd}, isGitHub: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
-      }
     } else {
       // In development, just ensure it starts with /
       fullPath = `/${cleanPath}`;
