@@ -106,8 +106,10 @@ export const getImagePath = (imagePath: string): string => {
       fullPath = `/${cleanPath}`;
     }
     
-    // Add debug logging to see what's happening
-    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProd}, github: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
+    // Add debug logging to see what's happening (only when there's an issue)
+    if (!isProd && !isGitHubPagesDirect) {
+      console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProd}, github: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
+    }
     
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProd || isGitHubPagesDirect) {

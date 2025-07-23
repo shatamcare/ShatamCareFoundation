@@ -142,20 +142,20 @@ const EventsPage: React.FC = () => {
       { id: '14', name: 'tweet.jpg', url: '/images/Media/tweet.jpg', type: 'image', size: 156789, uploaded_at: '2024-01-14T00:00:00Z', category: 'Media' },
       
       // Users images (suitable for events)
-      { id: '17', name: 'activities 1.jpg', url: '/images/Users/activities 1.jpg', type: 'image', size: 234567, uploaded_at: '2024-01-17T00:00:00Z', category: 'Users' },
-      { id: '18', name: 'activities 2.jpg', url: '/images/Users/activities 2.jpg', type: 'image', size: 223456, uploaded_at: '2024-01-18T00:00:00Z', category: 'Users' },
+      { id: '17', name: 'activities 1.jpg', url: getImagePath('images/Users/activities 1.jpg'), type: 'image', size: 234567, uploaded_at: '2024-01-17T00:00:00Z', category: 'Users' },
+      { id: '18', name: 'activities 2.jpg', url: getImagePath('images/Users/activities 2.jpg'), type: 'image', size: 223456, uploaded_at: '2024-01-18T00:00:00Z', category: 'Users' },
       { id: '19', name: 'activities.jpg', url: '/images/Users/activities.jpg', type: 'image', size: 245678, uploaded_at: '2024-01-19T00:00:00Z', category: 'Users' },
       { id: '20', name: 'art.jpg', url: getImagePath('images/Users/art.jpg'), type: 'image', size: 198765, uploaded_at: '2024-01-20T00:00:00Z', category: 'Users' },
       { id: '21', name: 'art.jpg', url: '/images/Users/art.jpg', type: 'image', size: 187234, uploaded_at: '2024-01-21T00:00:00Z', category: 'Users' },
       { id: '22', name: 'care.jpg', url: '/images/Users/care.jpg', type: 'image', size: 156789, uploaded_at: '2024-01-22T00:00:00Z', category: 'Users' },
       { id: '23', name: 'dementia care 1.jpg', url: '/images/Users/dementia care 1.jpg', type: 'image', size: 212345, uploaded_at: '2024-01-23T00:00:00Z', category: 'Users' },
       { id: '24', name: 'Dementia.jpg', url: getImagePath('images/Users/Dementia.jpg'), type: 'image', size: 234567, uploaded_at: '2024-01-24T00:00:00Z', category: 'Users' },
-      { id: '25', name: 'EHA (1).jpg', url: '/images/Users/EHA (1).jpg', type: 'image', size: 189234, uploaded_at: '2024-01-25T00:00:00Z', category: 'Users' },
-      { id: '26', name: 'EHA (2).jpg', url: '/images/Users/EHA (2).jpg', type: 'image', size: 167890, uploaded_at: '2024-01-26T00:00:00Z', category: 'Users' },
-      { id: '27', name: 'EHA.jpg', url: '/images/Users/EHA.jpg', type: 'image', size: 203456, uploaded_at: '2024-01-27T00:00:00Z', category: 'Users' },
-      { id: '28', name: 'eha3.jpg', url: '/images/Users/eha3.jpg', type: 'image', size: 178923, uploaded_at: '2024-01-28T00:00:00Z', category: 'Users' },
-      { id: '29', name: 'EHA7.jpg', url: '/images/Users/EHA7.jpg', type: 'image', size: 234567, uploaded_at: '2024-01-29T00:00:00Z', category: 'Users' },
-      { id: '30', name: 'EHA8.jpg', url: '/images/Users/EHA8.jpg', type: 'image', size: 189234, uploaded_at: '2024-01-30T00:00:00Z', category: 'Users' },
+      { id: '25', name: 'EHA (1).jpg', url: getImagePath('images/Users/EHA (1).jpg'), type: 'image', size: 189234, uploaded_at: '2024-01-25T00:00:00Z', category: 'Users' },
+      { id: '26', name: 'EHA (2).jpg', url: getImagePath('images/Users/EHA (2).jpg'), type: 'image', size: 167890, uploaded_at: '2024-01-26T00:00:00Z', category: 'Users' },
+      { id: '27', name: 'EHA.jpg', url: getImagePath('images/Users/EHA.jpg'), type: 'image', size: 203456, uploaded_at: '2024-01-27T00:00:00Z', category: 'Users' },
+      { id: '28', name: 'eha3.jpg', url: getImagePath('images/Users/eha3.jpg'), type: 'image', size: 178923, uploaded_at: '2024-01-28T00:00:00Z', category: 'Users' },
+      { id: '29', name: 'EHA7.jpg', url: getImagePath('images/Users/EHA7.jpg'), type: 'image', size: 234567, uploaded_at: '2024-01-29T00:00:00Z', category: 'Users' },
+      { id: '30', name: 'EHA8.jpg', url: getImagePath('images/Users/EHA8.jpg'), type: 'image', size: 189234, uploaded_at: '2024-01-30T00:00:00Z', category: 'Users' },
       { id: '31', name: 'memory cafe.jpeg', url: '/images/Users/memory cafe.jpeg', type: 'image', size: 198765, uploaded_at: '2024-01-31T00:00:00Z', category: 'Users' },
     ];
     
