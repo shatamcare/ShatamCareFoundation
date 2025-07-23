@@ -59,6 +59,17 @@ const verifyImagePath = async (path: string): Promise<boolean> => {
   }
 };
 
+/**
+ * Properly encode image path components for URL use
+ * @param path - The image path that may contain spaces or special characters
+ * @returns URL-encoded path
+ */
+const encodeImagePath = (path: string): string => {
+  // Split the path into segments and encode each segment separately
+  // This preserves the directory structure while encoding spaces and special characters
+  return path.split('/').map(segment => encodeURIComponent(segment)).join('/');
+};
+
 export const getImagePath = (imagePath: string): string => {
   try {
     // Special case for fallback image or empty paths
@@ -92,7 +103,10 @@ export const getImagePath = (imagePath: string): string => {
     }
 
     // Remove leading slash if present to avoid double slashes
-    const cleanPath = cleanImagePath.startsWith('/') ? cleanImagePath.slice(1) : cleanImagePath;
+    let cleanPath = cleanImagePath.startsWith('/') ? cleanImagePath.slice(1) : cleanImagePath;
+    
+    // Properly encode the path to handle spaces and special characters
+    cleanPath = encodeImagePath(cleanPath);
     
     // For production (GitHub Pages), combine base URL with path
     // For development, just add a leading slash
@@ -106,10 +120,8 @@ export const getImagePath = (imagePath: string): string => {
       fullPath = `/${cleanPath}`;
     }
     
-    // Add debug logging to see what's happening (only when there's an issue)
-    if (!isProd && !isGitHubPagesDirect) {
-      console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProd}, github: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
-    }
+    // Add debug logging to see what's happening
+    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProd}, github: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
     
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProd || isGitHubPagesDirect) {

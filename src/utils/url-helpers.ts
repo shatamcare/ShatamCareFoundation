@@ -12,7 +12,10 @@ export const isProduction = (): boolean => {
   const isGitHubPages = typeof window !== 'undefined' && window.location.hostname === 'adarshalexbalmuchu.github.io';
   const isProductionDomain = typeof window !== 'undefined' && window.location.href.includes('github.io');
   
-  return isViteProd || isGitHubPages || isProductionDomain;
+  const result = isViteProd || isGitHubPages || isProductionDomain;
+  console.log('Environment detection:', { isViteProd, isGitHubPages, isProductionDomain, result, hostname: typeof window !== 'undefined' ? window.location.hostname : 'server' });
+  
+  return result;
 };
 
 /**
@@ -24,9 +27,11 @@ export const getBaseUrl = (): string => {
   // Only use the ShatamCareFoundation path in production (GitHub Pages)
   if (isProduction()) {
     const baseUrl = '/ShatamCareFoundation/';
+    console.log('Production base URL:', baseUrl);
     return baseUrl;
   }
   // In development, use empty string
+  console.log('Development base URL: (empty)');
   return '';
 };
 

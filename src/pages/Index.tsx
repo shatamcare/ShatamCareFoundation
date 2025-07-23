@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getEvents, getPrograms, type EventForDisplay, type ProgramForDisplay } from '@/lib/supabase-secure';
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
 import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, preloadNearbyImages, preloadHeroImage, optimizeImageLoading, fallbackImageDataUrl } from '@/utils/imagePaths';
+import { fixImageUrl } from '@/utils/imageUrlFixer';
 import { throttle } from '@/utils/performance';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -130,7 +131,10 @@ const Index = () => {
     if (!databaseEvents) return [];
     return databaseEvents.map(event => {
       const eventType = getEventType(event.title);
-      const finalImage = event.image_url || eventImages[eventType as keyof typeof eventImages] || eventImages['Event'];
+      // Fix any problematic image URLs from the database, fallback to type-based images
+      const finalImage = event.image_url 
+        ? fixImageUrl(event.image_url)
+        : eventImages[eventType as keyof typeof eventImages] || eventImages['Event'];
       return { id: event.id, title: event.title, date: event.date, time: event.time, location: event.location, type: eventType, description: event.description, image: finalImage, spots: event.spots };
     });
   }, [databaseEvents]);

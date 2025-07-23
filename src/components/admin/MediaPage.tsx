@@ -29,7 +29,6 @@ import {
   deleteFile 
 } from '../../utils/storage-alternative';
 import { logAdminActivity } from '../../lib/supabase-secure';
-import { getImagePath } from '../../utils/imagePaths';
 import SetupAssistant from './SetupAssistant';
 import StorageDiagnostic from './StorageDiagnostic';
 import ProjectVerifier from './ProjectVerifier';
@@ -499,7 +498,7 @@ const MediaPage: React.FC = () => {
                             (e.target as HTMLImageElement).style.backgroundColor = 'transparent';
                           }}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = getImagePath('images/fallback.svg');
+                            (e.target as HTMLImageElement).src = '/images/fallback.svg';
                           }}
                         />
                       ) : (
@@ -568,7 +567,7 @@ const MediaPage: React.FC = () => {
                           className="w-full h-full object-cover"
                           onLoad={() => {}}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = getImagePath('images/fallback.svg');
+                            (e.target as HTMLImageElement).src = '/images/fallback.svg';
                           }}
                         />
                       ) : (

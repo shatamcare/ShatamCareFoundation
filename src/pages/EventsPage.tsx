@@ -5,6 +5,7 @@ import { Calendar, Clock, MapPinIcon, ArrowRight, Filter, Search, Users, Chevron
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
 import { imagePaths } from '@/utils/imagePaths';
+import { fixImageUrl } from '@/utils/imageUrlFixer';
 import { Link } from 'react-router-dom';
 
 const EventsPage = () => {
@@ -127,10 +128,11 @@ const EventsPage = () => {
     console.log(`EventsPage - Getting image for "${event.title}"`);
     console.log(`  - Database image_url: "${event.image_url}"`);
     
-    // Use image_url from database if available
+    // Use image_url from database if available, but fix any problematic URLs
     if (event.image_url) {
-      console.log(`  - Using database image: "${event.image_url}"`);
-      return event.image_url;
+      const fixedImageUrl = fixImageUrl(event.image_url);
+      console.log(`  - Using fixed database image: "${fixedImageUrl}"`);
+      return fixedImageUrl;
     }
     // Fall back to hardcoded images based on title
     const type = eventTypes[event.title] || 'Workshop';
