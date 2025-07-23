@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { getImagePath } from '@/utils/imagePaths';
 import { 
   ImageIcon,
   Upload,
@@ -498,7 +499,7 @@ const MediaPage: React.FC = () => {
                             (e.target as HTMLImageElement).style.backgroundColor = 'transparent';
                           }}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/images/fallback.svg';
+                            (e.target as HTMLImageElement).src = getImagePath('images/fallback.svg');
                           }}
                         />
                       ) : (
@@ -567,7 +568,7 @@ const MediaPage: React.FC = () => {
                           className="w-full h-full object-cover"
                           onLoad={() => {}}
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/images/fallback.svg';
+                            (e.target as HTMLImageElement).src = getImagePath('images/fallback.svg');
                           }}
                         />
                       ) : (

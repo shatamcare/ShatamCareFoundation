@@ -114,6 +114,10 @@ export const getImagePath = (imagePath: string): string => {
       // Use base URL with trailing slash, concatenate clean path
       const productionBase = isGitHubPagesDirect ? '/ShatamCareFoundation/' : baseUrl;
       fullPath = `${productionBase}${cleanPath}`;
+      // Temporary debug log to see what's happening
+      if (typeof window !== 'undefined' && window.location.hostname === 'adarshalexbalmuchu.github.io') {
+        console.log(`🔍 Image path debug: "${imagePath}" -> "${fullPath}" (isProd: ${isProd}, isGitHub: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
+      }
     } else {
       // In development, just ensure it starts with /
       fullPath = `/${cleanPath}`;
