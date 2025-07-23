@@ -185,8 +185,6 @@ const EventsPage: React.FC = () => {
       return;
     }
 
-    console.log('Creating event with image_url:', newEvent.image_url);
-
     try {
       const { data, error } = await supabase
         .from('events')
@@ -201,8 +199,6 @@ const EventsPage: React.FC = () => {
         console.error('Database error:', error);
         throw error;
       }
-
-      console.log('Event created successfully:', data);
 
       setEvents([...events, data]);
       setNewEvent({
@@ -226,8 +222,6 @@ const EventsPage: React.FC = () => {
   const handleUpdateEvent = async () => {
     if (!editingEvent) return;
 
-    console.log('Updating event with image_url:', editingEvent.image_url);
-
     try {
       const { data, error } = await supabase
         .from('events')
@@ -249,8 +243,6 @@ const EventsPage: React.FC = () => {
         console.error('Database error:', error);
         throw error;
       }
-
-      console.log('Event updated successfully:', data);
 
       setEvents(events.map(event => 
         event.id === editingEvent.id ? data : event
@@ -311,14 +303,9 @@ const EventsPage: React.FC = () => {
 
   // Image selection handlers
   const handleImageSelect = (imageUrl: string) => {
-    console.log('Image selected:', imageUrl);
-    console.log('Is selecting for edit:', isSelectingImageForEdit);
-    
     if (isSelectingImageForEdit && editingEvent) {
-      console.log('Setting image for editing event:', editingEvent.id);
       setEditingEvent({ ...editingEvent, image_url: imageUrl });
     } else {
-      console.log('Setting image for new event');
       setNewEvent({ ...newEvent, image_url: imageUrl });
     }
     setShowImageSelector(false);

@@ -125,19 +125,14 @@ const EventsPage = () => {
   };
 
   const getEventImage = (event: EventForDisplay) => {
-    console.log(`EventsPage - Getting image for "${event.title}"`);
-    console.log(`  - Database image_url: "${event.image_url}"`);
-    
     // Use image_url from database if available, but fix any problematic URLs
     if (event.image_url) {
       const fixedImageUrl = fixImageUrl(event.image_url);
-      console.log(`  - Using fixed database image: "${fixedImageUrl}"`);
       return fixedImageUrl;
     }
     // Fall back to hardcoded images based on title
     const type = eventTypes[event.title] || 'Workshop';
     const fallbackImage = eventImages[type] || imagePaths.caregivers.training;
-    console.log(`  - Using fallback image: "${fallbackImage}"`);
     return fallbackImage;
   };
 

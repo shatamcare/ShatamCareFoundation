@@ -99,7 +99,6 @@ export const getImagePath = (imagePath: string): string => {
     // Fix known problematic paths
     if (cleanImagePath.includes('art 1.jpg')) {
       cleanImagePath = cleanImagePath.replace('art 1.jpg', 'art.jpg');
-      console.warn(`Fixed problematic image path: ${imagePath} -> ${cleanImagePath}`);
     }
 
     // Remove leading slash if present to avoid double slashes
@@ -119,9 +118,6 @@ export const getImagePath = (imagePath: string): string => {
       // In development, just ensure it starts with /
       fullPath = `/${cleanPath}`;
     }
-    
-    // Add debug logging to see what's happening
-    console.log(`getImagePath: "${imagePath}" -> "${fullPath}" (prod: ${isProd}, github: ${isGitHubPagesDirect}, base: "${baseUrl}")`);
     
     // Verify the image path exists (only in production to avoid dev server issues)
     if (isProd || isGitHubPagesDirect) {
@@ -267,10 +263,7 @@ export const preloadHeroImage = async () => {
         preloadedImages.add(heroImagePath);
         
         return new Promise<void>((resolve, reject) => {
-          img.onload = () => {
-            console.log('Hero background image preloaded successfully');
-            resolve();
-          };
+          img.onload = () => resolve();
           img.onerror = () => reject(new Error(`Failed to load hero image: ${heroImagePath}`));
         });
       }
