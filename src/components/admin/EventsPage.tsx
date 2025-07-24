@@ -8,15 +8,28 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase-secure';
 import { getImagePath } from '@/utils/imagePaths';
 import { fixImageUrl } from '@/utils/imageUrlFixer';
-import { getAllAvailableImages, getCategoryImages, type ImageFile } from '@/utils/dynamicImageLoader';
+import { resolveImageUrl, getImageWithFallback, standardizeImagePath } from '@/utils/imageUrlResolver';
+import { getAllAvailableImages, type ImageFile } from '@/utils/dynamicImageLoader';
 import { 
   Calendar,
   Plus,
   Edit3,
   Trash2,
   Save,
-  X,
-  Users,
+  X,                  <div
+                    key={image.id}
+                    className="relative group cursor-pointer border-2 border-transparent hover:border-warm-teal rounded-lg transition-colors"
+                    onClick={() => handleImageSelect(image.url, image.name)}
+                  >
+                    <img
+                      src={resolveImageUrl(image.url)}
+                      alt={image.name}
+                      className="w-full h-32 object-cover rounded-lg"
+                      onError={(e) => {
+                        console.warn(`Failed to load thumbnail: ${image.name}`);
+                        e.currentTarget.src = getImagePath('images/placeholder.jpg');
+                      }}
+                    >
   MapPin,
   Clock,
   AlertCircle,
@@ -48,7 +61,6 @@ interface MediaFile {
   type: 'image' | 'document' | 'other';
   size: number;
   uploaded_at: string;
-  category?: string;
 }
 
 interface EventRegistration {
@@ -103,8 +115,7 @@ const EventsPage: React.FC = () => {
       url: img.url,
       type: 'image' as const,
       size: 200000, // Default size since we don't track actual file sizes for static images
-      uploaded_at: new Date().toISOString(),
-      category: img.category
+      uploaded_at: new Date().toISOString()
     }));
     
     setAvailableImages(mediaFiles);
@@ -131,14 +142,16 @@ const EventsPage: React.FC = () => {
               .from('media')
               .getPublicUrl(file.name);
             
+            // Store standardized path for consistency
+            const standardPath = standardizeImagePath(urlData.publicUrl);
+            
             return {
               id: `storage_${index}`,
               name: file.name,
               url: urlData.publicUrl,
               type: 'image' as const,
               size: file.metadata?.size || 0,
-              uploaded_at: file.updated_at || file.created_at || new Date().toISOString(),
-              category: file.folder || 'Other'
+              uploaded_at: file.updated_at || file.created_at || new Date().toISOString()
             };
           });
         
@@ -323,12 +336,23 @@ const EventsPage: React.FC = () => {
   };
 
   // Image selection handlers
-  const handleImageSelect = (imageUrl: string) => {
+  const handleImageSelect = (imageUrl: string, imageName: string) => {
+    // Standardize the image URL format for consistent storage
+    const standardizedUrl = standardizeImagePath(imageUrl);
+    
     if (isSelectingImageForEdit && editingEvent) {
-      setEditingEvent({ ...editingEvent, image_url: imageUrl });
+      setEditingEvent({ ...editingEvent, image_url: standardizedUrl });
     } else {
-      setNewEvent({ ...newEvent, image_url: imageUrl });
+      setNewEvent({ ...newEvent, image_url: standardizedUrl });
     }
+    
+    toast({
+      title: "Image selected",
+      description: `Selected ${imageName}`,
+      duration: 2000,
+    });
+    
+    console.debug(`[Event Admin] Image selected: ${imageName} (${imageUrl} → standardized to: ${standardizedUrl})`);
     setShowImageSelector(false);
     setIsSelectingImageForEdit(false);
   };
@@ -506,9 +530,13 @@ const EventsPage: React.FC = () => {
                   {newEvent.image_url && (
                     <div className="flex items-center space-x-2">
                       <img 
-                        src={newEvent.image_url} 
+                        src={resolveImageUrl(newEvent.image_url)} 
                         alt="Selected event image" 
                         className="w-16 h-16 object-cover rounded-lg border"
+                        onError={(e) => {
+                          console.warn(`Failed to load preview: ${newEvent.image_url}`);
+                          e.currentTarget.src = getImagePath('images/placeholder.jpg');
+                        }}
                       />
                       <Button
                         type="button"
@@ -623,9 +651,13 @@ const EventsPage: React.FC = () => {
                       {editingEvent.image_url && (
                         <div className="flex items-center space-x-2">
                           <img 
-                            src={editingEvent.image_url} 
+                            src={resolveImageUrl(editingEvent.image_url)} 
                             alt="Selected event image" 
                             className="w-16 h-16 object-cover rounded-lg border"
+                            onError={(e) => {
+                              console.warn(`Failed to load preview: ${editingEvent.image_url}`);
+                              e.currentTarget.src = getImagePath('images/placeholder.jpg');
+                            }}
                           />
                           <Button
                             type="button"
@@ -676,7 +708,7 @@ const EventsPage: React.FC = () => {
                   {event.image_url ? (
                     <div className="mb-3">
                       <img 
-                        src={fixImageUrl(event.image_url)} 
+                        src={getImageWithFallback(event.image_url)} 
                         alt={event.title} 
                         className="w-full h-32 object-cover rounded-lg"
                         onError={(e) => {
@@ -797,54 +829,15 @@ const EventsPage: React.FC = () => {
 
       {/* Image Selector Modal */}
       {showImageSelector && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Select Event Image</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowImageSelector(false);
-                    setIsSelectingImageForEdit(false);
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {availableImages.map((image) => (
-                  <div
-                    key={image.id}
-                    className="relative group cursor-pointer border-2 border-transparent hover:border-warm-teal rounded-lg transition-colors"
-                    onClick={() => handleImageSelect(image.url)}
-                  >
-                    <img
-                      src={image.url}
-                      alt={image.name}
-                      className="w-full h-32 object-cover rounded-lg"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center">
-                      <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 rounded-b-lg">
-                      <p className="truncate">{image.name}</p>
-                      <p className="text-gray-300">{image.category}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {availableImages.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No images available. Upload images through the Media page first.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <ImageSelector 
+          images={availableImages}
+          onSelect={handleImageSelect}
+          onClose={() => {
+            setShowImageSelector(false);
+            setIsSelectingImageForEdit(false);
+          }}
+          title={isSelectingImageForEdit ? "Select Image for Event Edit" : "Select Image for New Event"}
+        />
       )}
     </div>
   );

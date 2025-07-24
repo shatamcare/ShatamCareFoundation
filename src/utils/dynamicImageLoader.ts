@@ -61,7 +61,6 @@ export interface ImageFile {
   id: string;
   name: string;
   url: string;
-  category: keyof typeof IMAGE_CATEGORIES;
   path: string;
 }
 
@@ -76,7 +75,6 @@ export function getCategoryImages(category: keyof typeof IMAGE_CATEGORIES): Imag
     id: `${category.toLowerCase().replace(' ', '_')}_${index + 1}`,
     name: imageName,
     url: getImagePath(`${basePath}/${imageName}`),
-    category,
     path: `${basePath}/${imageName}`
   }));
 }

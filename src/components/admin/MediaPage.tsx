@@ -42,7 +42,6 @@ interface MediaFile {
   url?: string;
   type?: string;
   size?: number;
-  category?: string;
   uploaded_at?: string;
   uploaded_by?: string;
   created_at?: string;
@@ -56,7 +55,6 @@ const MediaPage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -64,17 +62,7 @@ const MediaPage: React.FC = () => {
   const [showSetupAssistant, setShowSetupAssistant] = useState(false);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
 
-  // Categories for media organization
-  const categories = [
-    'all',
-    'Brain Kit',
-    'Caregivers', 
-    'Media',
-    'Team',
-    'Users',
-    'Events',
-    'Documents'
-  ];
+  // Categories removed
 
   useEffect(() => {
     loadMediaFiles();
@@ -112,7 +100,6 @@ const MediaPage: React.FC = () => {
             url: `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/media/${file.name}`,
             type: file.metadata?.mimetype || (file.name.match(/\.(jpg|jpeg|png|gif)$/i) ? 'image' : 'unknown'),
             size: file.metadata?.size || 0,
-            category: file.folder || 'uncategorized',
             uploaded_at: file.created_at || file.updated_at || new Date().toISOString(),
             uploaded_by: 'admin'
           }));
@@ -146,8 +133,7 @@ const MediaPage: React.FC = () => {
           throw new Error(`File "${file.name}" exceeds 10MB limit`);
         }
         
-        const category = selectedCategory === 'all' ? 'uncategorized' : selectedCategory;
-        const filePath = `${category}/${Date.now()}-${file.name}`;
+        const filePath = `${Date.now()}-${file.name}`;
         
         uploadPromises.push(
           uploadFile(file, filePath).then(result => {
@@ -252,8 +238,7 @@ const MediaPage: React.FC = () => {
   // Filter files based on search and category
   const filteredFiles = mediaFiles.filter(file => {
     const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || file.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
   const clearMessages = () => {
@@ -303,18 +288,6 @@ const MediaPage: React.FC = () => {
                   className="pl-10 w-64"
                 />
               </div>
-              
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category === 'all' ? 'All Categories' : category}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -463,8 +436,8 @@ const MediaPage: React.FC = () => {
           <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No files found</h3>
           <p className="text-gray-500 mb-4">
-            {searchTerm || selectedCategory !== 'all' 
-              ? 'Try adjusting your search or filter criteria.' 
+            {searchTerm 
+              ? 'Try adjusting your search criteria.' 
               : 'Upload some files to get started.'}
           </p>
           <Button 
@@ -586,9 +559,6 @@ const MediaPage: React.FC = () => {
                         </Badge>
                         <span>{formatFileSize(file.size)}</span>
                         <span>{formatDate(file.uploaded_at)}</span>
-                        {file.category && (
-                          <span className="text-blue-600">{file.category}</span>
-                        )}
                       </div>
                     </div>
                     
@@ -727,12 +697,7 @@ const MediaPage: React.FC = () => {
                     <label className="font-medium text-gray-700">Uploaded:</label>
                     <p className="mt-1">{formatDate(selectedFile.uploaded_at)}</p>
                   </div>
-                  {selectedFile.category && (
-                    <div>
-                      <label className="font-medium text-gray-700">Category:</label>
-                      <p className="mt-1">{selectedFile.category}</p>
-                    </div>
-                  )}
+                  
                 </div>
                 
                 <div>

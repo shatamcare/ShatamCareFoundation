@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPinIcon, ArrowRight, Filter, Search, Users, ChevronLeft } from 'lucide-react';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
-import { imagePaths } from '@/utils/imagePaths';
-import { fixImageUrl } from '@/utils/imageUrlFixer';
+import { imagePaths, getImagePath } from '@/utils/imagePaths';
+import { resolveImageUrl, getImageWithFallback } from '@/utils/imageUrlResolver';
 import { Link } from 'react-router-dom';
 
 const EventsPage = () => {
@@ -124,38 +124,30 @@ const EventsPage = () => {
     return colorMap[type] || 'bg-gray-600 text-white';
   };
 
-  // Helper function to get the correct image URL (handles both local paths and Supabase URLs)
-  const getImageUrl = (imageUrl: string | null | undefined): string => {
-    if (!imageUrl) return '';
-    
-    // If it's already a full URL (Supabase Storage), return it as-is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
-    
-    // If it's a local path, use fixImageUrl for backward compatibility
-    return fixImageUrl(imageUrl);
-  };
-
-  const getEventImage = (event: EventForDisplay) => {
-    // Use image_url from database if available, but fix any problematic URLs
+  /**
+   * Get the appropriate event image URL with improved handling
+   */
+  const getEventImage = (event: EventForDisplay): string => {
+    // Use image_url from database if available
     if (event.image_url) {
-      const fixedImageUrl = getImageUrl(event.image_url);
-      return fixedImageUrl;
+      // Use our centralized resolver for consistent URL handling
+      return resolveImageUrl(event.image_url);
     }
-    // Fall back to hardcoded images based on title
-    const type = eventTypes[event.title] || 'Workshop';
-    const fallbackImage = eventImages[type] || imagePaths.caregivers.training;
-    return fallbackImage;
+    
+    // Fall back to type-based images if no specific image URL is available
+    const eventType = event.type as keyof typeof eventTypes;
+    const mappedType = eventTypes[eventType] || 'Workshop';
+    
+    // Return appropriate fallback image based on event type
+    return eventImages[mappedType as keyof typeof eventImages] || imagePaths.caregivers.training;
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, fallbackSrc: string) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, originalUrl: string) => {
+    console.warn(`Failed to load event image: ${originalUrl}`);
     const target = e.target as HTMLImageElement;
-    if (target.src !== fallbackSrc) {
-      target.src = fallbackSrc;
-    }
+    // Use a consistent fallback path
+    target.src = getImagePath('images/placeholder.jpg');
   };
-
   const uniqueEventTypes = ['all', ...Array.from(new Set(Object.values(eventTypes)))];
 
   return (
@@ -238,17 +230,19 @@ const EventsPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredEvents.map((event) => {
               const eventType = eventTypes[event.title] || 'Event';
-              const eventImage = getEventImage(event);
               
               return (
                 <Card key={event.id} className="bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
                   <div className="relative h-48 overflow-hidden">
                     <img 
-                      src={eventImage}
+                      src={getImageWithFallback(event.image_url)}
                       alt={event.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
-                      onError={(e) => handleImageError(e, eventImage)}
+                      onError={(e) => {
+                        console.warn(`Failed to load event image: ${event.image_url}`);
+                        e.currentTarget.src = getImagePath('images/placeholder.jpg');
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                     <div className="absolute top-4 left-4">

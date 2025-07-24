@@ -92,7 +92,6 @@ interface StorageFile {
     contentLength?: number;
     httpStatusCode?: number;
   };
-  folder?: string;
 }
 
 export async function listMediaFiles(): Promise<{ success: boolean; files?: StorageFile[]; error?: string }> {
@@ -128,8 +127,7 @@ export async function listMediaFiles(): Promise<{ success: boolean; files?: Stor
           // Add folder path to each file
           const filesWithPath = folderFiles.map(file => ({
             ...file,
-            name: `${item.name}/${file.name}`,
-            folder: item.name
+            name: `${item.name}/${file.name}`
           }));
           allFiles.push(...filesWithPath);
         }
