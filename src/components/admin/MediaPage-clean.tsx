@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { getImagePath } from '@/utils/imagePaths';
+import { getAllAvailableImages, getCategoryImages } from '@/utils/dynamicImageLoader';
 import { 
   ImageIcon,
   Upload,
@@ -42,7 +43,7 @@ const MediaPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  // Categories for media organization
+  // Categories for media organization - now includes both uploaded and static
   const categories = [
     'all',
     'Brain Kit',
@@ -61,8 +62,28 @@ const MediaPage: React.FC = () => {
   const loadMediaFiles = async () => {
     try {
       setLoading(true);
-      const data = await getMediaFiles();
-      setMediaFiles(data);
+      
+      // Load uploaded files from Supabase
+      const uploadedFiles = await getMediaFiles();
+      
+      // Load static template images from dynamic loader
+      const staticImages = getAllAvailableImages();
+      
+      // Convert static images to MediaFile format and merge with uploaded files
+      const staticMediaFiles: MediaFile[] = staticImages.map((img, index) => ({
+        id: `static_${img.id}`,
+        name: img.name,
+        url: img.url,
+        type: 'image' as const,
+        size: 0, // Static files don't have size info
+        uploaded_at: '2024-01-01T00:00:00Z', // Default date for static files
+        category: img.category,
+        is_static: true // Add flag to identify static images
+      }));
+      
+      // Combine uploaded and static images
+      const allFiles = [...uploadedFiles, ...staticMediaFiles];
+      setMediaFiles(allFiles);
     } catch (error) {
       console.error('Error loading media files:', error);
       setError('Failed to load media files');
@@ -101,6 +122,12 @@ const MediaPage: React.FC = () => {
   };
 
   const deleteFile = async (fileId: string) => {
+    // Check if it's a static image (can't be deleted)
+    if (fileId.startsWith('static_')) {
+      setError('Static template images cannot be deleted');
+      return;
+    }
+    
     if (!confirm('Are you sure you want to delete this file?')) return;
     
     try {
@@ -259,14 +286,18 @@ const MediaPage: React.FC = () => {
 
         {/* File Stats */}
         <div className="p-4 bg-gray-50">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 text-sm">
             <div>
               <span className="text-gray-500">Total Files:</span>
               <span className="ml-2 font-medium">{mediaFiles.length}</span>
             </div>
             <div>
-              <span className="text-gray-500">Filtered:</span>
-              <span className="ml-2 font-medium">{filteredFiles.length}</span>
+              <span className="text-gray-500">Uploaded:</span>
+              <span className="ml-2 font-medium">{mediaFiles.filter(f => !f.id.startsWith('static_')).length}</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Templates:</span>
+              <span className="ml-2 font-medium">{mediaFiles.filter(f => f.id.startsWith('static_')).length}</span>
             </div>
             <div>
               <span className="text-gray-500">Images:</span>
@@ -339,11 +370,18 @@ const MediaPage: React.FC = () => {
                       </h3>
                       
                       <div className="flex items-center justify-between">
-                        <Badge variant="secondary" className="text-xs">
-                          {file.type}
-                        </Badge>
+                        <div className="flex items-center space-x-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {file.type}
+                          </Badge>
+                          {file.id.startsWith('static_') && (
+                            <Badge variant="outline" className="text-xs text-blue-600 border-blue-200">
+                              Template
+                            </Badge>
+                          )}
+                        </div>
                         <span className="text-xs text-gray-500">
-                          {formatFileSize(file.size)}
+                          {file.size ? formatFileSize(file.size) : 'Static'}
                         </span>
                       </div>
                       
@@ -371,8 +409,13 @@ const MediaPage: React.FC = () => {
                         </button>
                         <button
                           onClick={() => deleteFile(file.id)}
-                          className="p-1 hover:bg-red-200 rounded text-red-600"
-                          title="Delete"
+                          className={`p-1 rounded ${
+                            file.id.startsWith('static_') 
+                              ? 'opacity-50 cursor-not-allowed text-gray-400' 
+                              : 'hover:bg-red-200 text-red-600'
+                          }`}
+                          title={file.id.startsWith('static_') ? 'Static images cannot be deleted' : 'Delete'}
+                          disabled={file.id.startsWith('static_')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -404,10 +447,17 @@ const MediaPage: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium truncate">{file.name}</h3>
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <Badge variant="secondary" className="text-xs">
-                          {file.type}
-                        </Badge>
-                        <span>{formatFileSize(file.size)}</span>
+                        <div className="flex items-center space-x-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {file.type}
+                          </Badge>
+                          {file.id.startsWith('static_') && (
+                            <Badge variant="outline" className="text-xs text-blue-600 border-blue-200">
+                              Template
+                            </Badge>
+                          )}
+                        </div>
+                        <span>{file.size ? formatFileSize(file.size) : 'Static'}</span>
                         <span>{formatDate(file.uploaded_at)}</span>
                         {file.category && (
                           <span className="text-blue-600">{file.category}</span>
@@ -439,8 +489,13 @@ const MediaPage: React.FC = () => {
                       </button>
                       <button
                         onClick={() => deleteFile(file.id)}
-                        className="p-2 hover:bg-red-100 rounded text-red-600"
-                        title="Delete"
+                        className={`p-2 rounded ${
+                          file.id.startsWith('static_') 
+                            ? 'opacity-50 cursor-not-allowed text-gray-400' 
+                            : 'hover:bg-red-100 text-red-600'
+                        }`}
+                        title={file.id.startsWith('static_') ? 'Static images cannot be deleted' : 'Delete'}
+                        disabled={file.id.startsWith('static_')}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
