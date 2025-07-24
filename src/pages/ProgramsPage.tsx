@@ -9,6 +9,8 @@ import {
   deleteProgram, 
   Program 
 } from '@/lib/supabase-secure';
+import { supabase } from '@/lib/supabase-secure';
+import { listMediaFiles } from '@/utils/storage-alternative';
 import { getImagePath } from '@/utils/imagePaths';
 import { 
   Plus, 
@@ -64,6 +66,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null);
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -78,45 +81,52 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
     is_active: true
   });
 
-  // Memoized available images to prevent recreation on every render
-  const availableImages = useMemo(() => [
-    // Caregivers images
-    'images/Caregivers/training.jpg',
-    'images/Caregivers/sessions.jpg',
-    'images/Caregivers/career discussion.jpg',
-    'images/Caregivers/hospital.jpg',
-    'images/Caregivers/trainng 2.jpg',
-    'images/Caregivers/Vaishali.jpg',
+  // Load available images from Supabase Storage
+  const loadAvailableImages = useCallback(async () => {
+    try {
+      const result = await listMediaFiles();
+      
+      if (result.success && result.files) {
+        // Filter for image files and create URLs
+        const imageUrls = result.files
+          .filter(file => {
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+            return imageExtensions.some(ext => 
+              file.name.toLowerCase().endsWith(ext)
+            );
+          })
+          .map(file => {
+            // Get the public URL for the file
+            const { data: urlData } = supabase.storage
+              .from('media')
+              .getPublicUrl(file.name);
+            return urlData.publicUrl;
+          });
+        
+        setAvailableImages(imageUrls);
+      } else {
+        console.error('Failed to load images from storage:', result.error);
+        // Fallback to empty array
+        setAvailableImages([]);
+      }
+    } catch (error) {
+      console.error('Error loading images from storage:', error);
+      setAvailableImages([]);
+    }
+  }, []);
+
+  // Helper function to get the correct image URL (handles both local paths and Supabase URLs)
+  const getImageUrl = (imageUrl: string | null | undefined): string => {
+    if (!imageUrl) return '';
     
-    // Brain Kit images
-    'images/Brain Kit/brain_bridge_boxcontent-1024x1024.jpeg',
-    'images/Brain Kit/EHA4.jpg',
-    'images/Brain Kit/kit.jpg',
-    'images/Brain Kit/tool kit.jpg',
+    // If it's already a full URL (Supabase Storage), return it as-is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
     
-    // Users images
-    'images/Users/care.jpg',
-    'images/Users/activities 1.jpg',
-    'images/Users/activities 2.jpg',
-    'images/Users/activities.jpg',
-    'images/Users/art 1.jpg',
-    'images/Users/art.jpg',
-    'images/Users/dementia care 1.jpg',
-    'images/Users/Dementia.jpg',
-    'images/Users/EHA.jpg',
-    'images/Users/EHA (1).jpg',
-    'images/Users/EHA (2).jpg',
-    'images/Users/EHA7.jpg',
-    'images/Users/EHA8.jpg',
-    'images/Users/eha3.jpg',
-    'images/Users/memory cafe.jpeg',
-    
-    // Media images
-    'images/Media/EHA9.jpg',
-    'images/Media/News.jpg',
-    'images/Media/News2.jpg',
-    'images/Media/tweet.jpg'
-  ], []);
+    // If it's a local path, use getImagePath for backward compatibility
+    return getImagePath(imageUrl);
+  };
 
   const fetchPrograms = useCallback(async () => {
     setLoading(true);
@@ -135,7 +145,8 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
 
   useEffect(() => {
     fetchPrograms();
-  }, [fetchPrograms]);
+    loadAvailableImages();
+  }, [fetchPrograms, loadAvailableImages]);
 
   const resetForm = () => {
     setFormData({
@@ -462,31 +473,31 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                       </div>
                       
                       {/* Image options */}
-                      {availableImages.map((image) => (
+                      {availableImages.map((imageUrl) => (
                         <div
-                          key={image}
-                          onClick={() => setFormData({ ...formData, image_url: image })}
+                          key={imageUrl}
+                          onClick={() => setFormData({ ...formData, image_url: imageUrl })}
                           className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
-                            formData.image_url === image 
+                            formData.image_url === imageUrl 
                               ? 'border-warm-teal bg-warm-teal/10' 
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
                           <div className="aspect-square overflow-hidden rounded">
                             <img 
-                              src={getImagePath(image)} 
-                              alt={image.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '')}
+                              src={imageUrl} 
+                              alt={imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                console.warn(`Failed to load image: ${image}`);
+                                console.warn(`Failed to load image: ${imageUrl}`);
                                 e.currentTarget.src = getImagePath('images/placeholder.jpg');
                               }}
                             />
                           </div>
                           <p className="text-xs text-center mt-1 truncate">
-                            {image.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '')}
+                            {imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
                           </p>
-                          {formData.image_url === image && (
+                          {formData.image_url === imageUrl && (
                             <div className="absolute top-1 right-1 bg-warm-teal text-white rounded-full p-1">
                               <CheckCircle className="h-3 w-3" />
                             </div>
@@ -499,7 +510,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                     <div className="mt-3 p-3 bg-gray-50 rounded-md">
                       <p className="text-sm text-gray-600 mb-2">Selected Image Preview:</p>
                       <img 
-                        src={getImagePath(formData.image_url)} 
+                        src={formData.image_url} 
                         alt="Selected preview" 
                         className="w-40 h-30 object-cover rounded-md border"
                         onError={(e) => {
@@ -593,7 +604,7 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                           {program.image_url && (
                             <div className="mt-3">
                               <img 
-                                src={getImagePath(program.image_url)} 
+                                src={getImageUrl(program.image_url)} 
                                 alt={program.title}
                                 className="w-24 h-16 object-cover rounded-md border"
                                 onError={(e) => {

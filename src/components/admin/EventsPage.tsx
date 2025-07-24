@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,7 @@ import {
   Eye,
   RefreshCw
 } from 'lucide-react';
+import { listMediaFiles } from '../../utils/storage-alternative';
 
 interface Event {
   id: string;
@@ -91,10 +92,73 @@ const EventsPage: React.FC = () => {
   const [availableImages, setAvailableImages] = useState<MediaFile[]>([]);
   const [isSelectingImageForEdit, setIsSelectingImageForEdit] = useState(false);
 
+  const loadLocalImages = () => {
+    // Fallback function to load local images
+    const dynamicImages = getAllAvailableImages();
+    
+    // Convert to MediaFile format for compatibility
+    const mediaFiles: MediaFile[] = dynamicImages.map((img, index) => ({
+      id: img.id,
+      name: img.name,
+      url: img.url,
+      type: 'image' as const,
+      size: 200000, // Default size since we don't track actual file sizes for static images
+      uploaded_at: new Date().toISOString(),
+      category: img.category
+    }));
+    
+    setAvailableImages(mediaFiles);
+  };
+
+  const loadAvailableImages = useCallback(async () => {
+    try {
+      // Load images from Supabase Storage instead of local files
+      const result = await listMediaFiles();
+      
+      if (result.success && result.files) {
+        // Convert StorageFile[] to MediaFile[] format
+        const mediaFiles: MediaFile[] = result.files
+          .filter(file => {
+            // Only include image files
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+            return imageExtensions.some(ext => 
+              file.name.toLowerCase().endsWith(ext)
+            );
+          })
+          .map((file, index) => {
+            // Get the public URL for the file
+            const { data: urlData } = supabase.storage
+              .from('media')
+              .getPublicUrl(file.name);
+            
+            return {
+              id: `storage_${index}`,
+              name: file.name,
+              url: urlData.publicUrl,
+              type: 'image' as const,
+              size: file.metadata?.size || 0,
+              uploaded_at: file.updated_at || file.created_at || new Date().toISOString(),
+              category: file.folder || 'Other'
+            };
+          });
+        
+        setAvailableImages(mediaFiles);
+      } else {
+        console.error('Failed to load images from storage:', result.error);
+        // Fallback to local images if storage fails
+        loadLocalImages();
+      }
+    } catch (error) {
+      console.error('Error loading images from storage:', error);
+      // Fallback to local images if storage fails
+      loadLocalImages();
+    }
+  }, []);
+
   useEffect(() => {
     fetchEvents();
     loadAvailableImages();
-  }, []);
+  }, [loadAvailableImages]);
 
   useEffect(() => {
     if (showRegistrations) {
@@ -118,24 +182,6 @@ const EventsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadAvailableImages = () => {
-    // Use dynamic image loader - no more hardcoding!
-    const dynamicImages = getAllAvailableImages();
-    
-    // Convert to MediaFile format for compatibility
-    const mediaFiles: MediaFile[] = dynamicImages.map((img, index) => ({
-      id: img.id,
-      name: img.name,
-      url: img.url,
-      type: 'image' as const,
-      size: 200000, // Default size since we don't track actual file sizes for static images
-      uploaded_at: new Date().toISOString(),
-      category: img.category
-    }));
-    
-    setAvailableImages(mediaFiles);
   };
 
   const fetchRegistrations = async (eventId: string) => {

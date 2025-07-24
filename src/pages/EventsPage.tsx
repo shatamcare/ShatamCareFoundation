@@ -27,7 +27,7 @@ const EventsPage = () => {
     'Workshop': imagePaths.caregivers.training,
     'Support Group': imagePaths.caregivers.sessions,
     'Therapy': imagePaths.users.care,
-    'Fundraiser': imagePaths.users.activities
+    'Fundraiser': imagePaths.users.eha1
   };
 
   // Fetch events from database
@@ -124,10 +124,23 @@ const EventsPage = () => {
     return colorMap[type] || 'bg-gray-600 text-white';
   };
 
+  // Helper function to get the correct image URL (handles both local paths and Supabase URLs)
+  const getImageUrl = (imageUrl: string | null | undefined): string => {
+    if (!imageUrl) return '';
+    
+    // If it's already a full URL (Supabase Storage), return it as-is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // If it's a local path, use fixImageUrl for backward compatibility
+    return fixImageUrl(imageUrl);
+  };
+
   const getEventImage = (event: EventForDisplay) => {
     // Use image_url from database if available, but fix any problematic URLs
     if (event.image_url) {
-      const fixedImageUrl = fixImageUrl(event.image_url);
+      const fixedImageUrl = getImageUrl(event.image_url);
       return fixedImageUrl;
     }
     // Fall back to hardcoded images based on title

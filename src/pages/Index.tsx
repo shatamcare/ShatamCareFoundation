@@ -8,6 +8,7 @@ import { getEvents, getPrograms, type EventForDisplay, type ProgramForDisplay } 
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
 import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, preloadNearbyImages, preloadHeroImage, optimizeImageLoading, fallbackImageDataUrl } from '@/utils/imagePaths';
 import { fixImageUrl } from '@/utils/imageUrlFixer';
+import { getEventImageUrl } from '@/utils/imageFixer';
 import { throttle } from '@/utils/performance';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -124,8 +125,27 @@ const Index = () => {
     if (titleLower.includes('support')) return 'Support Group';
     return 'Event';
   };
+
+  // Helper function to get the correct image URL (handles both local paths and Supabase URLs)
+  const getImageUrl = useCallback((imageUrl: string | null | undefined): string => {
+    if (!imageUrl) return '';
+    
+    // If it's already a full URL (Supabase Storage), return it as-is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // If it's a local path, use fixImageUrl for backward compatibility
+    return fixImageUrl(imageUrl);
+  }, []);
   
-  const eventImages = { 'Workshop': imagePaths.caregivers.training, 'Support Group': imagePaths.caregivers.sessions, 'Therapy': imagePaths.users.care, 'Fundraiser': imagePaths.users.eha1, 'Event': imagePaths.caregivers.sessions };
+  const eventImages = useMemo(() => ({ 
+    'Workshop': imagePaths.caregivers.training, 
+    'Support Group': imagePaths.caregivers.sessions, 
+    'Therapy': imagePaths.users.care, 
+    'Fundraiser': imagePaths.users.eha1, 
+    'Event': imagePaths.caregivers.sessions 
+  }), []);
 
   const allUpcomingEvents = useMemo(() => {
     if (!databaseEvents) return [];
@@ -133,11 +153,11 @@ const Index = () => {
       const eventType = getEventType(event.title);
       // Fix any problematic image URLs from the database, fallback to type-based images
       const finalImage = event.image_url 
-        ? fixImageUrl(event.image_url)
+        ? getImageUrl(event.image_url)
         : eventImages[eventType as keyof typeof eventImages] || eventImages['Event'];
       return { id: event.id, title: event.title, date: event.date, time: event.time, location: event.location, type: eventType, description: event.description, image: finalImage, spots: event.spots };
     });
-  }, [databaseEvents]);
+  }, [databaseEvents, eventImages, getImageUrl]);
   
   const upcomingEvents = allUpcomingEvents.slice(0, 4);
 
