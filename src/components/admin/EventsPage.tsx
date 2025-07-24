@@ -10,6 +10,8 @@ import { getImagePath } from '@/utils/imagePaths';
 import { fixImageUrl } from '@/utils/imageUrlFixer';
 import { resolveImageUrl, getImageWithFallback, standardizeImagePath } from '@/utils/imageUrlResolver';
 import { getAllAvailableImages, type ImageFile } from '@/utils/dynamicImageLoader';
+import { toast } from '@/hooks/use-toast';
+import ImageSelector from './ImageSelector';
 import { 
   Calendar,
   Plus,
