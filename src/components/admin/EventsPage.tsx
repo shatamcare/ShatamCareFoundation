@@ -16,27 +16,15 @@ import {
   Edit3,
   Trash2,
   Save,
-  X,                  <div
-                    key={image.id}
-                    className="relative group cursor-pointer border-2 border-transparent hover:border-warm-teal rounded-lg transition-colors"
-                    onClick={() => handleImageSelect(image.url, image.name)}
-                  >
-                    <img
-                      src={resolveImageUrl(image.url)}
-                      alt={image.name}
-                      className="w-full h-32 object-cover rounded-lg"
-                      onError={(e) => {
-                        console.warn(`Failed to load thumbnail: ${image.name}`);
-                        e.currentTarget.src = getImagePath('images/placeholder.jpg');
-                      }}
-                    >
+  X,
   MapPin,
   Clock,
   AlertCircle,
   CheckCircle,
   ImageIcon,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Users
 } from 'lucide-react';
 import { listMediaFiles } from '../../utils/storage-alternative';
 
