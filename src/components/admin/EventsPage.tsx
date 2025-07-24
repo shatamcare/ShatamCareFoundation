@@ -336,11 +336,9 @@ const EventsPage: React.FC = () => {
       setNewEvent({ ...newEvent, image_url: standardizedUrl });
     }
     
-    toast({
-      title: "Image selected",
-      description: `Selected ${imageName}`,
-      duration: 2000,
-    });
+    // Show success message
+    setSuccess(`Selected image: ${imageName}`);
+    setTimeout(() => setSuccess(''), 2000);
     
     console.debug(`[Event Admin] Image selected: ${imageName} (${imageUrl} → standardized to: ${standardizedUrl})`);
     setShowImageSelector(false);
