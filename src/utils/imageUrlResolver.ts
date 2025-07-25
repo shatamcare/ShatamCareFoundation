@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase-secure';
 import { getImagePath } from './imagePaths';
 import { getBaseUrl, isProduction } from './url-helpers';
 import { logImageUrlDebug } from './debug-helpers';
-import { getFallbackImageUrl, isImageAvailable } from './image-fallback-helper';
+import { getFallbackImageByKeyword } from './image-fallback-map';
 
 // Cache for verified image paths
 const imagePathCache = new Map<string, string>();
@@ -64,26 +64,9 @@ export function resolveImageUrl(imageUrl: string | null | undefined): string {
         }
       } catch (err) {
         // If Supabase fails, use a smart fallback strategy
-        console.warn(`[Image Resolver] Supabase failed for ${imageUrl}, using fallback strategy`);
-        
-        if (isProduction() && typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
-          // For GitHub Pages, first try to construct the full URL
-          const repoName = window.location.pathname.split('/')[1] || 'ShatamCareFoundation';
-          const attemptedUrl = `${window.location.origin}/${repoName}/${imageUrl}`;
-          
-          // But since we know this file likely doesn't exist, use a fallback image instead
-          resolvedUrl = getFallbackImageUrl(imageUrl);
-          console.debug(`[Image Resolver] Using fallback image for ${imageUrl}: ${resolvedUrl}`);
-        } else {
-          // For local development, try the original path first, then fallback
-          const localPath = getImagePath(imageUrl);
-          if (isImageAvailable(localPath)) {
-            resolvedUrl = localPath;
-          } else {
-            resolvedUrl = getFallbackImageUrl(imageUrl);
-            console.debug(`[Image Resolver] Using fallback image for local ${imageUrl}: ${resolvedUrl}`);
-          }
-        }
+        console.warn(`[Image Resolver] Supabase failed for ${imageUrl}, using keyword-based fallback.`);
+        resolvedUrl = getFallbackImageByKeyword(imageUrl);
+        console.debug(`[Image Resolver] Using fallback image for ${imageUrl}: ${resolvedUrl}`);
       }
     } else {
       // Use our existing getImagePath utility for local paths
@@ -112,9 +95,9 @@ export function getImageWithFallback(imageUrl: string | null | undefined, fallba
   // First resolve the URL
   const resolvedUrl = resolveImageUrl(imageUrl);
   
-  // If URL is empty, use the fallback
-  if (!resolvedUrl) {
-    return getImagePath(fallbackPath);
+  // If URL is empty or still resolves to a known problematic path, use a keyword-based fallback
+  if (!resolvedUrl || resolvedUrl.includes('placeholder.jpg')) {
+    return getFallbackImageByKeyword(imageUrl);
   }
   
   // Log that this function was used

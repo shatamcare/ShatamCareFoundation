@@ -5,8 +5,101 @@ import { Calendar, Clock, MapPinIcon, ArrowRight, Filter, Search, Users, Chevron
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
 import { imagePaths, getImagePath } from '@/utils/imagePaths';
-import { resolveImageUrl, getImageWithFallback } from '@/utils/imageUrlResolver';
+import { useResolvedImage } from '@/hooks/use-resolved-image';
 import { Link } from 'react-router-dom';
+import LoadingSpinner from '@/components/LoadingSpinner';
+
+// EventCard component to display a single event
+const EventCard = ({ event }: { event: EventForDisplay }) => {
+  const { resolvedUrl, isLoading: isImageLoading } = useResolvedImage(event.image_url);
+
+  const eventTypes = {
+    'Memory Care Workshop': 'Workshop',
+    'Caregiver Support Group': 'Support Group',
+    'Brain Health Seminar': 'Workshop',
+    'Therapy Session': 'Therapy',
+    'Fundraiser Event': 'Fundraiser'
+  };
+
+  const getEventTypeColor = (type: string) => {
+    const colorMap: Record<string, string> = {
+      'Workshop': 'bg-warm-teal text-white',
+      'Support Group': 'bg-sage-600 text-white',
+      'Therapy': 'bg-blue-600 text-white',
+      'Fundraiser': 'bg-sunrise-orange text-white'
+    };
+    return colorMap[type] || 'bg-gray-600 text-white';
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-IN', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  const eventType = event.type as keyof typeof eventTypes;
+  const mappedType = eventTypes[eventType] || 'Event';
+
+  return (
+    <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
+      <div className="relative h-48 w-full">
+        {isImageLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <img
+            src={resolvedUrl}
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-sm font-semibold ${getEventTypeColor(mappedType)}`}>
+          {mappedType}
+        </div>
+      </div>
+      <CardContent className="p-6 flex-grow flex flex-col">
+        <h3 className="text-xl font-bold mb-2 font-poppins">{event.title}</h3>
+        <p className="text-gray-600 mb-4 flex-grow">{event.description}</p>
+        
+        <div className="space-y-3 text-gray-700 mb-6">
+          <div className="flex items-center">
+            <Calendar className="h-5 w-5 mr-3 text-warm-teal" />
+            <span>{formatDate(event.date)}</span>
+          </div>
+          <div className="flex items-center">
+            <Clock className="h-5 w-5 mr-3 text-warm-teal" />
+            <span>{event.time}</span>
+          </div>
+          <div className="flex items-center">
+            <MapPinIcon className="h-5 w-5 mr-3 text-warm-teal" />
+            <span>{event.location}</span>
+          </div>
+          <div className="flex items-center">
+            <Users className="h-5 w-5 mr-3 text-warm-teal" />
+            <span>{event.spots_available} spots available</span>
+          </div>
+        </div>
+
+        <div className="mt-auto">
+          <EventRegistrationModal event={event}>
+            <Button className="w-full bg-warm-teal hover:bg-warm-teal-600 text-white">
+              Register Now <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </EventRegistrationModal>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const EventsPage = () => {
   const [events, setEvents] = useState<EventForDisplay[]>([]);
@@ -21,13 +114,6 @@ const EventsPage = () => {
     'Brain Health Seminar': 'Workshop',
     'Therapy Session': 'Therapy',
     'Fundraiser Event': 'Fundraiser'
-  };
-  
-  const eventImages = {
-    'Workshop': imagePaths.caregivers.training,
-    'Support Group': imagePaths.caregivers.sessions,
-    'Therapy': imagePaths.users.care,
-    'Fundraiser': imagePaths.users.eha1
   };
 
   // Fetch events from database
@@ -50,7 +136,9 @@ const EventsPage = () => {
               description: "Learn techniques for supporting loved ones with dementia",
               spots: "30 spots available",
               capacity: 30,
-              spots_available: 30
+              spots_available: 30,
+              image_url: 'media/1753202132386-art.jpg',
+              type: 'Memory Care Workshop'
             },
             {
               id: "sample-2", 
@@ -61,7 +149,9 @@ const EventsPage = () => {
               description: "Monthly support group for family caregivers",
               spots: "15 spots available",
               capacity: 15,
-              spots_available: 15
+              spots_available: 15,
+              image_url: 'images/Caregivers/sessions.jpg',
+              type: 'Caregiver Support Group'
             },
             {
               id: "sample-3",
@@ -72,7 +162,9 @@ const EventsPage = () => {
               description: "Understanding brain health and prevention strategies",
               spots: "50 spots available",
               capacity: 50,
-              spots_available: 50
+              spots_available: 50,
+              image_url: 'images/Brain Kit/workshop.jpg',
+              type: 'Brain Health Seminar'
             }
           ]);
         }
@@ -90,64 +182,20 @@ const EventsPage = () => {
 
   // Filter and search events
   const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const eventTitle = event.title || '';
+    const eventDescription = event.description || '';
+    const eventLocation = event.location || '';
+
+    const matchesSearch = eventTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         eventDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         eventLocation.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (selectedFilter === 'all') return matchesSearch;
     
-    const eventType = eventTypes[event.title] || 'Event';
-    return matchesSearch && eventType.toLowerCase() === selectedFilter.toLowerCase();
+    const eventType = eventTypes[event.type as keyof typeof eventTypes] || 'Event';
+    return matchesSearch && eventType.toLowerCase() === selected_filter.toLowerCase();
   });
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-IN', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-    } catch (error) {
-      return dateString;
-    }
-  };
-
-  const getEventTypeColor = (type: string) => {
-    const colorMap: Record<string, string> = {
-      'Workshop': 'bg-warm-teal text-white',
-      'Support Group': 'bg-sage-600 text-white',
-      'Therapy': 'bg-blue-600 text-white',
-      'Fundraiser': 'bg-sunrise-orange text-white'
-    };
-    return colorMap[type] || 'bg-gray-600 text-white';
-  };
-
-  /**
-   * Get the appropriate event image URL with improved handling
-   */
-  const getEventImage = (event: EventForDisplay): string => {
-    // Use image_url from database if available
-    if (event.image_url) {
-      // Use our centralized resolver for consistent URL handling
-      return resolveImageUrl(event.image_url);
-    }
-    
-    // Fall back to type-based images if no specific image URL is available
-    const eventType = event.type as keyof typeof eventTypes;
-    const mappedType = eventTypes[eventType] || 'Workshop';
-    
-    // Return appropriate fallback image based on event type
-    return eventImages[mappedType as keyof typeof eventImages] || imagePaths.caregivers.training;
-  };
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, originalUrl: string) => {
-    console.warn(`Failed to load event image: ${originalUrl}`);
-    const target = e.target as HTMLImageElement;
-    // Use a consistent fallback path
-    target.src = getImagePath('images/placeholder.jpg');
-  };
   const uniqueEventTypes = ['all', ...Array.from(new Set(Object.values(eventTypes)))];
 
   return (
