@@ -9,6 +9,8 @@
 import { supabase } from '../lib/supabase-secure';
 import { getImagePath } from './imagePaths';
 import { getBaseUrl, isProduction } from './url-helpers';
+import { logImageUrlDebug } from './debug-helpers';
+import { getFallbackImageUrl, isImageAvailable } from './image-fallback-helper';
 
 // Cache for verified image paths
 const imagePathCache = new Map<string, string>();
@@ -48,13 +50,41 @@ export function resolveImageUrl(imageUrl: string | null | undefined): string {
   else {
     // Check if it's a path within our media bucket in Supabase
     if (imageUrl.startsWith('media/')) {
-      // Get the public URL for the file
-      const { data: urlData } = supabase.storage
-        .from('media')
-        .getPublicUrl(imageUrl.replace('media/', ''));
+      try {
+        // Try Supabase storage first
+        const { data: urlData } = supabase.storage
+          .from('media')
+          .getPublicUrl(imageUrl.replace('media/', ''));
+          
+        if (urlData && urlData.publicUrl) {
+          resolvedUrl = urlData.publicUrl;
+          console.debug(`[Image Resolver] Converted to Supabase URL: ${imageUrl} → ${resolvedUrl.substring(0, 50)}...`);
+        } else {
+          throw new Error('No public URL returned from Supabase');
+        }
+      } catch (err) {
+        // If Supabase fails, use a smart fallback strategy
+        console.warn(`[Image Resolver] Supabase failed for ${imageUrl}, using fallback strategy`);
         
-      resolvedUrl = urlData.publicUrl;
-      console.debug(`[Image Resolver] Converted to Supabase URL: ${imageUrl} → ${resolvedUrl.substring(0, 50)}...`);
+        if (isProduction() && typeof window !== 'undefined' && window.location.hostname.includes('github.io')) {
+          // For GitHub Pages, first try to construct the full URL
+          const repoName = window.location.pathname.split('/')[1] || 'ShatamCareFoundation';
+          const attemptedUrl = `${window.location.origin}/${repoName}/${imageUrl}`;
+          
+          // But since we know this file likely doesn't exist, use a fallback image instead
+          resolvedUrl = getFallbackImageUrl(imageUrl);
+          console.debug(`[Image Resolver] Using fallback image for ${imageUrl}: ${resolvedUrl}`);
+        } else {
+          // For local development, try the original path first, then fallback
+          const localPath = getImagePath(imageUrl);
+          if (isImageAvailable(localPath)) {
+            resolvedUrl = localPath;
+          } else {
+            resolvedUrl = getFallbackImageUrl(imageUrl);
+            console.debug(`[Image Resolver] Using fallback image for local ${imageUrl}: ${resolvedUrl}`);
+          }
+        }
+      }
     } else {
       // Use our existing getImagePath utility for local paths
       // This handles the base URL based on environment
@@ -66,12 +96,17 @@ export function resolveImageUrl(imageUrl: string | null | undefined): string {
   // Store in cache
   imagePathCache.set(imageUrl, resolvedUrl);
   
+  // Log detailed debug information
+  logImageUrlDebug(imageUrl, resolvedUrl, 'resolveImageUrl');
+  
   return resolvedUrl;
 }
 
 /**
  * Checks if the provided URL is a valid image path
  * and returns a fallback if not
+ * 
+ * Note: For most cases, use resolveImageUrl directly instead
  */
 export function getImageWithFallback(imageUrl: string | null | undefined, fallbackPath = 'images/placeholder.jpg'): string {
   // First resolve the URL
@@ -81,6 +116,9 @@ export function getImageWithFallback(imageUrl: string | null | undefined, fallba
   if (!resolvedUrl) {
     return getImagePath(fallbackPath);
   }
+  
+  // Log that this function was used
+  console.info('[Image Resolver] Used getImageWithFallback for:', imageUrl, '→', resolvedUrl);
   
   // Return the resolved URL
   return resolvedUrl;
