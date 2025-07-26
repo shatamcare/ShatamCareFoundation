@@ -16,10 +16,13 @@ import { getImagePath } from './imagePaths';
 export const FALLBACK_IMAGE_MAP: Record<string, string> = {
   'art': getImagePath('images/Media/EHA9.jpg'),
   'activity': getImagePath('images/Media/EHA9.jpg'),
+  'activity205': getImagePath('images/Media/EHA9.jpg'),  // Specific mapping for missing file
   'event': getImagePath('images/Media/EHA9.jpg'),
+  'program': getImagePath('images/Media/EHA9.jpg'),
   'news': getImagePath('images/Media/News.jpg'),
   'media': getImagePath('images/Media/News.jpg'),
   'tweet': getImagePath('images/Media/tweet.jpg'),
+  'social': getImagePath('images/Media/tweet.jpg'),
   'default': getImagePath('images/placeholder.jpg')
 };
 

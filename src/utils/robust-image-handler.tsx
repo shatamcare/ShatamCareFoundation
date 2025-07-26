@@ -35,10 +35,10 @@ export function sanitizeFilename(filename: string): string {
 /**
  * Constructs a safe image path with fallback handling
  * @param imagePath Original image path
- * @param baseFolder Base folder (e.g., 'media', 'images')
+ * @param baseFolder Base folder (e.g., 'images/Media', 'images')
  * @returns Sanitized and properly constructed image URL
  */
-export function constructSafeImagePath(imagePath: string, baseFolder: string = 'media'): string {
+export function constructSafeImagePath(imagePath: string, baseFolder: string = 'images/Media'): string {
   if (!imagePath) {
     return getFallbackImageByKeyword('default');
   }
@@ -57,7 +57,18 @@ export function constructSafeImagePath(imagePath: string, baseFolder: string = '
   const filename = imagePath.split('/').pop() || imagePath;
   const sanitizedFilename = sanitizeFilename(filename);
   
+  // Map common media folder names to actual folder structure
+  let actualFolder = baseFolder;
+  if (baseFolder === 'media') {
+    actualFolder = 'images/Media';
+  }
+  
   // Construct the full path
+  const fullPath = `${actualFolder}/${sanitizedFilename}`;
+  
+  // Use existing image path utility for GitHub Pages compatibility
+  return getImagePath(fullPath);
+}
   const fullPath = `${baseFolder}/${sanitizedFilename}`;
   
   // Use existing image path utility for GitHub Pages compatibility
@@ -100,7 +111,7 @@ function logImageIssue(issue: string, imageUrl: string, suggestions?: string[]):
  * @param baseFolder Base folder for the image (default: 'media')
  * @returns Object with imageSrc, onError handler, and loading state
  */
-export function useRobustImage(initialImagePath: string, baseFolder: string = 'media') {
+export function useRobustImage(initialImagePath: string, baseFolder: string = 'images/Media') {
   const [imageSrc, setImageSrc] = useState<string>(() => 
     constructSafeImagePath(initialImagePath, baseFolder)
   );
@@ -207,7 +218,7 @@ interface SafeImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>,
 
 export function SafeImage({ 
   src, 
-  baseFolder = 'media', 
+  baseFolder = 'images/Media', 
   showLoadingSpinner = false,
   fallbackClassName = '',
   className = '',
@@ -241,7 +252,7 @@ export function SafeImage({
  * @param baseFolder Base folder
  * @returns Object with safe image properties
  */
-export function createSafeImageProps(imagePath: string, baseFolder: string = 'media') {
+export function createSafeImageProps(imagePath: string, baseFolder: string = 'images/Media') {
   const safeImagePath = constructSafeImagePath(imagePath, baseFolder);
   
   return {
