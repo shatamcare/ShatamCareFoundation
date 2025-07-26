@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Header from "./components/Header"; // FIX: Added this import
@@ -35,25 +35,21 @@ const isDev = import.meta.env.DEV;
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // Start with false - no loading screen
-  
-  // Determine basename for router
-  const basename = import.meta.env.PROD ? '/ShatamCareFoundation' : undefined;
 
-  // Handle GitHub Pages SPA redirects
-  useEffect(() => {
-    // Handle redirects from 404.html for GitHub Pages SPA
-    const handleRedirect = () => {
-      const search = window.location.search;
-      if (search.includes('?/')) {
-        const redirectPath = search.slice(2).replace(/&/g, '&').replace(/~and~/g, '&');
-        if (redirectPath) {
-          window.history.replaceState(null, null, basename ? `${basename}${redirectPath}` : redirectPath);
-        }
-      }
-    };
+  // Handle GitHub Pages SPA redirects - NO LONGER NEEDED WITH HASHROUTER
+  // useEffect(() => {
+  //   const handleRedirect = () => {
+  //     const search = window.location.search;
+  //     if (search.includes('?/')) {
+  //       const redirectPath = search.slice(2).replace(/&/g, '&').replace(/~and~/g, '&');
+  //       if (redirectPath) {
+  //         window.history.replaceState(null, null, '/ShatamCareFoundation' + redirectPath);
+  //       }
+  //     }
+  //   };
 
-    handleRedirect();
-  }, [basename]);
+  //   handleRedirect();
+  // }, []);
 
   // Minimal loading state management - only if needed
   useEffect(() => {
@@ -79,13 +75,7 @@ const App = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : (
-            <BrowserRouter 
-              basename={basename}
-              future={{
-                v7_startTransition: true,
-                v7_relativeSplatPath: true
-              }}
-            >
+            <HashRouter>
               <Header /> {/* FIX: Added the Header component here */}
               <main className="min-h-screen">
                 <Routes>
@@ -113,7 +103,7 @@ const App = () => {
               </main>
               <Toaster />
               <Sonner />
-            </BrowserRouter>
+            </HashRouter>
           )}
         </TooltipProvider>
       </QueryClientProvider>
