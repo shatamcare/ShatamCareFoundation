@@ -10,6 +10,7 @@ import { getImagePath } from '@/utils/imagePaths';
 import { fixImageUrl } from '@/utils/imageUrlFixer';
 import { resolveImageUrl, getImageWithFallback, standardizeImagePath } from '@/utils/imageUrlResolver';
 import { getAllAvailableImages, type ImageFile } from '@/utils/dynamicImageLoader';
+import { SafeImage } from '@/utils/robust-image-handler';
 import { toast } from '@/hooks/use-toast';
 import ImageSelector from './ImageSelector';
 import { 
@@ -517,14 +518,11 @@ const EventsPage: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   {newEvent.image_url && (
                     <div className="flex items-center space-x-2">
-                      <img 
-                        src={resolveImageUrl(newEvent.image_url)} 
+                      <SafeImage 
+                        src={newEvent.image_url} 
                         alt="Selected event image" 
                         className="w-16 h-16 object-cover rounded-lg border"
-                        onError={(e) => {
-                          console.warn(`Failed to load preview: ${newEvent.image_url}`);
-                          e.currentTarget.src = getImagePath('images/placeholder.jpg');
-                        }}
+                        baseFolder="media"
                       />
                       <Button
                         type="button"
@@ -638,14 +636,11 @@ const EventsPage: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       {editingEvent.image_url && (
                         <div className="flex items-center space-x-2">
-                          <img 
-                            src={resolveImageUrl(editingEvent.image_url)} 
+                          <SafeImage 
+                            src={editingEvent.image_url} 
                             alt="Selected event image" 
                             className="w-16 h-16 object-cover rounded-lg border"
-                            onError={(e) => {
-                              console.warn(`Failed to load preview: ${editingEvent.image_url}`);
-                              e.currentTarget.src = getImagePath('images/placeholder.jpg');
-                            }}
+                            baseFolder="media"
                           />
                           <Button
                             type="button"
@@ -695,14 +690,11 @@ const EventsPage: React.FC = () => {
                 <div className="space-y-3">
                   {event.image_url ? (
                     <div className="mb-3">
-                      <img 
-                        src={getImageWithFallback(event.image_url)} 
+                      <SafeImage 
+                        src={event.image_url} 
                         alt={event.title} 
                         className="w-full h-32 object-cover rounded-lg"
-                        onError={(e) => {
-                          console.warn(`Failed to load event image: ${event.image_url}`);
-                          e.currentTarget.src = getImagePath('images/placeholder.jpg');
-                        }}
+                        baseFolder="media"
                       />
                     </div>
                   ) : (

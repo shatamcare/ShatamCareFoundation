@@ -12,6 +12,7 @@ import {
 import { supabase } from '@/lib/supabase-secure';
 import { listMediaFiles } from '@/utils/storage-alternative';
 import { getImagePath } from '@/utils/imagePaths';
+import { SafeImage } from '@/utils/robust-image-handler';
 import { 
   Plus, 
   Edit, 
@@ -484,14 +485,11 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                           }`}
                         >
                           <div className="aspect-square overflow-hidden rounded">
-                            <img 
+                            <SafeImage 
                               src={imageUrl} 
                               alt={imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
                               className="w-full h-full object-cover"
-                              onError={(e) => {
-                                console.warn(`Failed to load image: ${imageUrl}`);
-                                e.currentTarget.src = getImagePath('images/placeholder.jpg');
-                              }}
+                              baseFolder="media"
                             />
                           </div>
                           <p className="text-xs text-center mt-1 truncate">
@@ -509,14 +507,11 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                   {formData.image_url && (
                     <div className="mt-3 p-3 bg-gray-50 rounded-md">
                       <p className="text-sm text-gray-600 mb-2">Selected Image Preview:</p>
-                      <img 
+                      <SafeImage 
                         src={formData.image_url} 
                         alt="Selected preview" 
                         className="w-40 h-30 object-cover rounded-md border"
-                        onError={(e) => {
-                          console.warn(`Failed to load preview image: ${formData.image_url}`);
-                          e.currentTarget.style.display = 'none';
-                        }}
+                        baseFolder="media"
                       />
                     </div>
                   )}
@@ -603,14 +598,11 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                           
                           {program.image_url && (
                             <div className="mt-3">
-                              <img 
-                                src={getImageUrl(program.image_url)} 
+                              <SafeImage 
+                                src={program.image_url} 
                                 alt={program.title}
                                 className="w-24 h-16 object-cover rounded-md border"
-                                onError={(e) => {
-                                  console.warn(`Failed to load image: ${program.image_url}`);
-                                  e.currentTarget.style.display = 'none';
-                                }}
+                                baseFolder="media"
                               />
                             </div>
                           )}

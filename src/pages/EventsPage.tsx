@@ -5,6 +5,7 @@ import { Calendar, Clock, MapPinIcon, ArrowRight, Filter, Search, Users, Chevron
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
 import { imagePaths, getImagePath } from '@/utils/imagePaths';
+import { SafeImage } from '@/utils/robust-image-handler';
 import { useResolvedImage } from '@/hooks/use-resolved-image';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -282,15 +283,12 @@ const EventsPage = () => {
               return (
                 <Card key={event.id} className="bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
                   <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={getImageWithFallback(event.image_url)}
+                    <SafeImage 
+                      src={event.image_url}
                       alt={event.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
-                      onError={(e) => {
-                        console.warn(`Failed to load event image: ${event.image_url}`);
-                        e.currentTarget.src = getImagePath('images/placeholder.jpg');
-                      }}
+                      baseFolder="media"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                     <div className="absolute top-4 left-4">
