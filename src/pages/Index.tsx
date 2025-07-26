@@ -10,6 +10,7 @@ import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages
 import { fixImageUrl } from '@/utils/imageUrlFixer';
 import { getEventImageUrl } from '@/utils/imageFixer';
 import { throttle } from '@/utils/performance';
+import { SafeImage, createSafeImageProps } from '@/utils/robust-image-handler';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
@@ -107,13 +108,14 @@ const Index = () => {
     }
   }, [expandedProgram]);
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imageSrc: string) => {
-    if (!e.currentTarget.src.startsWith('data:image/svg+xml')) {
-      console.warn(`Failed to load image: ${imageSrc}`);
-      e.currentTarget.src = fallbackImageDataUrl;
-      e.currentTarget.onerror = null;
-    }
-  };
+  // Legacy image error handler - replaced with robust-image-handler
+  // const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imageSrc: string) => {
+  //   if (!e.currentTarget.src.startsWith('data:image/svg+xml')) {
+  //     console.warn(`Failed to load image: ${imageSrc}`);
+  //     e.currentTarget.src = fallbackImageDataUrl;
+  //     e.currentTarget.onerror = null;
+  //   }
+  // };
 
   const impactStats = [{ number: "7", label: "Cities Reached", description: "Expanding across India" }, { number: "3,600+", label: "Therapy Sessions", description: "Cognitive stimulation delivered" }, { number: "1,500+", label: "Caregivers Trained", description: "Professional certification provided" }, { number: "800+", label: "Families Supported", description: "Through our programs" }, { number: "120+", label: "Elderly Served", description: "In residential care" }];
   const donationOptions = [{ amount: "₹1,200", purpose: "Brain Bridge Therapy Kit", impact: "Helps 1 elderly person for 3 months", popular: false }, { amount: "₹2,000", purpose: "Support Group Session", impact: "Supports 5 families in one session", popular: false }, { amount: "₹15,000", purpose: "Complete Caregiver Training", impact: "Trains 1 caregiver completely", popular: true }, { amount: "₹50,000", purpose: "Dementia Care Home Development", impact: "Contributes to facility development", popular: false }];
@@ -255,7 +257,14 @@ const Index = () => {
                 {programs.map((program, index) => (
                   <Card key={index} className="program-card bg-white hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-lg group overflow-hidden">
                     <div className="relative h-48 overflow-hidden">
-                      <img src={program.image} alt={program.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" onError={(e) => handleImageError(e, program.image)} />
+                      <SafeImage 
+                        src={program.image} 
+                        alt={program.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        loading="lazy"
+                        baseFolder="images"
+                        showLoadingSpinner={true}
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-3"><program.icon className="h-6 w-6 text-warm-teal" /></div>
                       <div className="absolute bottom-4 left-4 text-white"><div className="text-sm font-medium bg-warm-teal/80 px-3 py-1 rounded-full">{program.impact}</div></div>
@@ -321,7 +330,14 @@ const Index = () => {
                 {upcomingEvents.map((event) => (
                   <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
                     <div className="relative h-48 overflow-hidden">
-                      <img src={event.image} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" onError={(e) => handleImageError(e, event.image)} />
+                      <SafeImage 
+                        src={event.image} 
+                        alt={event.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        loading="lazy"
+                        baseFolder="media"
+                        showLoadingSpinner={true}
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                       <div className="absolute top-4 left-4"><span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>{event.type}</span></div>
                     </div>
@@ -376,7 +392,14 @@ const Index = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="text-center lg:text-left">
                 <div className="relative inline-block">
-                  <img src={imagePaths.team.amrita} alt="Amrita Patil, Founder" className="w-64 h-64 lg:w-72 lg:h-72 rounded-2xl object-cover shadow-xl" loading="lazy" onError={(e) => handleImageError(e, imagePaths.team.amrita)} />
+                  <SafeImage 
+                    src={imagePaths.team.amrita} 
+                    alt="Amrita Patil, Founder" 
+                    className="w-64 h-64 lg:w-72 lg:h-72 rounded-2xl object-cover shadow-xl" 
+                    loading="lazy"
+                    baseFolder="images"
+                    showLoadingSpinner={true}
+                  />
                   <div className="absolute -bottom-3 -right-3 bg-gradient-to-br from-warm-teal to-sunrise-orange p-3 rounded-xl shadow-lg"><Award className="h-6 w-6 text-white" /></div>
                 </div>
               </div>
@@ -411,7 +434,12 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <img src={imagePaths.team.logo} alt="Shatam Care Foundation Logo" className="h-10 w-auto object-contain brightness-0 invert" onError={(e) => handleImageError(e, imagePaths.team.logo)} />
+                <SafeImage 
+                  src={imagePaths.team.logo} 
+                  alt="Shatam Care Foundation Logo" 
+                  className="h-10 w-auto object-contain brightness-0 invert"
+                  baseFolder="images"
+                />
                 <div>
                   <h3 className="text-lg font-bold text-white">Shatam Care</h3>
                   <p className="text-sm text-warm-teal-300">Foundation</p>
