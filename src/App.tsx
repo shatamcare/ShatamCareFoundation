@@ -36,23 +36,8 @@ const isDev = import.meta.env.DEV;
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // Start with false - no loading screen
   
-  // Determine basename for HashRouter in production
-  const basename = import.meta.env.PROD ? '/ShatamCareFoundation' : undefined;
-
-  // Handle GitHub Pages SPA redirects - NO LONGER NEEDED WITH HASHROUTER
-  // useEffect(() => {
-  //   const handleRedirect = () => {
-  //     const search = window.location.search;
-  //     if (search.includes('?/')) {
-  //       const redirectPath = search.slice(2).replace(/&/g, '&').replace(/~and~/g, '&');
-  //       if (redirectPath) {
-  //         window.history.replaceState(null, null, '/ShatamCareFoundation' + redirectPath);
-  //       }
-  //     }
-  //   };
-
-  //   handleRedirect();
-  // }, []);
+  // HashRouter doesn't need basename for GitHub Pages
+  // The hash-based routing will handle the path internally
 
   // Minimal loading state management - only if needed
   useEffect(() => {
@@ -78,7 +63,7 @@ const App = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : (
-            <HashRouter basename={basename}>
+            <HashRouter>
               <Header /> {/* FIX: Added the Header component here */}
               <main className="min-h-screen">
                 <Routes>
