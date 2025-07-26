@@ -82,60 +82,25 @@ export const getImagePath = (imagePath: string): string => {
       return imagePath;
     }
 
-    const baseUrl = getBaseUrl();
+    // For GitHub Pages with HashRouter, we need to use the static asset path
     const isProd = isProduction();
+    const isGitHubPagesDirect = typeof window !== 'undefined' && 
+      window.location.hostname === 'adarshalexbalmuchu.github.io';
     
-    // Additional check for GitHub Pages - if we're on github.io domain, force production mode
-    const isGitHubPagesDirect = typeof window !== 'undefined' && window.location.hostname === 'adarshalexbalmuchu.github.io';
-    
-    // Check if the path already has the base URL applied
-    if (imagePath.startsWith(baseUrl)) {
-      return imagePath;
-    }
-
-    // Check if the path already starts with ShatamCareFoundation/ to prevent double-prefixing
-    if (imagePath.startsWith('ShatamCareFoundation/')) {
-      // If it already has the base path, just add leading slash and encode
-      const encodedPath = encodeImagePath(imagePath);
-      return `/${encodedPath}`;
-    }
-
-    // Handle legacy image paths that might have problematic characters
-    let cleanImagePath = imagePath;
-    
-    // Fix known problematic paths
-    if (cleanImagePath.includes('art 1.jpg')) {
-      cleanImagePath = cleanImagePath.replace('art 1.jpg', 'art.jpg');
-    }
-
     // Remove leading slash if present to avoid double slashes
-    let cleanPath = cleanImagePath.startsWith('/') ? cleanImagePath.slice(1) : cleanImagePath;
+    let cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
     
     // Properly encode the path to handle spaces and special characters
     cleanPath = encodeImagePath(cleanPath);
     
-    // For production (GitHub Pages), combine base URL with path
-    // For development, just add a leading slash
-    let fullPath: string;
+    // For GitHub Pages production, always use the repository path
     if (isProd || isGitHubPagesDirect) {
-      // Use base URL with trailing slash, concatenate clean path
-      const productionBase = isGitHubPagesDirect ? '/ShatamCareFoundation/' : baseUrl;
-      fullPath = `${productionBase}${cleanPath}`;
+      // GitHub Pages static assets are served from the repository root
+      return `/ShatamCareFoundation/${cleanPath}`;
     } else {
       // In development, just ensure it starts with /
-      fullPath = `/${cleanPath}`;
+      return `/${cleanPath}`;
     }
-    
-    // Verify the image path exists (only in production to avoid dev server issues)
-    if (isProd || isGitHubPagesDirect) {
-      verifyImagePath(fullPath).then(exists => {
-        if (!exists) {
-          console.warn(`Image not found: ${fullPath}`);
-        }
-      });
-    }
-    
-    return fullPath;
   } catch (error) {
     console.error('Error in getImagePath:', error);
     return fallbackImageDataUrl;
