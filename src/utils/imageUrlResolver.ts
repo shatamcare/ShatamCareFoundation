@@ -113,27 +113,26 @@ export function getImageWithFallback(imageUrl: string | null | undefined, fallba
  */
 export function standardizeImagePath(imageUrl: string | null | undefined): string {
   if (!imageUrl) return '';
-  
-  // If it's already a Supabase URL, extract just the path part
+
+  let filename: string;
+
+  // Case 1: Full Supabase URL
   if (imageUrl.includes('supabase.co/storage/v1/object/public')) {
-    // Extract just the filename from the full URL
-    const matches = imageUrl.match(/\/([^/]+)$/);
-    if (matches && matches[1]) {
-      return `media/${matches[1]}`;
-    }
+    // Extract the last part of the URL, which is the filename
+    filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+  } 
+  // Case 2: Path that includes a directory, like 'media/...' or 'images/...'
+  else if (imageUrl.includes('/')) {
+    filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+  } 
+  // Case 3: Just the filename
+  else {
+    filename = imageUrl;
   }
-  
-  // If it starts with media/, it's already in the correct format
-  if (imageUrl.startsWith('media/')) {
-    return imageUrl;
-  }
-  
-  // For local paths, add media/ prefix if needed
-  const baseUrl = getBaseUrl();
-  const cleanUrl = imageUrl
-    .replace(baseUrl, '')
-    .replace(/^\//, '')
-    .replace(/^images\//, 'media/');
-    
-  return cleanUrl;
+
+  // Remove the numeric prefix (e.g., "12345-") from the extracted filename
+  const strippedFilename = filename.replace(/^\d+-/, '');
+
+  // Return the standardized path with the 'media/' prefix
+  return `media/${strippedFilename}`;
 }

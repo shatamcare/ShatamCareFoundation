@@ -20,14 +20,16 @@ import {
   Eye,
   Copy,
   X,
-  Plus
+  Plus,
+  Edit3
 } from 'lucide-react';
 import { 
   checkBucketExistsAlternative,
   testStorageUpload,
   uploadFile,
   listMediaFiles,
-  deleteFile 
+  deleteFile,
+  renameFile
 } from '../../utils/storage-alternative';
 import { logAdminActivity } from '../../lib/supabase-secure';
 import SetupAssistant from './SetupAssistant';
@@ -61,6 +63,9 @@ const MediaPage: React.FC = () => {
   const [bucketExists, setBucketExists] = useState<boolean | null>(null);
   const [showSetupAssistant, setShowSetupAssistant] = useState(false);
   const [showDiagnostic, setShowDiagnostic] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [fileToRename, setFileToRename] = useState<MediaFile | null>(null);
+  const [newFileName, setNewFileName] = useState('');
 
   // Categories removed
 
@@ -202,6 +207,46 @@ const MediaPage: React.FC = () => {
       console.error('Delete error:', error);
       setError('Failed to delete file');
     }
+  };
+
+  const handleRenameFile = async () => {
+    if (!fileToRename || !newFileName.trim()) return;
+    
+    try {
+      const result = await renameFile(fileToRename.path || fileToRename.id || '', newFileName.trim());
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to rename file');
+      }
+      
+      await logAdminActivity(
+        'rename_media',
+        'media_file',
+        fileToRename.id,
+        { 
+          oldName: fileToRename.name, 
+          newName: result.newPath || newFileName,
+          path: result.newPath 
+        }
+      );
+      
+      setSuccess(`File renamed successfully to "${result.newPath || newFileName}"`);
+      setShowRenameModal(false);
+      setFileToRename(null);
+      setNewFileName('');
+      await loadMediaFiles(); // Reload media files
+    } catch (error) {
+      console.error('Rename error:', error);
+      setError('Failed to rename file');
+    }
+  };
+
+  const openRenameModal = (file: MediaFile) => {
+    setFileToRename(file);
+    // Remove file extension for editing
+    const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+    setNewFileName(nameWithoutExt);
+    setShowRenameModal(true);
   };
 
   const copyToClipboard = (url: string) => {
@@ -505,6 +550,13 @@ const MediaPage: React.FC = () => {
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
+                          onClick={() => openRenameModal(file)}
+                          className="p-1 hover:bg-blue-200 rounded text-blue-600"
+                          title="Rename file"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => copyToClipboard(file.url)}
                           className="p-1 hover:bg-gray-200 rounded"
                           title="Copy URL"
@@ -569,6 +621,13 @@ const MediaPage: React.FC = () => {
                         title="View details"
                       >
                         <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => openRenameModal(file)}
+                        className="p-2 hover:bg-blue-100 rounded text-blue-600"
+                        title="Rename file"
+                      >
+                        <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => copyToClipboard(file.url)}
@@ -739,6 +798,80 @@ const MediaPage: React.FC = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename Modal */}
+      {showRenameModal && fileToRename && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">Rename File</h3>
+              <button
+                onClick={() => {
+                  setShowRenameModal(false);
+                  setFileToRename(null);
+                  setNewFileName('');
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current name:
+                </label>
+                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                  {fileToRename.name}
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  New name (without extension):
+                </label>
+                <Input
+                  type="text"
+                  value={newFileName}
+                  onChange={(e) => setNewFileName(e.target.value)}
+                  placeholder="Enter new filename"
+                  className="w-full"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleRenameFile();
+                    }
+                  }}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  The file extension will be preserved automatically
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3 mt-6">
+              <Button
+                onClick={handleRenameFile}
+                disabled={!newFileName.trim()}
+                className="flex-1"
+              >
+                Rename File
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRenameModal(false);
+                  setFileToRename(null);
+                  setNewFileName('');
+                }}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </div>

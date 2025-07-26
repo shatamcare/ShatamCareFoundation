@@ -161,3 +161,34 @@ export async function deleteFile(path: string): Promise<{ success: boolean; erro
     };
   }
 }
+
+export async function renameFile(
+  oldPath: string, 
+  newFilename: string
+): Promise<{ success: boolean; error?: string; newPath?: string }> {
+  try {
+    // Extract the file extension from the old path
+    const oldFilename = oldPath.split('/').pop() || oldPath;
+    const extension = oldFilename.includes('.') ? oldFilename.split('.').pop() : '';
+    
+    // Ensure the new filename has the correct extension
+    const cleanNewFilename = newFilename.replace(/\.[^/.]+$/, ''); // Remove any extension user might have added
+    const newPath = extension ? `${cleanNewFilename}.${extension}` : cleanNewFilename;
+    
+    // Use Supabase storage move operation
+    const { data, error } = await supabase.storage
+      .from('media')
+      .move(oldPath, newPath);
+    
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    
+    return { success: true, newPath };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
