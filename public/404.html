@@ -4,25 +4,27 @@
     <meta charset="utf-8">
     <title>Shatam Care Foundation</title>
     <script>
-        // GitHub Pages SPA redirect for HashRouter
+        // GitHub Pages SPA redirect for HashRouter - Enhanced
         (function() {
-            var path = window.location.pathname.slice(1); // Remove leading slash
-            var basePath = 'ShatamCareFoundation';
+            var path = window.location.pathname;
+            var basePath = '/ShatamCareFoundation';
             
-            // Remove base path if it exists
-            if (path.startsWith(basePath + '/')) {
-                path = path.slice(basePath.length + 1);
-            } else if (path === basePath) {
-                path = '';
-            }
+            console.log('404 redirect - Current path:', path);
             
-            // For HashRouter, redirect to base URL with hash
-            if (path && path !== '') {
-                var redirectUrl = '/' + basePath + '/#/' + path;
+            // Remove leading slash and extract the route
+            var cleanPath = path.replace(basePath, '').replace(/^\//, '');
+            
+            console.log('404 redirect - Clean path:', cleanPath);
+            
+            // Always redirect to HashRouter format
+            if (cleanPath) {
+                var redirectUrl = basePath + '/#/' + cleanPath;
+                console.log('404 redirect - Redirecting to:', redirectUrl);
                 window.location.replace(redirectUrl);
             } else {
                 // Redirect to home
-                window.location.replace('/' + basePath + '/');
+                console.log('404 redirect - Redirecting to home');
+                window.location.replace(basePath + '/');
             }
         })();
     </script>
@@ -30,7 +32,7 @@
 <body>
     <div style="text-align: center; margin-top: 100px; font-family: Arial, sans-serif;">
         <h2>Redirecting...</h2>
-        <p>If you are not redirected automatically, <a href="/ShatamCareFoundation/">click here</a>.</p>
+        <p>If you are not redirected automatically, <a href="/ShatamCareFoundation/#/admin">click here for admin</a> or <a href="/ShatamCareFoundation/">go home</a>.</p>
     </div>
 </body>
 </html>
