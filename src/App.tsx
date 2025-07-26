@@ -35,6 +35,9 @@ const isDev = import.meta.env.DEV;
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(false); // Start with false - no loading screen
+  
+  // Determine basename for HashRouter in production
+  const basename = import.meta.env.PROD ? '/ShatamCareFoundation' : undefined;
 
   // Handle GitHub Pages SPA redirects - NO LONGER NEEDED WITH HASHROUTER
   // useEffect(() => {
@@ -75,7 +78,7 @@ const App = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : (
-            <HashRouter>
+            <HashRouter basename={basename}>
               <Header /> {/* FIX: Added the Header component here */}
               <main className="min-h-screen">
                 <Routes>

@@ -23,7 +23,7 @@ export const isProduction = (): boolean => {
 export const getBaseUrl = (): string => {
   // Only use the ShatamCareFoundation path in production (GitHub Pages)
   if (isProduction()) {
-    return '/ShatamCareFoundation/';
+    return '/ShatamCareFoundation';
   }
   // In development, use empty string
   return '';
@@ -103,4 +103,26 @@ export const fixUrl = (url: string): string => {
   }
   
   return url;
+};
+
+/**
+ * Safely executes querySelector with hash-based selectors
+ * Handles cases where selectors might contain invalid characters for CSS selectors
+ * 
+ * @param selector The CSS selector to use
+ * @returns The selected element or null if not found or invalid
+ */
+export const safeQuerySelector = (selector: string): Element | null => {
+  try {
+    // Skip selectors that contain forward slashes (likely route hashes)
+    if (selector.includes('/')) {
+      console.warn('Skipping potentially invalid selector with forward slash:', selector);
+      return null;
+    }
+    
+    return document.querySelector(selector);
+  } catch (error) {
+    console.warn('Invalid selector for querySelector:', selector, error);
+    return null;
+  }
 };

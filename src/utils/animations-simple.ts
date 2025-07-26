@@ -22,11 +22,19 @@ export const initSmoothScroll = () => {
   // Lightweight scroll implementation
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-      e.preventDefault();
       const targetId = this.getAttribute('href');
-      const target = targetId ? document.querySelector(targetId) : null;
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Only handle actual anchor links (like #home, #about), not route hashes (like #/admin)
+      if (targetId && !targetId.includes('/')) {
+        e.preventDefault();
+        try {
+          const target = document.querySelector(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } catch (error) {
+          console.warn('Invalid selector for smooth scroll:', targetId, error);
+        }
       }
     });
   });

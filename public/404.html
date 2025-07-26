@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Shatam Care Foundation</title>
     <script>
-        // GitHub Pages SPA redirect - simplified approach
+        // GitHub Pages SPA redirect for HashRouter
         (function() {
             var path = window.location.pathname.slice(1); // Remove leading slash
             var basePath = 'ShatamCareFoundation';
@@ -16,13 +16,13 @@
                 path = '';
             }
             
-            // Redirect to base URL with path as query parameter
+            // For HashRouter, redirect to base URL with hash
             if (path && path !== '') {
-                window.location.replace('/ShatamCareFoundation/?/' + path + 
-                    (window.location.search ? '&' + window.location.search.slice(1) : '') +
-                    window.location.hash);
+                var redirectUrl = '/' + basePath + '/#/' + path;
+                window.location.replace(redirectUrl);
             } else {
-                window.location.replace('/ShatamCareFoundation/');
+                // Redirect to home
+                window.location.replace('/' + basePath + '/');
             }
         })();
     </script>
