@@ -11,6 +11,17 @@ export const safeInitAnimations = () => {
       loadingElements.forEach(el => el.classList.remove('loading'));
     });
     
+    // Prevent any hash route conflicts
+    if (typeof window !== 'undefined') {
+      // Override any existing smooth scroll behavior that might interfere
+      window.addEventListener('hashchange', (e) => {
+        // Don't interfere with router hash changes
+        if (window.location.hash.includes('/')) {
+          return; // Let React Router handle this
+        }
+      });
+    }
+    
   } catch (error) {
     console.error('Animation initialization failed:', error);
     document.body.classList.remove('loading');
@@ -25,12 +36,18 @@ export const initSmoothScroll = () => {
       const targetId = this.getAttribute('href');
       
       // Only handle actual anchor links (like #home, #about), not route hashes (like #/admin)
-      if (targetId && !targetId.includes('/')) {
+      // Skip any href that contains forward slashes (route patterns)
+      if (targetId && !targetId.includes('/') && targetId !== '#') {
         e.preventDefault();
         try {
-          const target = document.querySelector(targetId);
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Double-check that this is a valid CSS selector before using it
+          if (targetId.match(/^#[a-zA-Z][\w-]*$/)) {
+            const target = document.querySelector(targetId);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          } else {
+            console.warn('Skipping invalid CSS selector for smooth scroll:', targetId);
           }
         } catch (error) {
           console.warn('Invalid selector for smooth scroll:', targetId, error);
