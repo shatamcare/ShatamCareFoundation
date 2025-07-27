@@ -19,12 +19,37 @@ export function SafeImage({
   className = '',
   ...props 
 }: SafeImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(() => {
+    // If src is already a full Supabase URL, use it directly
+    if (src.includes('supabase.co/storage/v1/object/public')) {
+      return src;
+    }
+    
+    // For relative paths like "media/Activity 1.jpg", convert to proper Supabase URL with encoding
+    if (src.startsWith('media/')) {
+      const filename = src.replace('media/', '');
+      // URL encode the filename to handle spaces and special characters
+      const encodedFilename = encodeURIComponent(filename);
+      return `https://uumavtvxuncetfqwlgvp.supabase.co/storage/v1/object/public/media/${encodedFilename}`;
+    }
+    
+    // Otherwise use as-is
+    return src;
+  });
   const [hasError, setHasError] = useState(false);
 
   // Reset image state when src changes
   useEffect(() => {
-    setImgSrc(src);
+    // Apply the same logic when src changes
+    if (src.includes('supabase.co/storage/v1/object/public')) {
+      setImgSrc(src);
+    } else if (src.startsWith('media/')) {
+      const filename = src.replace('media/', '');
+      const encodedFilename = encodeURIComponent(filename);
+      setImgSrc(`https://uumavtvxuncetfqwlgvp.supabase.co/storage/v1/object/public/media/${encodedFilename}`);
+    } else {
+      setImgSrc(src);
+    }
     setHasError(false);
   }, [src]);
 
