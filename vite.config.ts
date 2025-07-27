@@ -15,6 +15,8 @@ export default defineConfig(({ command, mode }) => ({
   define: {
     // Ensure consistent React environment
     'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+    // Suppress React DevTools suggestion in development
+    'process.env.REACT_DEVTOOLS_QUIET': JSON.stringify('true'),
     __DEV__: mode !== 'production'
   },
   resolve: {

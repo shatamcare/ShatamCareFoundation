@@ -8,9 +8,9 @@ import { getEvents, getPrograms, type EventForDisplay, type ProgramForDisplay } 
 import { safeInitAnimations, initSmoothScroll, initLoadingAnimation, initMobileOptimizations, refreshScrollTrigger, cleanupAnimations } from '@/utils/animations-simple';
 import { getImagePath, getBackgroundImagePath, imagePaths, preloadCriticalImages, preloadNearbyImages, preloadHeroImage, optimizeImageLoading, fallbackImageDataUrl } from '@/utils/imagePaths';
 import { fixImageUrl } from '@/utils/imageUrlFixer';
-import { getEventImageUrl } from '@/utils/imageFixer';
 import { throttle } from '@/utils/performance';
-import { SafeImage, createSafeImageProps } from '@/utils/robust-image-handler';
+import { createSafeImageProps } from '@/utils/robust-image-handler';
+import { SafeImage } from '@/components/SafeImage';
 import ContactForm from '@/components/ContactForm';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import EventRegistrationModal from '@/components/EventRegistrationModal';
@@ -21,6 +21,28 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 const ICON_MAP = {
   Heart, Users, BookOpen, Home, Award, Shield, MessageCircle, Calendar, Phone, Mail, MapPin
 } as const;
+
+// Fallback programs with working image paths
+const FALLBACK_PROGRAMS = [
+  {
+    icon: 'Heart',
+    title: 'Brain Bridge Therapy Kit',
+    description: 'Cognitive stimulation therapy tools designed for memory care.',
+    image_url: 'images/Brain Kit/kit.jpg',
+    cta_text: 'Learn More',
+    impact_text: 'Cognitive Support',
+    details: 'Specialized therapy kits designed to support cognitive function and memory care for elderly individuals.'
+  },
+  {
+    icon: 'Users', 
+    title: 'Caregiver Training Program',
+    description: 'Professional training for family and professional caregivers.',
+    image_url: 'images/Caregivers/training.jpg',
+    cta_text: 'Join Training',
+    impact_text: 'Professional Skills',
+    details: 'Comprehensive training program to equip caregivers with professional skills and knowledge for elderly care.'
+  }
+];
 
 const Index = () => {
   const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
@@ -59,16 +81,19 @@ const Index = () => {
   }, []);
 
   const programs = useMemo(() => {
-    if (!databasePrograms) return [];
-    return databasePrograms.map(program => ({
-      icon: getIconComponent(program.icon),
-      title: program.title,
-      description: program.description,
-      image: program.image_url ? getImagePath(program.image_url) : getImagePath('images/fallback.svg'),
-      cta: program.cta_text,
-      impact: program.impact_text,
-      details: program.details
-    }));
+    const programsToUse = databasePrograms && databasePrograms.length > 0 ? databasePrograms : FALLBACK_PROGRAMS;
+    return programsToUse.map(program => {
+      const imagePath = program.image_url ? getImagePath(program.image_url) : getImagePath('images/fallback.svg');
+      return {
+        icon: getIconComponent(program.icon),
+        title: program.title,
+        description: program.description,
+        image: imagePath,
+        cta: program.cta_text,
+        impact: program.impact_text,
+        details: program.details
+      };
+    });
   }, [databasePrograms, getIconComponent]);
 
   const scrollToSection = (sectionId: string) => {
@@ -262,8 +287,6 @@ const Index = () => {
                         alt={program.title} 
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                         loading="lazy"
-                        baseFolder="images"
-                        showLoadingSpinner={true}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full p-3"><program.icon className="h-6 w-6 text-warm-teal" /></div>
@@ -335,8 +358,6 @@ const Index = () => {
                         alt={event.title} 
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                         loading="lazy"
-                        baseFolder="media"
-                        showLoadingSpinner={true}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                       <div className="absolute top-4 left-4"><span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>{event.type}</span></div>
@@ -397,8 +418,6 @@ const Index = () => {
                     alt="Amrita Patil, Founder" 
                     className="w-64 h-64 lg:w-72 lg:h-72 rounded-2xl object-cover shadow-xl" 
                     loading="lazy"
-                    baseFolder="images"
-                    showLoadingSpinner={true}
                   />
                   <div className="absolute -bottom-3 -right-3 bg-gradient-to-br from-warm-teal to-sunrise-orange p-3 rounded-xl shadow-lg"><Award className="h-6 w-6 text-white" /></div>
                 </div>
@@ -438,7 +457,6 @@ const Index = () => {
                   src={imagePaths.team.logo} 
                   alt="Shatam Care Foundation Logo" 
                   className="h-10 w-auto object-contain brightness-0 invert"
-                  baseFolder="images"
                 />
                 <div>
                   <h3 className="text-lg font-bold text-white">Shatam Care</h3>

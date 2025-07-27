@@ -1,5 +1,5 @@
 /**
- * robust-image-handler.ts
+ * robust-image-handler.tsx
  * 
  * A comprehensive solution for handling image loading with:
  * - Filename sanitization
@@ -57,8 +57,14 @@ export function constructSafeImagePath(imagePath: string, baseFolder: string = '
   const filename = imagePath.split('/').pop() || imagePath;
   const sanitizedFilename = sanitizeFilename(filename);
   
+  // Map common media folder names to actual folder structure
+  let actualFolder = baseFolder;
+  if (baseFolder === 'media') {
+    actualFolder = 'images/Media';
+  }
+  
   // Construct the full path
-  const fullPath = `${baseFolder}/${sanitizedFilename}`;
+  const fullPath = `${actualFolder}/${sanitizedFilename}`;
   
   // Use existing image path utility for GitHub Pages compatibility
   return getImagePath(fullPath);
@@ -81,16 +87,9 @@ function shouldRetryImage(imageUrl: string): boolean {
  * @param suggestions Optional suggestions for fixing
  */
 function logImageIssue(issue: string, imageUrl: string, suggestions?: string[]): void {
+  // Simplified logging - only show critical errors
   if (process.env.NODE_ENV === 'development') {
-    console.group(`🖼️ Image Loading Issue: ${issue}`);
-    console.log('URL:', imageUrl);
-    if (suggestions && suggestions.length > 0) {
-      console.log('Suggestions:');
-      suggestions.forEach((suggestion, index) => {
-        console.log(`  ${index + 1}. ${suggestion}`);
-      });
-    }
-    console.groupEnd();
+    console.warn(`Image failed: ${imageUrl}`);
   }
 }
 
@@ -135,24 +134,11 @@ export function useRobustImage(initialImagePath: string, baseFolder: string = 'm
     const currentRetries = retryCount.get(currentSrc) || 0;
     retryCount.set(currentSrc, currentRetries + 1);
 
-    // Log the issue in development
-    logImageIssue(
-      'Failed to load image',
-      currentSrc,
-      [
-        'Check if the file exists in the public folder',
-        'Verify the filename matches exactly (case-sensitive)',
-        'Ensure there are no special characters in the filename',
-        'Consider using a different image format (jpg, png, webp)'
-      ]
-    );
-
     if (shouldRetryImage(currentSrc)) {
       // Try to get a contextual fallback first
       const fallbackUrl = getFallbackImageByKeyword(initialImagePath);
       
       if (fallbackUrl !== currentSrc) {
-        console.log(`Trying fallback image: ${fallbackUrl}`);
         setImageSrc(fallbackUrl);
         return;
       }
@@ -160,7 +146,6 @@ export function useRobustImage(initialImagePath: string, baseFolder: string = 'm
 
     // Mark as permanently failed and use the ultimate fallback
     failedImages.add(currentSrc);
-    console.warn(`Image permanently failed, using SVG fallback: ${currentSrc}`);
     
     // Use the SVG fallback from imagePaths
     import('./imagePaths').then(({ fallbackImageDataUrl }) => {
@@ -192,47 +177,6 @@ export function useRobustImage(initialImagePath: string, baseFolder: string = 'm
     hasError,
     resetImage: resetStates
   };
-}
-
-/**
- * Higher-order component for safe image rendering
- * @param props Standard img props plus some additional options
- */
-interface SafeImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'onError' | 'onLoad'> {
-  src: string;
-  baseFolder?: string;
-  showLoadingSpinner?: boolean;
-  fallbackClassName?: string;
-}
-
-export function SafeImage({ 
-  src, 
-  baseFolder = 'media', 
-  showLoadingSpinner = false,
-  fallbackClassName = '',
-  className = '',
-  alt = '',
-  ...props 
-}: SafeImageProps) {
-  const { imageSrc, onError, onLoad, isLoading, hasError } = useRobustImage(src, baseFolder);
-
-  return (
-    <div className="relative">
-      {isLoading && showLoadingSpinner && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <div className="animate-pulse text-gray-400">Loading...</div>
-        </div>
-      )}
-      <img
-        src={imageSrc}
-        onError={onError}
-        onLoad={onLoad}
-        alt={alt}
-        className={`${className} ${hasError ? fallbackClassName : ''}`}
-        {...props}
-      />
-    </div>
-  );
 }
 
 /**

@@ -6,13 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/lib/supabase-secure';
-import { getImagePath } from '@/utils/imagePaths';
-import { fixImageUrl } from '@/utils/imageUrlFixer';
-import { resolveImageUrl, getImageWithFallback, standardizeImagePath } from '@/utils/imageUrlResolver';
-import { getAllAvailableImages, type ImageFile } from '@/utils/dynamicImageLoader';
-import { SafeImage } from '@/utils/robust-image-handler';
+import { SafeImage } from '@/components/SafeImage';
 import { toast } from '@/hooks/use-toast';
-import ImageSelector from './ImageSelector';
 import { 
   Calendar,
   Plus,
@@ -92,70 +87,40 @@ const EventsPage: React.FC = () => {
 
   // Image selection states
   const [showImageSelector, setShowImageSelector] = useState(false);
-  const [availableImages, setAvailableImages] = useState<MediaFile[]>([]);
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
   const [isSelectingImageForEdit, setIsSelectingImageForEdit] = useState(false);
 
-  const loadLocalImages = () => {
-    // Fallback function to load local images
-    const dynamicImages = getAllAvailableImages();
-    
-    // Convert to MediaFile format for compatibility
-    const mediaFiles: MediaFile[] = dynamicImages.map((img, index) => ({
-      id: img.id,
-      name: img.name,
-      url: img.url,
-      type: 'image' as const,
-      size: 200000, // Default size since we don't track actual file sizes for static images
-      uploaded_at: new Date().toISOString()
-    }));
-    
-    setAvailableImages(mediaFiles);
-  };
-
+  // Load available images from Supabase Storage (using programs approach)
   const loadAvailableImages = useCallback(async () => {
     try {
-      // Load images from Supabase Storage instead of local files
       const result = await listMediaFiles();
       
       if (result.success && result.files) {
-        // Convert StorageFile[] to MediaFile[] format
-        const mediaFiles: MediaFile[] = result.files
+        // Filter for image files and create URLs
+        const imageUrls = result.files
           .filter(file => {
-            // Only include image files
             const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
             return imageExtensions.some(ext => 
               file.name.toLowerCase().endsWith(ext)
             );
           })
-          .map((file, index) => {
+          .map(file => {
             // Get the public URL for the file
             const { data: urlData } = supabase.storage
               .from('media')
               .getPublicUrl(file.name);
-            
-            // Store standardized path for consistency
-            const standardPath = standardizeImagePath(urlData.publicUrl);
-            
-            return {
-              id: `storage_${index}`,
-              name: file.name,
-              url: urlData.publicUrl,
-              type: 'image' as const,
-              size: file.metadata?.size || 0,
-              uploaded_at: file.updated_at || file.created_at || new Date().toISOString()
-            };
+            return urlData.publicUrl;
           });
         
-        setAvailableImages(mediaFiles);
+        setAvailableImages(imageUrls);
       } else {
         console.error('Failed to load images from storage:', result.error);
-        // Fallback to local images if storage fails
-        loadLocalImages();
+        // Fallback to empty array
+        setAvailableImages([]);
       }
     } catch (error) {
       console.error('Error loading images from storage:', error);
-      // Fallback to local images if storage fails
-      loadLocalImages();
+      setAvailableImages([]);
     }
   }, []);
 
@@ -328,20 +293,17 @@ const EventsPage: React.FC = () => {
 
   // Image selection handlers
   const handleImageSelect = (imageUrl: string, imageName: string) => {
-    // Standardize the image URL format for consistent storage
-    const standardizedUrl = standardizeImagePath(imageUrl);
-    
+    // Use full Supabase URL directly (like programs do) instead of standardizing to relative path
     if (isSelectingImageForEdit && editingEvent) {
-      setEditingEvent({ ...editingEvent, image_url: standardizedUrl });
+      setEditingEvent({ ...editingEvent, image_url: imageUrl });
     } else {
-      setNewEvent({ ...newEvent, image_url: standardizedUrl });
+      setNewEvent({ ...newEvent, image_url: imageUrl });
     }
     
     // Show success message
     setSuccess(`Selected image: ${imageName}`);
     setTimeout(() => setSuccess(''), 2000);
     
-    console.debug(`[Event Admin] Image selected: ${imageName} (${imageUrl} → standardized to: ${standardizedUrl})`);
     setShowImageSelector(false);
     setIsSelectingImageForEdit(false);
   };
@@ -522,7 +484,6 @@ const EventsPage: React.FC = () => {
                         src={newEvent.image_url} 
                         alt="Selected event image" 
                         className="w-16 h-16 object-cover rounded-lg border"
-                        baseFolder="media"
                       />
                       <Button
                         type="button"
@@ -640,7 +601,6 @@ const EventsPage: React.FC = () => {
                             src={editingEvent.image_url} 
                             alt="Selected event image" 
                             className="w-16 h-16 object-cover rounded-lg border"
-                            baseFolder="media"
                           />
                           <Button
                             type="button"
@@ -694,7 +654,6 @@ const EventsPage: React.FC = () => {
                         src={event.image_url} 
                         alt={event.title} 
                         className="w-full h-32 object-cover rounded-lg"
-                        baseFolder="media"
                       />
                     </div>
                   ) : (
@@ -807,17 +766,82 @@ const EventsPage: React.FC = () => {
         </Card>
       )}
 
-      {/* Image Selector Modal */}
+      {/* Simplified Image Selector Modal */}
       {showImageSelector && (
-        <ImageSelector 
-          images={availableImages}
-          onSelect={handleImageSelect}
-          onClose={() => {
-            setShowImageSelector(false);
-            setIsSelectingImageForEdit(false);
-          }}
-          title={isSelectingImageForEdit ? "Select Image for Event Edit" : "Select Image for New Event"}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-4xl max-h-[80vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">
+                {isSelectingImageForEdit ? "Select Image for Event Edit" : "Select Image for New Event"}
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowImageSelector(false);
+                  setIsSelectingImageForEdit(false);
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+              {/* Empty state option */}
+              <div
+                onClick={() => {
+                  if (isSelectingImageForEdit && editingEvent) {
+                    setEditingEvent({ ...editingEvent, image_url: '' });
+                  } else {
+                    setNewEvent({ ...newEvent, image_url: '' });
+                  }
+                  setShowImageSelector(false);
+                  setIsSelectingImageForEdit(false);
+                }}
+                className="relative cursor-pointer border-2 rounded-lg p-2 transition-all border-gray-200 hover:border-gray-300"
+              >
+                <div className="aspect-square flex items-center justify-center bg-gray-100 rounded">
+                  <X className="h-6 w-6 text-gray-400" />
+                </div>
+                <p className="text-xs text-center mt-1 truncate">No Image</p>
+              </div>
+              
+              {/* Image options */}
+              {availableImages.map((imageUrl) => {
+                const currentImage = isSelectingImageForEdit ? editingEvent?.image_url : newEvent.image_url;
+                const isSelected = currentImage === imageUrl;
+                
+                return (
+                  <div
+                    key={imageUrl}
+                    onClick={() => handleImageSelect(imageUrl, imageUrl.split('/').pop() || 'Image')}
+                    className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
+                      isSelected 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="aspect-square overflow-hidden rounded">
+                      <SafeImage 
+                        src={imageUrl} 
+                        alt={imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <p className="text-xs text-center mt-1 truncate">
+                      {imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
+                    </p>
+                    {isSelected && (
+                      <div className="absolute top-1 right-1 bg-blue-500 text-white rounded-full p-1">
+                        <CheckCircle className="h-3 w-3" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

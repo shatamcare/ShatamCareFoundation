@@ -5,15 +5,13 @@ import { Calendar, Clock, MapPinIcon, ArrowRight, Filter, Search, Users, Chevron
 import EventRegistrationModal from '@/components/EventRegistrationModal';
 import { getEvents, EventForDisplay } from '@/lib/supabase-secure';
 import { imagePaths, getImagePath } from '@/utils/imagePaths';
-import { SafeImage } from '@/utils/robust-image-handler';
-import { useResolvedImage } from '@/hooks/use-resolved-image';
+import { SafeImage } from '@/components/SafeImage';
+import { resolveImageUrl } from '@/utils/imageUrlResolver';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 // EventCard component to display a single event
 const EventCard = ({ event }: { event: EventForDisplay }) => {
-  const { resolvedUrl, isLoading: isImageLoading } = useResolvedImage(event.image_url);
-
   const eventTypes = {
     'Memory Care Workshop': 'Workshop',
     'Caregiver Support Group': 'Support Group',
@@ -49,20 +47,29 @@ const EventCard = ({ event }: { event: EventForDisplay }) => {
   const eventType = event.type as keyof typeof eventTypes;
   const mappedType = eventTypes[eventType] || 'Event';
 
+  // Resolve the image URL to ensure it's a proper Supabase URL
+  let resolvedImageUrl: string;
+  try {
+    // Temporary test: if it's a media path, manually convert it
+    if (event.image_url && event.image_url.startsWith('media/')) {
+      const filename = event.image_url.replace('media/', '');
+      resolvedImageUrl = `https://uumavtvxuncetfqwlgvp.supabase.co/storage/v1/object/public/media/${encodeURIComponent(filename)}`;
+    } else {
+      resolvedImageUrl = resolveImageUrl(event.image_url);
+    }
+  } catch (error) {
+    console.error('[EventCard] Error resolving image URL:', error);
+    resolvedImageUrl = event.image_url; // fallback to original
+  }
+
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
       <div className="relative h-48 w-full">
-        {isImageLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <img
-            src={resolvedUrl}
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
-        )}
+        <SafeImage
+          src={resolvedImageUrl}
+          alt={event.title}
+          className="w-full h-full object-cover"
+        />
         <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-sm font-semibold ${getEventTypeColor(mappedType)}`}>
           {mappedType}
         </div>
@@ -91,7 +98,14 @@ const EventCard = ({ event }: { event: EventForDisplay }) => {
         </div>
 
         <div className="mt-auto">
-          <EventRegistrationModal event={event}>
+          <EventRegistrationModal 
+            eventId={event.id}
+            eventTitle={event.title}
+            eventDate={event.date}
+            eventTime={event.time}
+            eventLocation={event.location}
+            spotsLeft={event.spots}
+          >
             <Button className="w-full bg-warm-teal hover:bg-warm-teal-600 text-white">
               Register Now <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -115,6 +129,31 @@ const EventsPage = () => {
     'Brain Health Seminar': 'Workshop',
     'Therapy Session': 'Therapy',
     'Fundraiser Event': 'Fundraiser'
+  };
+
+  // Utility functions
+  const getEventTypeColor = (type: string) => {
+    const colorMap: Record<string, string> = {
+      'Workshop': 'bg-warm-teal text-white',
+      'Support Group': 'bg-sage-600 text-white',
+      'Therapy': 'bg-blue-600 text-white',
+      'Fundraiser': 'bg-sunrise-orange text-white'
+    };
+    return colorMap[type] || 'bg-gray-600 text-white';
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-IN', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return dateString;
+    }
   };
 
   // Fetch events from database
@@ -194,7 +233,7 @@ const EventsPage = () => {
     if (selectedFilter === 'all') return matchesSearch;
     
     const eventType = eventTypes[event.type as keyof typeof eventTypes] || 'Event';
-    return matchesSearch && eventType.toLowerCase() === selected_filter.toLowerCase();
+    return matchesSearch && eventType.toLowerCase() === selectedFilter.toLowerCase();
   });
 
   const uniqueEventTypes = ['all', ...Array.from(new Set(Object.values(eventTypes)))];
@@ -287,8 +326,6 @@ const EventsPage = () => {
                       src={event.image_url}
                       alt={event.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                      baseFolder="media"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
                     <div className="absolute top-4 left-4">

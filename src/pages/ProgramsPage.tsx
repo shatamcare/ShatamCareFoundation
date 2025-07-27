@@ -12,7 +12,7 @@ import {
 import { supabase } from '@/lib/supabase-secure';
 import { listMediaFiles } from '@/utils/storage-alternative';
 import { getImagePath } from '@/utils/imagePaths';
-import { SafeImage } from '@/utils/robust-image-handler';
+import { SafeImage } from '@/components/SafeImage';
 import { 
   Plus, 
   Edit, 
@@ -489,7 +489,6 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                               src={imageUrl} 
                               alt={imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
                               className="w-full h-full object-cover"
-                              baseFolder="media"
                             />
                           </div>
                           <p className="text-xs text-center mt-1 truncate">
@@ -511,7 +510,6 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                         src={formData.image_url} 
                         alt="Selected preview" 
                         className="w-40 h-30 object-cover rounded-md border"
-                        baseFolder="media"
                       />
                     </div>
                   )}
@@ -602,7 +600,6 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                                 src={program.image_url} 
                                 alt={program.title}
                                 className="w-24 h-16 object-cover rounded-md border"
-                                baseFolder="media"
                               />
                             </div>
                           )}

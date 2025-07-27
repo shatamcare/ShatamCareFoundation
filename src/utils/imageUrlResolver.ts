@@ -37,28 +37,29 @@ export function resolveImageUrl(imageUrl: string | null | undefined): string {
   // Case 1: Already a Supabase URL
   if (imageUrl.includes('supabase.co/storage/v1/object/public')) {
     resolvedUrl = imageUrl;
-    // Log for debugging
-    console.debug(`[Image Resolver] Using direct Supabase URL: ${imageUrl.substring(0, 50)}...`);
+    // Disabled excessive logging: console.debug(`[Image Resolver] Using direct Supabase URL: ${imageUrl.substring(0, 50)}...`);
   }
   // Case 2: Any other full URL (http/https)
   else if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     resolvedUrl = imageUrl;
-    // Log for debugging
-    console.debug(`[Image Resolver] Using external URL: ${imageUrl.substring(0, 50)}...`);
+    // Disabled excessive logging: console.debug(`[Image Resolver] Using external URL: ${imageUrl.substring(0, 50)}...`);
   }
   // Case 3: Local path (with or without leading slash)
   else {
     // Check if it's a path within our media bucket in Supabase
     if (imageUrl.startsWith('media/')) {
       try {
+        // Extract filename and ensure proper encoding
+        const filename = imageUrl.replace('media/', '');
+        const encodedFilename = encodeURIComponent(filename);
+        
         // Try Supabase storage first
         const { data: urlData } = supabase.storage
           .from('media')
-          .getPublicUrl(imageUrl.replace('media/', ''));
+          .getPublicUrl(filename); // Use original filename, Supabase handles encoding
           
         if (urlData && urlData.publicUrl) {
           resolvedUrl = urlData.publicUrl;
-          console.debug(`[Image Resolver] Converted to Supabase URL: ${imageUrl} → ${resolvedUrl.substring(0, 50)}...`);
         } else {
           throw new Error('No public URL returned from Supabase');
         }
@@ -66,13 +67,11 @@ export function resolveImageUrl(imageUrl: string | null | undefined): string {
         // If Supabase fails, use a smart fallback strategy
         console.warn(`[Image Resolver] Supabase failed for ${imageUrl}, using keyword-based fallback.`);
         resolvedUrl = getFallbackImageByKeyword(imageUrl);
-        console.debug(`[Image Resolver] Using fallback image for ${imageUrl}: ${resolvedUrl}`);
       }
     } else {
       // Use our existing getImagePath utility for local paths
       // This handles the base URL based on environment
       resolvedUrl = getImagePath(imageUrl);
-      console.debug(`[Image Resolver] Resolved local path: ${imageUrl} → ${resolvedUrl}`);
     }
   }
 

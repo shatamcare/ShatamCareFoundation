@@ -63,7 +63,12 @@ const App = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : (
-            <HashRouter>
+            <HashRouter
+              future={{
+                v7_startTransition: true,
+                v7_relativeSplatPath: true
+              }}
+            >
               <Header /> {/* FIX: Added the Header component here */}
               <main className="min-h-screen">
                 <Routes>

@@ -38,11 +38,6 @@ export function logEnvironmentInfo(): void {
  * Logs information about image URL resolution
  */
 export function logImageUrlDebug(originalUrl: string, resolvedUrl: string, source: string): void {
-  if (!isProduction()) {
-    console.group(`🖼️ Image URL Resolution (${source})`);
-    console.log('Original URL:', originalUrl);
-    console.log('Resolved URL:', resolvedUrl);
-    console.log('Base URL:', getBaseUrl());
-    console.groupEnd();
-  }
+  // Disabled excessive logging for better performance
+  // Uncomment for debugging: console.group(`🖼️ Image URL Resolution (${source})`);
 }
