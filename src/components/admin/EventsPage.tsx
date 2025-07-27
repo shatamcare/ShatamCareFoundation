@@ -811,10 +811,20 @@ const EventsPage: React.FC = () => {
                 const currentImage = isSelectingImageForEdit ? editingEvent?.image_url : newEvent.image_url;
                 const isSelected = currentImage === imageUrl;
                 
+                // Extract and decode the filename to show proper names
+                const getDisplayName = (url: string) => {
+                  const encodedFilename = url.split('/').pop() || 'Image';
+                  const decodedFilename = decodeURIComponent(encodedFilename);
+                  return decodedFilename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                };
+                
+                const displayName = getDisplayName(imageUrl);
+                const decodedFilename = decodeURIComponent(imageUrl.split('/').pop() || 'Image');
+                
                 return (
                   <div
                     key={imageUrl}
-                    onClick={() => handleImageSelect(imageUrl, imageUrl.split('/').pop() || 'Image')}
+                    onClick={() => handleImageSelect(imageUrl, decodedFilename)}
                     className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
                       isSelected 
                         ? 'border-blue-500 bg-blue-50' 
@@ -824,12 +834,12 @@ const EventsPage: React.FC = () => {
                     <div className="aspect-square overflow-hidden rounded">
                       <SafeImage 
                         src={imageUrl} 
-                        alt={imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
+                        alt={displayName}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <p className="text-xs text-center mt-1 truncate">
-                      {imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
+                      {displayName}
                     </p>
                     {isSelected && (
                       <div className="absolute top-1 right-1 bg-blue-500 text-white rounded-full p-1">

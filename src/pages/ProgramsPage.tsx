@@ -474,33 +474,44 @@ const ProgramsPage: React.FC<ProgramsPageProps> = ({ className = '' }) => {
                       </div>
                       
                       {/* Image options */}
-                      {availableImages.map((imageUrl) => (
-                        <div
-                          key={imageUrl}
-                          onClick={() => setFormData({ ...formData, image_url: imageUrl })}
-                          className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
-                            formData.image_url === imageUrl 
-                              ? 'border-warm-teal bg-warm-teal/10' 
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <div className="aspect-square overflow-hidden rounded">
-                            <SafeImage 
-                              src={imageUrl} 
-                              alt={imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <p className="text-xs text-center mt-1 truncate">
-                            {imageUrl.split('/').pop()?.replace(/\.(jpg|jpeg|png)$/i, '') || 'Image'}
-                          </p>
-                          {formData.image_url === imageUrl && (
-                            <div className="absolute top-1 right-1 bg-warm-teal text-white rounded-full p-1">
-                              <CheckCircle className="h-3 w-3" />
+                      {availableImages.map((imageUrl) => {
+                        // Extract and decode the filename to show proper names
+                        const getDisplayName = (url: string) => {
+                          const encodedFilename = url.split('/').pop() || 'Image';
+                          const decodedFilename = decodeURIComponent(encodedFilename);
+                          return decodedFilename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, '');
+                        };
+                        
+                        const displayName = getDisplayName(imageUrl);
+                        
+                        return (
+                          <div
+                            key={imageUrl}
+                            onClick={() => setFormData({ ...formData, image_url: imageUrl })}
+                            className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
+                              formData.image_url === imageUrl 
+                                ? 'border-warm-teal bg-warm-teal/10' 
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="aspect-square overflow-hidden rounded">
+                              <SafeImage 
+                                src={imageUrl} 
+                                alt={displayName}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            <p className="text-xs text-center mt-1 truncate">
+                              {displayName}
+                            </p>
+                            {formData.image_url === imageUrl && (
+                              <div className="absolute top-1 right-1 bg-warm-teal text-white rounded-full p-1">
+                                <CheckCircle className="h-3 w-3" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   {formData.image_url && (
