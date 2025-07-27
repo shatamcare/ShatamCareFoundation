@@ -824,7 +824,7 @@ const EventsPage: React.FC = () => {
                 return (
                   <div
                     key={imageUrl}
-                    onClick={() => handleImageSelect(imageUrl, decodedFilename)}
+                    onClick={() => handleImageSelect(imageUrl, displayName)}
                     className={`relative cursor-pointer border-2 rounded-lg p-2 transition-all ${
                       isSelected 
                         ? 'border-blue-500 bg-blue-50' 
