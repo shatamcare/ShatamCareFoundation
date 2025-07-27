@@ -248,13 +248,48 @@ const ContentPage: React.FC = () => {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-warm-teal hover:bg-warm-teal-600"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Content
-          </Button>
+
+      {/* Coming Soon Banner */}
+      <div className="bg-gradient-to-r from-warm-teal to-sage-600 text-white p-6 rounded-lg border-l-4 border-sunrise-orange">
+        <div className="flex items-center space-x-3">
+          <div className="bg-white/20 p-2 rounded-full">
+            <FileText className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold">Dynamic Content Management - Coming Soon!</h3>
+            <p className="text-white/90 mt-1">
+              We're working on connecting the content management system to the website pages. 
+              Currently, the website pages use hardcoded content. This feature will allow you to:
+            </p>
+            <ul className="mt-3 text-white/90 space-y-1">
+              <li>• Edit homepage content dynamically</li>
+              <li>• Update "About Us" and other page sections</li>
+              <li>• Manage content without code changes</li>
+              <li>• Real-time content updates</li>
+            </ul>
+            <div className="mt-4 flex items-center space-x-2 text-sm">
+              <div className="bg-sunrise-orange text-white px-3 py-1 rounded-full">
+                In Development
+              </div>
+              <span className="text-white/80">Expected: Next Update</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Development Notice */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="flex items-start space-x-3">
+          <div className="bg-amber-100 p-2 rounded-full">
+            <AlertCircle className="h-5 w-5 text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-medium text-amber-800">Development Notice</h3>
+            <p className="text-sm text-amber-700 mt-1">
+              The content management interface below is currently for development and testing purposes only. 
+              Website pages are still using hardcoded content and are not yet connected to this system.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -265,6 +300,23 @@ const ContentPage: React.FC = () => {
           <AlertDescription className="text-red-800">{error}</AlertDescription>
         </Alert>
       )}
+
+      {success && (
+        <Alert className="border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription className="text-green-800">{success}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex space-x-3">
+        <Button
+          onClick={() => setShowCreateForm(true)}
+          className="bg-warm-teal hover:bg-warm-teal-600"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Create Content
+        </Button>
+      </div>
 
       {success && (
         <Alert className="border-green-200 bg-green-50">
