@@ -5,18 +5,25 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.warn('Missing Supabase environment variables. App will run in demo mode.');
+  // Use dummy values to prevent app crash
+  const dummyUrl = 'https://dummy.supabase.co';
+  const dummyKey = 'dummy-key';
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: window.localStorage,
-    storageKey: 'shatam-care-auth',
-    persistSession: true,
-    detectSessionInUrl: true,
-    autoRefreshToken: true
+export const supabase = createClient(
+  supabaseUrl || 'https://dummy.supabase.co', 
+  supabaseAnonKey || 'dummy-key', 
+  {
+    auth: {
+      storage: window.localStorage,
+      storageKey: 'shatam-care-auth',
+      persistSession: true,
+      detectSessionInUrl: true,
+      autoRefreshToken: true
+    }
   }
-});
+);
 
 // Type definitions for database entities
 export interface Event {
