@@ -1,0 +1,59 @@
+name: PR Build Check
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        registry-url: 'https://registry.npmjs.org/'
+
+    - name: Install dependencies
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install
+        echo "✅ Dependencies installed successfully"
+
+    - name: Type check
+      run: npm run typecheck || exit 1
+    
+    - name: Build check
+      env:
+        VITE_SUPABASE_URL: https://uumavtvxuncetfqwlgvp.supabase.co
+        VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bWF2dHZ4dW5jZXRmcXdsZ3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MjM2NTQsImV4cCI6MjA2NzI5OTY1NH0.AAoykuZmtZ3gLtbAXLjlYkyqaVUsghx84CP9nF1xkHU
+        NODE_ENV: production
+      run: |
+        echo "🏗️ Starting build check..."
+        npm run build || { echo "❌ Build failed"; exit 1; }
+        echo "✅ Build check completed successfully"
+        
+        # Verify build artifacts
+        echo "Checking build output..."
+        ls -la dist/
+        
+        # Check for required files
+        for file in index.html; do
+          if [ -f "dist/$file" ]; then
+            echo "✅ Found $file"
+          else
+            echo "❌ Missing $file"
+            exit 1
+          fi
+        done
+        
+        echo "✅ PR build check passed"
