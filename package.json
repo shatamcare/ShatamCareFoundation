@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Official website for Shatam Care Foundation - Dementia care and caregiver training in India",
   "private": true,
-  "homepage": "https://shatamcare.github.io/ShatamCareFoundation/",
+  "homepage": "https://shatamcare.org/",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174",

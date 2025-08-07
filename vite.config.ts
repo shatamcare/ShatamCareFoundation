@@ -4,7 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
-  base: mode === 'production' ? '/ShatamCareFoundation/' : '/',
+  base: mode === 'production' ? '/' : '/',
   server: {
     host: "::",
     port: 5174,
