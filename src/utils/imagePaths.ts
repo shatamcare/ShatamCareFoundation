@@ -85,6 +85,7 @@ export const getImagePath = (imagePath: string): string => {
     // For GitHub Pages with HashRouter, we need to use the static asset path
     const isProd = isProduction();
     const isGitHubPagesDirect = typeof window !== 'undefined' && 
+      window.location.hostname === 'shatamcare.github.io' || 
       window.location.hostname === 'adarshalexbalmuchu.github.io';
     
     // Remove leading slash if present to avoid double slashes
