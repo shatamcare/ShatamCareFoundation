@@ -1,0 +1,59 @@
+name: Deploy to GitHub Pages (Simple)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        echo "✅ Dependencies installed successfully"
+
+    - name: Build
+      env:
+        VITE_SUPABASE_URL: https://uumavtvxuncetfqwlgvp.supabase.co
+        VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bWF2dHZ4dW5jZXRmcXdsZ3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MjM2NTQsImV4cCI6MjA2NzI5OTY1NH0.AAoykuZmtZ3gLtbAXLjlYkyqaVUsghx84CP9nF1xkHU
+        NODE_ENV: production
+      run: |
+        echo "🏗️ Starting build process..."
+        npm run build
+        echo "✅ Build completed successfully"
+        
+        # Create .nojekyll to bypass Jekyll processing
+        touch dist/.nojekyll
+        
+        # Copy 404.html for SPA routing
+        cp dist/index.html dist/404.html
+        
+        echo "📊 Build output:"
+        ls -la dist/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        force_orphan: true
+        cname: false
