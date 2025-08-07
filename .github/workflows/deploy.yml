@@ -61,8 +61,14 @@ jobs:
         # Create .nojekyll to bypass Jekyll processing
         touch dist/.nojekyll
         
-        # Add proper MIME types for GitHub Pages
-        echo "text/javascript" > dist/.mime.types
+        # Copy .htaccess for proper MIME types (Apache servers)
+        cp -f public/.htaccess dist/ 2>/dev/null || echo "No .htaccess found"
+        
+        # Copy _headers for Netlify-style hosting
+        cp -f public/_headers dist/ 2>/dev/null || echo "No _headers found"
+        
+        # Copy web.config for IIS servers
+        cp -f public/web.config dist/ 2>/dev/null || echo "No web.config found"
         
         # Copy 404.html for SPA routing
         cp dist/index.html dist/404.html
