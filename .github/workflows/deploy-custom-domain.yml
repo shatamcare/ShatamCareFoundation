@@ -1,0 +1,83 @@
+name: Deploy to Custom Domain
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Custom domain (e.g., shatamcare.org)'
+        required: true
+        default: 'shatamcare.org'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy-custom:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        echo "✅ Dependencies installed successfully"
+
+    - name: Build for Custom Domain
+      env:
+        VITE_SUPABASE_URL: https://uumavtvxuncetfqwlgvp.supabase.co
+        VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bWF2dHZ4dW5jZXRmcXdsZ3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MjM2NTQsImV4cCI6MjA2NzI5OTY1NH0.AAoykuZmtZ3gLtbAXLjlYkyqaVUsghx84CP9nF1xkHU
+        NODE_ENV: production
+        VITE_CUSTOM_DOMAIN: 'true'
+      run: |
+        echo "🏗️ Building for custom domain: ${{ github.event.inputs.domain }}"
+        npm run build
+        echo "✅ Build completed successfully"
+        
+        # Create .nojekyll to bypass Jekyll processing
+        touch dist/.nojekyll
+        
+        # Copy 404.html for SPA routing
+        cp dist/index.html dist/404.html
+        
+        # Create CNAME file for custom domain
+        echo "${{ github.event.inputs.domain }}" > dist/CNAME
+        
+        echo "📊 Build output:"
+        ls -la dist/
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './dist'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      
+    - name: Verify Deployment
+      run: |
+        echo "✅ Deployment complete!"
+        echo "Custom domain: ${{ github.event.inputs.domain }}"
+        echo "GitHub Pages URL: ${{ steps.deployment.outputs.page_url }}"
+        echo ""
+        echo "Next steps:"
+        echo "1. Wait for DNS propagation to complete"
+        echo "2. Ensure your domain's DNS points to GitHub Pages:"
+        echo "   - For apex domain: 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153"
+        echo "   - For www subdomain: CNAME to shatamcare.github.io"
+        echo "3. Enable HTTPS in repository settings"

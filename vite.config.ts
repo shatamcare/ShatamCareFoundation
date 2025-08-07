@@ -4,7 +4,8 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => ({
-  base: mode === 'production' ? '/' : '/',
+  // Use environment variable to determine base path
+  base: process.env.VITE_CUSTOM_DOMAIN === 'true' ? '/' : '/ShatamCareFoundation/',
   server: {
     host: "::",
     port: 5174,
