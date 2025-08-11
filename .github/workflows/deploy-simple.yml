@@ -1,8 +1,9 @@
 name: Deploy to GitHub Pages (Simple)
 
 on:
-  push:
-    branches: [ "main" ]
+  # Disabled to prevent conflicts with main deploy workflow
+  # push:
+  #   branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -31,13 +32,29 @@ jobs:
         npm ci
         echo "✅ Dependencies installed successfully"
 
+    - name: Detect custom domain (CNAME)
+      id: detect_domain
+      run: |
+        if [ -f "CNAME" ]; then
+          echo "Found CNAME file in repository root:" && cat CNAME
+          echo "VITE_CUSTOM_DOMAIN=true" >> $GITHUB_ENV
+          echo "custom_domain=true" >> $GITHUB_OUTPUT
+        else
+          echo "No CNAME file found. Using project page base."
+          echo "VITE_CUSTOM_DOMAIN=false" >> $GITHUB_ENV
+          echo "custom_domain=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Build
       env:
         VITE_SUPABASE_URL: https://uumavtvxuncetfqwlgvp.supabase.co
         VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bWF2dHZ4dW5jZXRmcXdsZ3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MjM2NTQsImV4cCI6MjA2NzI5OTY1NH0.AAoykuZmtZ3gLtbAXLjlYkyqaVUsghx84CP9nF1xkHU
         NODE_ENV: production
+        # Auto-detected in previous step
+        VITE_CUSTOM_DOMAIN: ${{ env.VITE_CUSTOM_DOMAIN }}
       run: |
         echo "🏗️ Starting build process..."
+        echo "Building site (VITE_CUSTOM_DOMAIN=${VITE_CUSTOM_DOMAIN:-false})"
         npm run build
         echo "✅ Build completed successfully"
         
@@ -46,6 +63,12 @@ jobs:
         
         # Copy 404.html for SPA routing
         cp dist/index.html dist/404.html
+
+        # Include CNAME for custom domain if present
+        if [ -f "CNAME" ]; then
+          cp CNAME dist/
+          echo "✅ CNAME copied to dist/"
+        fi
         
         echo "📊 Build output:"
         ls -la dist/
