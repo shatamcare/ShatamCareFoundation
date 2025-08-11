@@ -9,6 +9,8 @@
     "dev": "vite --port 5174",
     "start": "vite preview --port 5174",
     "build": "tsc && vite build",
+    "build:custom-domain": "export VITE_CUSTOM_DOMAIN=true && tsc && vite build",
+    "build:github-pages": "tsc && vite build",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview --port 5174"
