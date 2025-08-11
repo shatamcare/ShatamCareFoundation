@@ -3,9 +3,23 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => ({
-  // Use environment variable to determine base path
-  base: process.env.VITE_CUSTOM_DOMAIN === 'true' ? '/' : '/ShatamCareFoundation/',
+export default defineConfig(({ command, mode }) => {
+  // Determine base path for assets
+  // Priority:
+  // 1) VITE_BASE set explicitly
+  // 2) VITE_CUSTOM_DOMAIN flag -> '/'
+  // 3) Default GitHub Pages project path
+  const explicitBase = process.env.VITE_BASE;
+  const isCustom = process.env.VITE_CUSTOM_DOMAIN === 'true';
+  let base = '/ShatamCareFoundation/';
+  if (explicitBase) {
+    base = explicitBase;
+  } else if (isCustom) {
+    base = '/';
+  }
+  return ({
+  // Use computed base path
+  base,
   server: {
     host: "::",
     port: 5174,
@@ -66,4 +80,5 @@ export default defineConfig(({ command, mode }) => ({
       }
     }
   }
-}));
+});
+});
