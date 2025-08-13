@@ -29,7 +29,8 @@ node -v   # ensure Node is installed
 
 This will produce:
 - `migration/database/schema_export.sql`
-- `migration/database/*.csv` (selected tables)
+- `migration/database/data_export.sql` (if full export chosen)
+- `migration/database/*.csv` (all or selected tables)
 - `migration/storage/*` (all buckets + manifest)
 
 Manual commands (alternative) below.
@@ -48,13 +49,14 @@ supabase init
 # Link to your current project
 supabase link --project-ref <SOURCE_REF>
 
-# Generate migration files from existing database
+# (Optional) Generate migration diff (if you use migrations workflow)
 supabase db diff --schema public --use-migra > migration/database/initial_schema.sql
 
 # Export data using pg_dump (you'll need your database password)
 # Get connection string from Supabase dashboard -> Settings -> Database
+# (Optional manual full data export if not using orchestrator)
 pg_dump "postgresql://postgres:[PASSWORD]@db.<SOURCE_REF>.supabase.co:5432/postgres" \
-  --data-only --inserts --schema=public > migration/database/data_export.sql
+  --schema=public --data-only --inserts --no-owner --no-privileges > migration/database/data_export.sql
 ```
 
 ##### 1.2 Export Storage Files

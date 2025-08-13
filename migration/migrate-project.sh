@@ -31,29 +31,43 @@ echo "  4) Quit"
 read -rp "Enter choice (1-4): " ACTION
 
 case "$ACTION" in
-    1)
-        echo "🔐 Source project credentials"
-        read -rp "Source Project Ref (e.g. uumavtvxuncetfqwlgvp): " SRC_REF
-        read -rp "Source DB Password: " SRC_DB_PW
-        read -rp "Source Service Role Key (for storage export): " SRC_SERVICE_ROLE
-        export SUPABASE_SERVICE_ROLE_KEY="$SRC_SERVICE_ROLE"
-        SRC_DB_CONN="postgres://postgres:${SRC_DB_PW}@db.${SRC_REF}.supabase.co:5432/postgres"
-        EXPORT_DIR="$SCRIPT_DIR/database"; mkdir -p "$EXPORT_DIR" "$SCRIPT_DIR/storage"
-        echo "📦 Exporting schema..."
-        pg_dump --schema-only --no-owner --no-privileges "$SRC_DB_CONN" > "$EXPORT_DIR/schema_export.sql"
-        echo "✅ Schema exported -> migration/database/schema_export.sql"
-        echo "📦 Exporting data for application tables..."
-        TABLES=(site_settings programs events)
-        for t in "${TABLES[@]}"; do
-            echo "  ⏳ $t";
-            psql "$SRC_DB_CONN" -c "\\COPY (SELECT * FROM public.${t}) TO '$EXPORT_DIR/${t}.csv' CSV" >/dev/null
-        done
-        echo "✅ Table data exported (CSV)"
-        echo "🗄️ Exporting storage (root files only & flat) — use export-storage.js for recursive if needed"
-        # Use existing Node script (will leverage service role env var update below)
-        SRC_SUPABASE_URL="https://${SRC_REF}.supabase.co" SUPABASE_URL_OVERRIDE="https://${SRC_REF}.supabase.co" node "$SCRIPT_DIR/export-storage.js"
-        echo "🎉 Export phase complete"
-        ;;
+        1)
+                echo "🔐 Source project credentials"
+                read -rp "Source Project Ref (e.g. uumavtvxuncetfqwlgvp): " SRC_REF
+                read -rp "Source DB Password: " SRC_DB_PW
+                read -rp "Source Service Role Key (for storage export): " SRC_SERVICE_ROLE
+                export SUPABASE_SERVICE_ROLE_KEY="$SRC_SERVICE_ROLE"
+                SRC_DB_CONN="postgres://postgres:${SRC_DB_PW}@db.${SRC_REF}.supabase.co:5432/postgres"
+                EXPORT_DIR="$SCRIPT_DIR/database"; mkdir -p "$EXPORT_DIR" "$SCRIPT_DIR/storage"
+                echo "⚙️ Do full public schema export (all tables + policies)? (y/N)"; read -r FULL_EXPORT
+                if [[ "$FULL_EXPORT" =~ ^[Yy]$ ]]; then
+                        echo "📦 Exporting COMPLETE public schema (excludes auth/storage schemas) ..."
+                        pg_dump --schema=public --schema-only --no-owner --no-privileges "$SRC_DB_CONN" > "$EXPORT_DIR/schema_export.sql"
+                        echo "📦 Exporting ALL public table data (inserts)... this may take time"
+                        pg_dump --schema=public --data-only --inserts --no-owner --no-privileges "$SRC_DB_CONN" > "$EXPORT_DIR/data_export.sql"
+                        echo "✅ Full schema + data export complete (schema_export.sql, data_export.sql)"
+                        echo "📄 Generating per-table CSVs for convenience..."
+                        psql "$SRC_DB_CONN" -Atc "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY 1;" > "$EXPORT_DIR/_tables.list"
+                        while IFS= read -r t; do
+                            [ -z "$t" ] && continue
+                            echo "  ⏳ $t"; psql "$SRC_DB_CONN" -c "\\COPY (SELECT * FROM public.\"$t\") TO '$EXPORT_DIR/${t}.csv' CSV" >/dev/null || true
+                        done < "$EXPORT_DIR/_tables.list"
+                        echo "✅ CSVs generated"
+                else
+                        echo "📦 Exporting schema (public only)..."
+                        pg_dump --schema-only --no-owner --no-privileges "$SRC_DB_CONN" > "$EXPORT_DIR/schema_export.sql"
+                        echo "📦 Exporting selected application tables (site_settings, programs, events) as CSV..."
+                        TABLES=(site_settings programs events)
+                        for t in "${TABLES[@]}"; do
+                            echo "  ⏳ $t"; psql "$SRC_DB_CONN" -c "\\COPY (SELECT * FROM public.${t}) TO '$EXPORT_DIR/${t}.csv' CSV" >/dev/null || true
+                        done
+                        echo "✅ Partial data export done"
+                fi
+                echo "🗄️ Exporting storage (recursive)"
+                SRC_SUPABASE_URL="https://${SRC_REF}.supabase.co" SUPABASE_URL_OVERRIDE="https://${SRC_REF}.supabase.co" node "$SCRIPT_DIR/export-storage.js"
+                echo "ℹ️ Auth users are NOT exported; recreate or invite in target project."
+                echo "🎉 Export phase complete"
+                ;;
     2)
         echo "🆕 Target project credentials"
         read -rp "Target Project Ref: " NEW_REF
