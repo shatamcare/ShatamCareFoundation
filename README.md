@@ -114,6 +114,27 @@ npm run build
 # Deploy the 'dist' folder to GitHub Pages
 ```
 
+### Custom Domain (GitHub Pages with CNAME)
+
+When serving the site at `https://shatamcare.org/` (custom root domain) the Vite `base` must be `/` so the generated hashed asset files (e.g. `assets/main-<hash>.js`) resolve correctly. The build system auto-detects this in two ways:
+
+1. Environment variable `VITE_CUSTOM_DOMAIN=true` (see `.env.production`).
+2. Presence of a `CNAME` file containing a non `github.io` domain.
+
+If you still see 404 errors for files like `main-XXXX.js` or `react-vendor-XXXX.js` after deployment:
+
+Troubleshooting checklist:
+* Confirm the `CNAME` file is committed in the repository root.
+* Inspect `dist/index.html` – asset URLs should start with `/assets/` (NOT `/ShatamCareFoundation/assets/`).
+* Rebuild explicitly forcing root base:
+	```sh
+	VITE_BASE=/ npm run build
+	```
+* Clear GitHub Pages cache by removing the custom domain in Settings → Pages, saving, waiting a minute, then re‑adding it.
+* Ensure your browser cache is cleared / use a hard refresh (Ctrl+F5).
+
+For project‑path deployments (e.g. without custom domain) the default base `/ShatamCareFoundation/` is used automatically.
+
 ## Contributing
 
 To contribute to this project:

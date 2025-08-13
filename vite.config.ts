@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import fs from "fs";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -9,12 +10,32 @@ export default defineConfig(({ command, mode }) => {
   // 1) VITE_BASE set explicitly
   // 2) VITE_CUSTOM_DOMAIN flag -> '/'
   // 3) Default GitHub Pages project path
-  const explicitBase = process.env.VITE_BASE;
-  const isCustom = process.env.VITE_CUSTOM_DOMAIN === 'true';
+  const explicitBase = process.env.VITE_BASE; // Highest priority override
+  const isCustomFlag = process.env.VITE_CUSTOM_DOMAIN === 'true';
+
+  // Detect presence of a CNAME file (GitHub Pages custom domain) and its content
+  let hasCustomDomainCNAME = false;
+  try {
+    if (fs.existsSync(path.resolve(__dirname, 'CNAME'))) {
+      const cnameValue = fs.readFileSync(path.resolve(__dirname, 'CNAME'), 'utf8').trim();
+      if (cnameValue && !/github\.io$/i.test(cnameValue)) {
+        hasCustomDomainCNAME = true;
+      }
+    }
+  } catch (_) {
+    // Ignore errors, fallback logic will handle base
+  }
+
+  // Default base for GitHub Pages project sites
   let base = '/ShatamCareFoundation/';
+
+  // Resolution priority:
+  // 1. Explicit env override (VITE_BASE)
+  // 2. Custom domain flag or detected CNAME => '/'
+  // 3. Fallback to project path
   if (explicitBase) {
     base = explicitBase;
-  } else if (isCustom) {
+  } else if (isCustomFlag || hasCustomDomainCNAME) {
     base = '/';
   }
   
@@ -33,7 +54,8 @@ export default defineConfig(({ command, mode }) => {
       'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
       // Suppress React DevTools suggestion in development
       'process.env.REACT_DEVTOOLS_QUIET': JSON.stringify('true'),
-      __DEV__: mode !== 'production'
+      __DEV__: mode !== 'production',
+      __BUILD_BASE__: JSON.stringify(base)
     },
     resolve: {
       alias: {
