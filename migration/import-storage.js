@@ -2,10 +2,18 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-// Configuration - Update these with your NEW project details
-const NEW_SUPABASE_URL = 'https://[NEW_PROJECT_ID].supabase.co';
-const NEW_SUPABASE_KEY = 'your-new-anon-key-here';
-const NEW_SERVICE_ROLE_KEY = 'your-new-service-role-key-here'; // Required for storage operations
+// Configuration from environment
+const NEW_SUPABASE_URL = process.env.NEW_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const NEW_SERVICE_ROLE_KEY = process.env.NEW_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+if (!NEW_SUPABASE_URL) {
+  console.error('❌ NEW_SUPABASE_URL (or SUPABASE_URL) env var required');
+  process.exit(1);
+}
+if (!NEW_SERVICE_ROLE_KEY) {
+  console.error('❌ NEW_SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_ROLE_KEY) env var required');
+  process.exit(1);
+}
 
 const supabase = createClient(NEW_SUPABASE_URL, NEW_SERVICE_ROLE_KEY);
 
@@ -30,7 +38,7 @@ async function importStorageFiles() {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     console.log(`📋 Found manifest with ${manifest.buckets.length} buckets`);
 
-    for (const bucketInfo of manifest.buckets) {
+  for (const bucketInfo of manifest.buckets) {
       console.log(`\n🪣 Creating bucket: ${bucketInfo.name}`);
       
       // Create bucket in new project
@@ -51,33 +59,34 @@ async function importStorageFiles() {
         continue;
       }
 
-      // Upload files from bucket directory
-      const files = fs.readdirSync(bucketDir);
-      console.log(`📁 Uploading ${files.length} files to bucket ${bucketInfo.name}`);
-
-      for (const fileName of files) {
-        const filePath = path.join(bucketDir, fileName);
-        
-        if (fs.statSync(filePath).isFile()) {
-          try {
-            const fileBuffer = fs.readFileSync(filePath);
-            
-            const { data, error } = await supabase.storage
-              .from(bucketInfo.name)
-              .upload(fileName, fileBuffer, {
-                upsert: true,
-                contentType: getContentType(fileName)
-              });
-
-            if (error) {
-              console.error(`❌ Error uploading ${fileName}:`, error);
-              continue;
+      // Recursively gather file paths
+      const gatherFiles = (dir, prefix = '') => {
+        const out = [];
+        for (const entry of fs.readdirSync(dir)) {
+          const entryPath = path.join(dir, entry);
+            const rel = prefix ? `${prefix}/${entry}` : entry;
+            const stat = fs.statSync(entryPath);
+            if (stat.isDirectory()) {
+              out.push(...gatherFiles(entryPath, rel));
+            } else {
+              out.push(rel);
             }
-
-            console.log(`✅ Uploaded: ${fileName}`);
-          } catch (err) {
-            console.error(`❌ Error processing file ${fileName}:`, err);
-          }
+        }
+        return out;
+      };
+      const files = gatherFiles(bucketDir);
+      console.log(`📁 Uploading ${files.length} files to bucket ${bucketInfo.name}`);
+      for (const relPath of files) {
+        try {
+          const filePath = path.join(bucketDir, relPath);
+          const fileBuffer = fs.readFileSync(filePath);
+          const { error } = await supabase.storage
+            .from(bucketInfo.name)
+            .upload(relPath, fileBuffer, { upsert: true, contentType: getContentType(relPath) });
+          if (error) { console.error(`❌ ${relPath}:`, error); continue; }
+          console.log(`✅ ${relPath}`);
+        } catch (err) {
+          console.error(`❌ Error processing file ${relPath}:`, err);
         }
       }
     }
@@ -113,30 +122,9 @@ function getContentType(fileName) {
 }
 
 // Configuration validation
-function validateConfig() {
-  if (NEW_SUPABASE_URL.includes('[NEW_PROJECT_ID]')) {
-    console.error('❌ Please update NEW_SUPABASE_URL with your actual new project URL');
-    return false;
-  }
-  
-  if (NEW_SUPABASE_KEY === 'your-new-anon-key-here') {
-    console.error('❌ Please update NEW_SUPABASE_KEY with your actual new project anon key');
-    return false;
-  }
-  
-  if (NEW_SERVICE_ROLE_KEY === 'your-new-service-role-key-here') {
-    console.error('❌ Please update NEW_SERVICE_ROLE_KEY with your actual new project service role key');
-    return false;
-  }
-  
-  return true;
-}
-
 // Run the import
 if (require.main === module) {
-  if (validateConfig()) {
-    importStorageFiles();
-  }
+  importStorageFiles();
 }
 
 module.exports = { importStorageFiles };

@@ -4,8 +4,9 @@
 This guide helps you migrate your Supabase project from one account to another. Since Supabase doesn't support direct project transfers, we'll migrate all data and configurations.
 
 ## Current Project Details
-- **Project ID**: `uumavtvxuncetfqwlgvp`
-- **URL**: `https://uumavtvxuncetfqwlgvp.supabase.co`
+Replace placeholders with your actual values when running scripts.
+- **Source Project Ref**: `<SOURCE_REF>`
+- **Source URL**: `https://<SOURCE_REF>.supabase.co`
 
 ## Migration Options
 
@@ -17,7 +18,21 @@ This guide helps you migrate your Supabase project from one account to another. 
 3. Supabase CLI installed
 4. Database admin access to both projects
 
-#### Step 1: Backup Current Project
+#### Step 1: Backup Current Project (Automated Option Recommended)
+
+You can now use the orchestrator script for guided export/import:
+
+```bash
+node -v   # ensure Node is installed
+./migration/migrate-project.sh   # choose option 1 for export
+```
+
+This will produce:
+- `migration/database/schema_export.sql`
+- `migration/database/*.csv` (selected tables)
+- `migration/storage/*` (all buckets + manifest)
+
+Manual commands (alternative) below.
 
 ##### 1.1 Export Database Schema and Data
 ```bash
@@ -31,21 +46,21 @@ supabase login
 supabase init
 
 # Link to your current project
-supabase link --project-ref uumavtvxuncetfqwlgvp
+supabase link --project-ref <SOURCE_REF>
 
 # Generate migration files from existing database
 supabase db diff --schema public --use-migra > migration/database/initial_schema.sql
 
 # Export data using pg_dump (you'll need your database password)
 # Get connection string from Supabase dashboard -> Settings -> Database
-pg_dump "postgresql://postgres:[PASSWORD]@db.uumavtvxuncetfqwlgvp.supabase.co:5432/postgres" \
+pg_dump "postgresql://postgres:[PASSWORD]@db.<SOURCE_REF>.supabase.co:5432/postgres" \
   --data-only --inserts --schema=public > migration/database/data_export.sql
 ```
 
 ##### 1.2 Export Storage Files
 ```bash
 # Create storage backup script
-node migration/export-storage.js
+SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY> SUPABASE_URL_OVERRIDE=https://<SOURCE_REF>.supabase.co node migration/export-storage.js
 ```
 
 ##### 1.3 Export Edge Functions
@@ -70,15 +85,18 @@ VITE_SUPABASE_ANON_KEY=[NEW_ANON_KEY]
 
 #### Step 3: Import to New Project
 
-##### 3.1 Import Database Schema
+##### 3.1 Import Database Schema (Orchestrator)
+
 ```bash
-# Link CLI to new project
-supabase link --project-ref [NEW_PROJECT_ID]
+./migration/migrate-project.sh   # choose option 2 for import
+```
 
-# Run migration
-supabase db push
-
-# Or import manually via SQL editor in Supabase dashboard
+Manual alternative:
+```bash
+# Link CLI to new project (if using migrations rather than raw exported schema)
+supabase link --project-ref <NEW_PROJECT_ID>
+supabase db push   # if using migration-based workflow
+psql "postgresql://postgres:[NEW_PASSWORD]@db.<NEW_PROJECT_ID>.supabase.co:5432/postgres" -f migration/database/schema_export.sql  # raw file import
 ```
 
 ##### 3.2 Import Data
@@ -91,7 +109,7 @@ psql "postgresql://postgres:[NEW_PASSWORD]@db.[NEW_PROJECT_ID].supabase.co:5432/
 ##### 3.3 Import Storage Files
 ```bash
 # Upload storage files using the import script
-node migration/import-storage.js
+NEW_SUPABASE_URL=https://<NEW_PROJECT_ID>.supabase.co NEW_SUPABASE_SERVICE_ROLE_KEY=<SERVICE_ROLE_KEY> node migration/import-storage.js
 ```
 
 ##### 3.4 Deploy Edge Functions
@@ -135,20 +153,21 @@ supabase functions deploy
 - Test all functionality in new project before decommissioning old one
 
 ### 📝 Migration Checklist:
-- [ ] Database schema exported
-- [ ] Database data exported
-- [ ] Storage files backed up
-- [ ] Edge functions copied
-- [ ] New project created
-- [ ] Schema imported to new project
-- [ ] Data imported to new project
-- [ ] Storage files uploaded
-- [ ] Edge functions deployed
-- [ ] Environment variables updated
-- [ ] Application tested with new project
-- [ ] Custom domains updated
-- [ ] Third-party services updated
-- [ ] Old project decommissioned
+- [ ] Source schema exported (or migrations captured)
+- [ ] Table data CSVs exported
+- [ ] Storage buckets exported (recursive)
+- [ ] Edge functions copied (if any)
+- [ ] New project created (extensions enabled)
+- [ ] Schema imported
+- [ ] Data imported
+- [ ] Storage imported
+- [ ] RLS policies verified
+- [ ] Environment variables updated (.env files)
+- [ ] Frontend rebuilt & deployed
+- [ ] Admin features tested (settings, programs, events)
+- [ ] Webhooks / third-party integrations updated
+- [ ] Old project set read-only (grace period)
+- [ ] Old project deleted (after confirmation)
 
 ## Post-Migration Tasks
 
