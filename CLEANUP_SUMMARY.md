@@ -68,10 +68,25 @@ The following redundant and potentially confusing files have been safely removed
 - `.github/workflows/deploy-simple.yml` - Disabled deployment workflow
 - `.github/workflows/deploy-custom-domain.yml` - Redundant custom domain workflow
 
+### **Round 3 - Legacy Image & Debug Utilities Cleanup (Aug 13 2025)** ✅
+
+Removed obsolete or duplicate runtime utilities (no active imports found):
+
+12. `src/utils/imageFixer.ts` – superseded by `imageUrlResolver.ts` & fallback logic
+13. `src/utils/imageManagement.ts` – dev helper only, unused at runtime
+14. `src/utils/robust-image-handler.ts` – duplicate non-React version; `.tsx` retained
+15. `src/utils/database-image-cleanup.ts` – one-off audit script, not shipped
+16. `src/utils/debug-media.ts` – console debug helper for storage
+
+Verification:
+* Searched for symbols/imports (grep) – none referenced
+* Post-removal build & typecheck passed
+* Image rendering validated via remaining utilities
+
 ## **Total Cleanup Impact**
 
-- **Files Removed**: 21 files total
-- **Storage Saved**: ~22+ MB
+- **Files Removed**: 26 files total (added 5 more in Round 3)
+- **Storage Saved**: ~22+ MB (code footprint smaller)
 - **Database Scripts**: Cleaned up from 30+ files to essential production files only
 - **GitHub Workflows**: Streamlined from 4 to 2 essential workflows
 
@@ -119,4 +134,4 @@ The project is now significantly cleaner with:
 - **Optimized file structure** with 22+ MB storage savings
 - **Clear deployment workflows** (no conflicting configurations)
 
-**No functionality has been affected by this comprehensive cleanup.**
+**No functionality has been affected by this comprehensive cleanup.** (Validated after Round 3)
