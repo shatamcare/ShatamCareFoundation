@@ -1,8 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize the Supabase client with environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+let supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Hard fallback: if wrong project ref (old) or missing anon key, override with known good values
+const CANONICAL_URL = 'https://uumavtvxuncetfqwlgvp.supabase.co';
+const CANONICAL_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bWF2dHZ4dW5jZXRmcXdsZ3ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE3MjM2NTQsImV4cCI6MjA2NzI5OTY1NH0.AAoykuZmtZ3gLtbAXLjlYkyqaVUsghx84CP9nF1xkHU';
+const OLD_REF_REGEX = /zkvzctonbjqfxbpwnuvh/;
+if (!supabaseUrl || OLD_REF_REGEX.test(supabaseUrl)) {
+  supabaseUrl = CANONICAL_URL;
+}
+if (!supabaseAnonKey) {
+  supabaseAnonKey = CANONICAL_ANON;
+}
 
 // Detect placeholder / invalid values early to provide clearer UX
 const isPlaceholderUrl = /<NEW_PROJECT_REF>/i.test(supabaseUrl);
