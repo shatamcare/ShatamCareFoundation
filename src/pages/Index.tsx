@@ -241,8 +241,8 @@ const Index = () => {
                   <Button size="lg" className="btn-cta text-lg px-12 py-4" onClick={() => scrollToSection('programs')}>
                     <Heart className="mr-2 h-5 w-5" /> Join Our Support Group
                   </Button>
-                  <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-dark-charcoal font-semibold px-12 py-4 rounded-full text-lg transition-all duration-300 backdrop-blur-sm" onClick={() => scrollToSection('donate')}>
-                    <ArrowRight className="mr-2 h-5 w-5" /> Support Our Mission
+                  <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-dark-charcoal font-semibold px-12 py-4 rounded-full text-lg transition-all duration-300 backdrop-blur-sm" onClick={() => scrollToSection('contact')}>
+                    <ArrowRight className="mr-2 h-5 w-5" /> Connect With Us
                   </Button>
                 </div>
               </div>
@@ -444,7 +444,7 @@ const Index = () => {
           </div>
         </section>
         
-        <ContactForm />
+  <section id="contact" aria-label="Connect With Us"><ContactForm /></section>
         <NewsletterSignup />
       </main>
 
@@ -475,8 +475,8 @@ const Index = () => {
                 <li><a href="#programs" className="text-gray-300 hover:text-warm-teal transition-colors">Our Programs</a></li>
                 <li><a href="#impact" className="text-gray-300 hover:text-warm-teal transition-colors">Our Impact</a></li>
                 <li><a href="#events" className="text-gray-300 hover:text-warm-teal transition-colors">Events</a></li>
-                <li><a href="#donate" className="text-gray-300 hover:text-warm-teal transition-colors">Donate</a></li>
-                <li><a href="#contact" className="text-gray-300 hover:text-warm-teal transition-colors">Contact Us</a></li>
+                {/* Donate link removed while donate section hidden */}
+                <li><a href="#contact" className="text-gray-300 hover:text-warm-teal transition-colors">Connect With Us</a></li>
               </ul>
             </div>
             <div>

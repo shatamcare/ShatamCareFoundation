@@ -56,8 +56,7 @@ const Header = () => {
     { label: "Programs", sectionId: "programs" },
     { label: "Impact", sectionId: "impact" },
     { label: "Events", sectionId: "events" },
-    { label: "Our Founder", sectionId: "founder" },
-    { label: "Get Involved", sectionId: "contact" }
+    { label: "Our Founder", sectionId: "founder" }
   ];
 
   return (
@@ -95,39 +94,6 @@ const Header = () => {
 
         {/* Actions & Mobile Toggle */}
         <div className="flex items-center gap-4">
-          <div className="hidden sm:block">
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                
-                if (isHomePage) {
-                  const section = document.getElementById('donate');
-                  if (section) {
-                    const headerOffset = 80;
-                    const elementPosition = section.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                  }
-                } else {
-                  navigate('/');
-                  setTimeout(() => {
-                    const section = document.getElementById('donate');
-                    if (section) {
-                      const headerOffset = 80;
-                      const elementPosition = section.getBoundingClientRect().top;
-                      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                    }
-                  }, 100);
-                }
-              }}
-              className="inline-block rounded-full bg-primary px-5 py-2 font-bold text-white no-underline transition-colors hover:bg-primary/90 cursor-pointer border-0"
-            >
-              Donate Now
-            </button>
-          </div>
-          
           <button
             className="ml-2 lg:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -153,36 +119,7 @@ const Header = () => {
               </a>
             ))}
             <Link to="/admin" className="w-full py-2 text-lg" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                
-                if (isHomePage) {
-                  const section = document.getElementById('donate');
-                  if (section) {
-                    const headerOffset = 80;
-                    const elementPosition = section.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                  }
-                } else {
-                  navigate('/');
-                  setTimeout(() => {
-                    const section = document.getElementById('donate');
-                    if (section) {
-                      const headerOffset = 80;
-                      const elementPosition = section.getBoundingClientRect().top;
-                      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-                    }
-                  }, 100);
-                }
-              }}
-              className="mt-4 w-full rounded-full bg-primary py-2 text-center font-bold text-white border-0 cursor-pointer"
-            >
-              Donate Now
-            </button>
+            {/* Removed Donate button */}
           </nav>
         </div>
       )}
