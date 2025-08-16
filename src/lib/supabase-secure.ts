@@ -4,11 +4,18 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Missing Supabase environment variables. App will run in demo mode.');
-  // Use dummy values to prevent app crash
-  const dummyUrl = 'https://dummy.supabase.co';
-  const dummyKey = 'dummy-key';
+// Detect placeholder / invalid values early to provide clearer UX
+const isPlaceholderUrl = /<NEW_PROJECT_REF>/i.test(supabaseUrl);
+const isPlaceholderKey = /<NEW_ANON_KEY>/i.test(supabaseAnonKey);
+const isJwtLike = supabaseAnonKey.startsWith('ey'); // Supabase anon keys are JWT-like
+export const isSupabaseConfigured = !!supabaseUrl && !!supabaseAnonKey && !isPlaceholderUrl && !isPlaceholderKey && isJwtLike;
+
+if (!isSupabaseConfigured) {
+  // Give a single consolidated warning with actionable steps
+  console.error('[Supabase Config] Invalid or missing configuration detected.\n' +
+    `VITE_SUPABASE_URL: ${supabaseUrl || 'MISSING'}\n` +
+    `VITE_SUPABASE_ANON_KEY: ${supabaseAnonKey ? (isPlaceholderKey ? 'PLACEHOLDER' : (isJwtLike ? 'PRESENT' : 'INVALID_FORMAT')) : 'MISSING'}\n` +
+    'Update your .env (or deployment environment) with correct values from Supabase Dashboard → Settings → API (use the Project URL and anon public key).');
 }
 
 export const supabase = createClient(

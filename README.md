@@ -118,7 +118,7 @@ npm run build
 
 When serving the site at `https://shatamcare.org/` (custom root domain) the Vite `base` must be `/` so the generated hashed asset files (e.g. `assets/main-<hash>.js`) resolve correctly. The build system auto-detects this in two ways:
 
-1. Environment variable `VITE_CUSTOM_DOMAIN=true` (see `.env.production`).
+1. Build env var `VITE_CUSTOM_DOMAIN=true` (set in CI/hosting environment).
 2. Presence of a `CNAME` file containing a non `github.io` domain.
 
 If you still see 404 errors for files like `main-XXXX.js` or `react-vendor-XXXX.js` after deployment:

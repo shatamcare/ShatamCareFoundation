@@ -96,8 +96,7 @@ Verification:
 - ✅ `vite.config.ts` - Working Vite configuration
 - ✅ `package.json` - Project dependencies and scripts
 - ✅ `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json` - TypeScript configurations
-- ✅ `.env.production` - Production environment variables
-- ✅ `.env.example` - Example environment file for setup
+- ✅ `.env.example` - Example environment file for setup (use CI/hosting env vars for production; `.env.production` removed to avoid duplication)
 
 ### Essential Database Files
 - ✅ `database/complete_schema.sql` - Full database schema

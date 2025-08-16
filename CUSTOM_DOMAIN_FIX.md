@@ -16,7 +16,7 @@ But on a custom domain, these assets should be loaded from:
 
 1. **Fixed Vite Configuration**: Corrected the `vite.config.ts` syntax issues and ensured the base path logic works properly.
 
-2. **Environment Variable Setup**: Set `VITE_CUSTOM_DOMAIN=true` during the build process to use `/` as the base path instead of `/ShatamCareFoundation/`.
+2. **Environment Variable Setup**: Set `VITE_CUSTOM_DOMAIN=true` (CI/hosting env var) during the build to use `/` as the base path instead of `/ShatamCareFoundation/`.
 
 3. **Build Commands**: Updated package.json with specific build commands for different deployment targets.
 
@@ -71,6 +71,6 @@ NOT:
 
 - `vite.config.ts` - Fixed syntax and ensured proper base path handling
 - `package.json` - Added specific build commands
-- `.env.production` - Created production environment configuration
+- (Replaced) `.env.production` - Use deployment environment variables instead; file removed to reduce confusion.
 
 Your website should now load properly on `shatamcare.org` without the 404 errors for assets.
