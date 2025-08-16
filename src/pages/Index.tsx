@@ -163,7 +163,6 @@ const Index = () => {
   // };
 
   const impactStats = [{ number: "7", label: "Cities Reached", description: "Expanding across India" }, { number: "3,600+", label: "Therapy Sessions", description: "Cognitive stimulation delivered" }, { number: "1,500+", label: "Caregivers Trained", description: "Professional certification provided" }, { number: "800+", label: "Families Supported", description: "Through our programs" }, { number: "120+", label: "Elderly Served", description: "In residential care" }];
-  const donationOptions = [{ amount: "₹1,200", purpose: "Brain Bridge Therapy Kit", impact: "Helps 1 elderly person for 3 months", popular: false }, { amount: "₹2,000", purpose: "Support Group Session", impact: "Supports 5 families in one session", popular: false }, { amount: "₹15,000", purpose: "Complete Caregiver Training", impact: "Trains 1 caregiver completely", popular: true }, { amount: "₹50,000", purpose: "Dementia Care Home Development", impact: "Contributes to facility development", popular: false }];
   const trustIndicators = [{ icon: Shield, text: "80G Tax Benefits", subtext: "Government Approved" }, { icon: CheckCircle, text: "100% Secure Payments", subtext: "SSL Encrypted" }, { icon: Award, text: "Transparent Reporting", subtext: "Annual Impact Reports" }];
   
   const getEventType = (title: string): string => {
@@ -406,27 +405,8 @@ const Index = () => {
           </div>
         </section>
 
-        <section id="donate" className="section-padding bg-gradient-to-br from-warm-teal via-warm-teal-600 to-sunrise-orange text-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6 font-poppins">Transform a Life Today</h2>
-            <p className="text-xl max-w-3xl mx-auto mb-12">Choose your impact - every donation directly supports our mission.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {donationOptions.map((option, index) => (
-                <Card key={index} className={`donation-card bg-white text-dark-charcoal hover:shadow-2xl transition-all duration-300 ${option.popular ? 'ring-4 ring-sunrise-orange' : ''}`}>
-                  {option.popular && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-sunrise-orange text-white text-xs px-3 py-1 rounded-full font-bold z-10">POPULAR</div>}
-                  <CardContent className="p-6 h-full flex flex-col justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-warm-teal mb-2">{option.amount}</div>
-                      <div className="font-semibold text-gray-800">{option.purpose}</div>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-xl my-4 text-sm text-gray-600">{option.impact}</div>
-                    <Button className="btn-cta w-full">Donate Securely <Heart className="ml-2 h-4 w-4" /></Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
+  {/* Donation / Transform section temporarily hidden. To restore: import TransformSection and render it here. */}
+  {false && <div />}
 
         <section id="founder" className="section-padding bg-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
