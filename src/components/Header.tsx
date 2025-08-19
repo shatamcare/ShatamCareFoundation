@@ -67,12 +67,13 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
         
         {/* Logo */}
-        <div className="flex-shrink-0 ml-4">
-          <Link to="/">
+        <div className="flex-shrink-0 ml-4" title="Double-click logo for admin">
+          <Link to="/" onDoubleClick={(e) => { e.preventDefault(); navigate('/admin'); }} aria-label="Shatam Care Foundation (double-click for admin)">
             <img 
               src={logoPath} 
               alt="Shatam Care Foundation" 
-              className="h-14 w-auto object-contain"
+              className="h-14 w-auto object-contain cursor-pointer select-none"
+              draggable={false}
             />
           </Link>
         </div>
@@ -80,16 +81,15 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 lg:flex">
           {navLinks.map((link) => (
-            <a 
+            <a
               key={link.label}
-              href={`#${link.sectionId}`} 
+              href={`#${link.sectionId}`}
               onClick={(e) => handleNavClick(e, link.sectionId)}
               className="font-medium text-gray-700 transition-colors hover:text-primary"
             >
               {link.label}
             </a>
           ))}
-          <Link to="/admin" className="font-medium text-gray-700 transition-colors hover:text-primary">Admin</Link>
         </nav>
 
         {/* Actions & Mobile Toggle */}
