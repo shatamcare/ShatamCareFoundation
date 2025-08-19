@@ -106,7 +106,6 @@ export interface SiteSettings {
   address: string;
   socialLinks: {
     facebook: string;
-    twitter: string;
     linkedin: string;
     instagram: string;
   };
@@ -445,7 +444,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       address: (settingsMap.address as string) || 'Mumbai, Maharashtra, India',
       socialLinks: {
         facebook: (settingsMap.facebook_url as string) || '',
-        twitter: (settingsMap.twitter_url as string) || '',
         linkedin: (settingsMap.linkedin_url as string) || '',
         instagram: (settingsMap.instagram_url as string) || '',
       },
@@ -479,7 +477,6 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
     
     if (settings.socialLinks) {
       if (settings.socialLinks.facebook !== undefined) updates.push({ key: 'facebook_url', value: settings.socialLinks.facebook });
-      if (settings.socialLinks.twitter !== undefined) updates.push({ key: 'twitter_url', value: settings.socialLinks.twitter });
       if (settings.socialLinks.linkedin !== undefined) updates.push({ key: 'linkedin_url', value: settings.socialLinks.linkedin });
       if (settings.socialLinks.instagram !== undefined) updates.push({ key: 'instagram_url', value: settings.socialLinks.instagram });
     }

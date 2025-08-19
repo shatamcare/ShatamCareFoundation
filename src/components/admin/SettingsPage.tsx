@@ -39,7 +39,6 @@ const SettingsPage: React.FC = () => {
     address: 'Mumbai, Maharashtra, India',
     socialLinks: {
       facebook: '',
-      twitter: '',
       linkedin: '',
       instagram: '',
     },
