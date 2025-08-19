@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { getImagePath } from '../utils/imagePaths';
@@ -59,6 +59,24 @@ const Header = () => {
     { label: "Our Founder", sectionId: "founder" }
   ];
 
+  // Hidden admin access: detect rapid double (or triple) click on logo for more reliability across devices
+  const clickCountRef = useRef(0);
+  const clickTimerRef = useRef<number | null>(null);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    clickCountRef.current += 1;
+    if (clickTimerRef.current) window.clearTimeout(clickTimerRef.current);
+    clickTimerRef.current = window.setTimeout(() => {
+      clickCountRef.current = 0;
+    }, 500); // 500ms window for multi-click
+
+    if (clickCountRef.current >= 2) { // require 2 rapid clicks
+      e.preventDefault();
+      clickCountRef.current = 0;
+      navigate('/admin');
+    }
+  };
+
   return (
     <header 
       className={`sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm transition-shadow duration-300
@@ -67,8 +85,8 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
         
         {/* Logo */}
-        <div className="flex-shrink-0 ml-4" title="Double-click logo for admin">
-          <Link to="/" onDoubleClick={(e) => { e.preventDefault(); navigate('/admin'); }} aria-label="Shatam Care Foundation (double-click for admin)">
+        <div className="flex-shrink-0 ml-4" title=" " aria-label="Site logo">
+          <Link to="/" onClick={handleLogoClick} aria-label="Shatam Care Foundation">
             <img 
               src={logoPath} 
               alt="Shatam Care Foundation" 
@@ -118,7 +136,7 @@ const Header = () => {
                 {link.label}
               </a>
             ))}
-            <Link to="/admin" className="w-full py-2 text-lg" onClick={() => setIsMobileMenuOpen(false)}>Admin</Link>
+            {/* Admin link removed from mobile menu (hidden access via logo multi-click) */}
             {/* Removed Donate button */}
           </nav>
         </div>
