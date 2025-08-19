@@ -73,7 +73,7 @@ const Header = () => {
     if (clickCountRef.current >= 2) { // require 2 rapid clicks
       e.preventDefault();
       clickCountRef.current = 0;
-      navigate('/admin');
+      navigate('/admin/login'); // Navigate to login page first, not directly to admin
     }
   };
 
