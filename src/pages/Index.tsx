@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, ChevronDown, ChevronUp, MessageCircle, Calendar, Clock, MapPinIcon, Star, Shield, CheckCircle, ArrowRight, Play, BookOpen } from 'lucide-react';
+import { Menu, X, Heart, Users, Home, Award, Phone, Mail, MapPin, MessageCircle, Calendar, Clock, MapPinIcon, Star, Shield, CheckCircle, ArrowRight, Play, BookOpen } from 'lucide-react';
 // FIX: Duplicate React import removed
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -29,23 +29,18 @@ const FALLBACK_PROGRAMS = [
     title: 'Elderly Care Therapy Kit',
     description: 'Comprehensive therapy tools designed for holistic elderly care and cognitive wellness.',
     image_url: 'images/Brain Kit/kit.jpg',
-    cta_text: 'Connect Now',
-    impact_text: 'Elderly Support',
-    details: 'Specialized therapy kits designed to support elderly individuals through physical, cognitive, and emotional wellness programs.'
+    impact_text: 'Elderly Support'
   },
   {
     icon: 'Users', 
     title: 'Caregiver Training Program',
     description: 'Professional training for family and professional caregivers in comprehensive elderly care.',
     image_url: 'images/Caregivers/training.jpg',
-    cta_text: 'Connect Now',
-    impact_text: 'Professional Skills',
-    details: 'Comprehensive training program to equip caregivers with professional skills and knowledge for providing dignified elderly care.'
+    impact_text: 'Professional Skills'
   }
 ];
 
 const Index = () => {
-  const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [databaseEvents, setDatabaseEvents] = useState<EventForDisplay[]>([]);
   const [databasePrograms, setDatabasePrograms] = useState<ProgramForDisplay[]>([]);
@@ -109,9 +104,7 @@ const Index = () => {
         title: program.title,
         description: program.description,
         image: imagePath,
-        cta: program.cta_text,
-        impact: program.impact_text,
-        details: program.details
+        impact: program.impact_text
       };
     });
   }, [databasePrograms, getIconComponent]);
@@ -145,13 +138,6 @@ const Index = () => {
       cleanupAnimations();
     };
   }, []);
-
-  useEffect(() => {
-    if (expandedProgram !== null) {
-      const timer = setTimeout(() => refreshScrollTrigger(), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [expandedProgram]);
 
   // Legacy image error handler - replaced with robust-image-handler
   // const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, imageSrc: string) => {
@@ -363,15 +349,7 @@ const Index = () => {
                     <CardContent className="p-8">
                       <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">{program.title}</h3>
                       <p className="text-gray-600 mb-6 leading-relaxed">{program.description}</p>
-                      <button onClick={() => setExpandedProgram(expandedProgram === index ? null : index)} className="flex items-center text-warm-teal hover:text-warm-teal-600 font-medium transition-colors" aria-expanded={expandedProgram === index} aria-controls={`program-details-${index}`}>
-                        Learn More {expandedProgram === index ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
-                      </button>
-                      {expandedProgram === index && (
-                        <div id={`program-details-${index}`} className="mt-6 p-6 bg-warm-teal rounded-xl animate-accordion-down">
-                          <p className="text-white leading-relaxed mb-4">{program.details}</p>
-                          <Button className="btn-cta" onClick={() => scrollToSection('contact')}>{program.cta} <ArrowRight className="ml-2 h-4 w-4" /></Button>
-                        </div>
-                      )}
+                      <Button className="btn-cta" onClick={() => scrollToSection('contact')}>Connect Now <ArrowRight className="ml-2 h-4 w-4" /></Button>
                     </CardContent>
                   </Card>
                 ))}
