@@ -26,21 +26,21 @@ const ICON_MAP = {
 const FALLBACK_PROGRAMS = [
   {
     icon: 'Heart',
-    title: 'Brain Bridge Therapy Kit',
-    description: 'Cognitive stimulation therapy tools designed for memory care.',
+    title: 'Elderly Care Therapy Kit',
+    description: 'Comprehensive therapy tools designed for holistic elderly care and cognitive wellness.',
     image_url: 'images/Brain Kit/kit.jpg',
     cta_text: 'Learn More',
-    impact_text: 'Cognitive Support',
-    details: 'Specialized therapy kits designed to support cognitive function and memory care for elderly individuals.'
+    impact_text: 'Elderly Support',
+    details: 'Specialized therapy kits designed to support elderly individuals through physical, cognitive, and emotional wellness programs.'
   },
   {
     icon: 'Users', 
     title: 'Caregiver Training Program',
-    description: 'Professional training for family and professional caregivers.',
+    description: 'Professional training for family and professional caregivers in comprehensive elderly care.',
     image_url: 'images/Caregivers/training.jpg',
     cta_text: 'Join Training',
     impact_text: 'Professional Skills',
-    details: 'Comprehensive training program to equip caregivers with professional skills and knowledge for elderly care.'
+    details: 'Comprehensive training program to equip caregivers with professional skills and knowledge for providing dignified elderly care.'
   }
 ];
 
@@ -162,7 +162,7 @@ const Index = () => {
   //   }
   // };
 
-  const impactStats = [{ number: "7", label: "Cities Reached", description: "Expanding across India" }, { number: "3,600+", label: "Therapy Sessions", description: "Cognitive stimulation delivered" }, { number: "1,500+", label: "Caregivers Trained", description: "Professional certification provided" }, { number: "800+", label: "Families Supported", description: "Through our programs" }, { number: "120+", label: "Elderly Served", description: "In residential care" }];
+  const impactStats = [{ number: "7", label: "Cities Reached", description: "Expanding across India" }, { number: "3,600+", label: "Care Sessions", description: "Elderly care support delivered" }, { number: "1,500+", label: "Caregivers Trained", description: "Professional certification provided" }, { number: "800+", label: "Families Supported", description: "Through our programs" }, { number: "120+", label: "Elderly Served", description: "With dignified care" }];
   const trustIndicators = [{ icon: Shield, text: "80G Tax Benefits", subtext: "Government Approved" }, { icon: CheckCircle, text: "100% Secure Payments", subtext: "SSL Encrypted" }, { icon: Award, text: "Transparent Reporting", subtext: "Annual Impact Reports" }];
   
   const getEventType = (title: string): string => {
@@ -232,10 +232,10 @@ const Index = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center">
                 <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-8 font-poppins">
-                  Because Every Memory <span className="block text-warm-teal-200">Deserves Care</span>
+                  Because Every Elder <span className="block text-warm-teal-200">Deserves Dignity</span>
                 </h1>
                 <p className="text-xl lg:text-2xl text-white mb-12 max-w-4xl mx-auto leading-relaxed">
-                  Empowering caregivers, supporting elders, and building an inclusive dementia care ecosystem across India with compassion and dignity.
+                  Empowering caregivers, supporting elderly individuals, and building comprehensive elderly care solutions across India with compassion and dignity.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
                   <Button size="lg" className="btn-cta text-lg px-12 py-4" onClick={() => scrollToSection('programs')}>
@@ -271,7 +271,7 @@ const Index = () => {
                 <CardContent className="p-8 text-center">
                   <div className="w-16 h-16 bg-sunrise-orange rounded-full flex items-center justify-center mx-auto mb-6"><Users className="h-8 w-8 text-white" /></div>
                   <h3 className="text-xl font-semibold text-dark-charcoal mb-4 font-poppins">Our Mission</h3>
-                  <p className="text-gray-600 leading-relaxed">Empowering caregivers and creating inclusive dementia care solutions.</p>
+                  <p className="text-gray-600 leading-relaxed">Empowering caregivers and creating comprehensive elderly care solutions that promote dignity and well-being.</p>
                 </CardContent>
               </Card>
               <Card className="card-hover border-0 shadow-lg bg-gradient-to-br from-sage-50 to-white">
@@ -285,13 +285,62 @@ const Index = () => {
           </div>
         </section>
 
+        <section id="events" className="section-padding bg-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">Join Our Next Events</h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mx-auto mb-8"></div>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Elderly care workshops, caregiver support groups, and community events designed to empower and connect
+              </p>
+            </div>
+            {isEventsLoading ? (
+              <div className="flex flex-col items-center justify-center py-12"><LoadingSpinner /> <p className="text-gray-600 mt-4">Loading events...</p></div>
+            ) : upcomingEvents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                {upcomingEvents.map((event) => (
+                  <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
+                    <div className="relative h-48 overflow-hidden">
+                      <SafeImage 
+                        src={event.image} 
+                        alt={event.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
+                      <div className="absolute top-4 left-4"><span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>{event.type}</span></div>
+                    </div>
+                    <CardContent className="p-8">
+                      <h3 className="text-xl font-bold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">{event.title}</h3>
+                      <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center text-gray-700"><Calendar className="h-5 w-5 text-warm-teal mr-3" /> <span className="font-medium">{formatDate(event.date)}</span></div>
+                        <div className="flex items-center text-gray-700"><Clock className="h-5 w-5 text-sunrise-orange mr-3" /> <span>{event.time}</span></div>
+                        <div className="flex items-center text-gray-700"><MapPinIcon className="h-5 w-5 text-sage-600 mr-3" /> <span>{event.location}</span></div>
+                      </div>
+                      <EventRegistrationModal eventId={event.id} eventTitle={event.title} eventDate={event.date} eventTime={event.time} eventLocation={event.location} spotsLeft={event.spots}>
+                        <Button className="btn-cta w-full">Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                      </EventRegistrationModal>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12"><p>No upcoming events.</p></div>
+            )}
+            <div className="text-center">
+              <Link to="/events"><Button variant="secondary">View All Events</Button></Link>
+            </div>
+          </div>
+        </section>
+
         <section id="programs" className="section-padding bg-gradient-to-b from-light-gray to-off-white">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">Our Programs</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mx-auto mb-8"></div>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Comprehensive care solutions designed to empower caregivers and enhance quality of life for those living with dementia
+                Comprehensive elderly care solutions designed to enhance quality of life, support cognitive health, and empower caregivers across all stages of aging
               </p>
             </div>
             {isProgramsLoading ? (
@@ -352,55 +401,6 @@ const Index = () => {
                   </CardContent>
                 </Card>
               ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="events" className="section-padding bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl lg:text-5xl font-bold text-dark-charcoal mb-6 font-poppins">Join Our Next Events</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-warm-teal to-sunrise-orange mx-auto mb-8"></div>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Dementia care workshops, support groups, and community events designed to empower and connect
-              </p>
-            </div>
-            {isEventsLoading ? (
-              <div className="flex flex-col items-center justify-center py-12"><LoadingSpinner /> <p className="text-gray-600 mt-4">Loading events...</p></div>
-            ) : upcomingEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                {upcomingEvents.map((event) => (
-                  <Card key={event.id} className="event-card bg-white hover:shadow-2xl transition-all duration-500 border-0 shadow-lg group overflow-hidden">
-                    <div className="relative h-48 overflow-hidden">
-                      <SafeImage 
-                        src={event.image} 
-                        alt={event.title} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/60 to-transparent"></div>
-                      <div className="absolute top-4 left-4"><span className={`px-4 py-2 rounded-full text-sm font-medium ${getEventTypeColor(event.type)}`}>{event.type}</span></div>
-                    </div>
-                    <CardContent className="p-8">
-                      <h3 className="text-xl font-bold text-dark-charcoal mb-4 font-poppins group-hover:text-warm-teal transition-colors">{event.title}</h3>
-                      <p className="text-gray-600 mb-6 leading-relaxed">{event.description}</p>
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center text-gray-700"><Calendar className="h-5 w-5 text-warm-teal mr-3" /> <span className="font-medium">{formatDate(event.date)}</span></div>
-                        <div className="flex items-center text-gray-700"><Clock className="h-5 w-5 text-sunrise-orange mr-3" /> <span>{event.time}</span></div>
-                        <div className="flex items-center text-gray-700"><MapPinIcon className="h-5 w-5 text-sage-600 mr-3" /> <span>{event.location}</span></div>
-                      </div>
-                      <EventRegistrationModal eventId={event.id} eventTitle={event.title} eventDate={event.date} eventTime={event.time} eventLocation={event.location} spotsLeft={event.spots}>
-                        <Button className="btn-cta w-full">Reserve Your Seat <ArrowRight className="ml-2 h-4 w-4" /></Button>
-                      </EventRegistrationModal>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12"><p>No upcoming events.</p></div>
-            )}
-            <div className="text-center">
-              <Link to="/events"><Button variant="secondary">View All Events</Button></Link>
             </div>
           </div>
         </section>
