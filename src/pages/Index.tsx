@@ -224,8 +224,8 @@ const Index = () => {
                   Empowering caregivers, supporting elderly individuals, and building comprehensive elderly care solutions across India with compassion and dignity.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <Button size="lg" className="btn-cta text-lg px-12 py-4" onClick={() => scrollToSection('programs')}>
-                    <Heart className="mr-2 h-5 w-5" /> Join Our Support Group
+                  <Button size="lg" className="btn-cta text-lg px-12 py-4" onClick={() => scrollToSection('events')}>
+                    <Heart className="mr-2 h-5 w-5" /> Join Our Next Events
                   </Button>
                   <Button size="lg" className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-dark-charcoal font-semibold px-12 py-4 rounded-full text-lg transition-all duration-300 backdrop-blur-sm" onClick={() => scrollToSection('contact')}>
                     <ArrowRight className="mr-2 h-5 w-5" /> Connect With Us
@@ -450,9 +450,9 @@ const Index = () => {
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm">
+                <li><a href="#events" className="text-gray-300 hover:text-warm-teal transition-colors">Events</a></li>
                 <li><a href="#programs" className="text-gray-300 hover:text-warm-teal transition-colors">Our Programs</a></li>
                 <li><a href="#impact" className="text-gray-300 hover:text-warm-teal transition-colors">Our Impact</a></li>
-                <li><a href="#events" className="text-gray-300 hover:text-warm-teal transition-colors">Events</a></li>
                 {/* Donate link removed while donate section hidden */}
                 <li><a href="#contact" className="text-gray-300 hover:text-warm-teal transition-colors">Connect With Us</a></li>
               </ul>

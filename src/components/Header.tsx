@@ -53,9 +53,9 @@ const Header = () => {
   const navLinks = [
     { label: "Home", sectionId: "home" },
     { label: "Our Mission", sectionId: "mission" },
+    { label: "Events", sectionId: "events" },
     { label: "Programs", sectionId: "programs" },
     { label: "Impact", sectionId: "impact" },
-    { label: "Events", sectionId: "events" },
     { label: "Our Founder", sectionId: "founder" }
   ];
 
