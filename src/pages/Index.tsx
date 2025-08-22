@@ -29,7 +29,7 @@ const FALLBACK_PROGRAMS = [
     title: 'Elderly Care Therapy Kit',
     description: 'Comprehensive therapy tools designed for holistic elderly care and cognitive wellness.',
     image_url: 'images/Brain Kit/kit.jpg',
-    cta_text: 'Learn More',
+    cta_text: 'Connect Now',
     impact_text: 'Elderly Support',
     details: 'Specialized therapy kits designed to support elderly individuals through physical, cognitive, and emotional wellness programs.'
   },
@@ -38,7 +38,7 @@ const FALLBACK_PROGRAMS = [
     title: 'Caregiver Training Program',
     description: 'Professional training for family and professional caregivers in comprehensive elderly care.',
     image_url: 'images/Caregivers/training.jpg',
-    cta_text: 'Join Training',
+    cta_text: 'Connect Now',
     impact_text: 'Professional Skills',
     details: 'Comprehensive training program to equip caregivers with professional skills and knowledge for providing dignified elderly care.'
   }
@@ -369,7 +369,7 @@ const Index = () => {
                       {expandedProgram === index && (
                         <div id={`program-details-${index}`} className="mt-6 p-6 bg-warm-teal rounded-xl animate-accordion-down">
                           <p className="text-white leading-relaxed mb-4">{program.details}</p>
-                          <Button className="btn-cta">{program.cta} <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                          <Button className="btn-cta" onClick={() => scrollToSection('contact')}>{program.cta} <ArrowRight className="ml-2 h-4 w-4" /></Button>
                         </div>
                       )}
                     </CardContent>
