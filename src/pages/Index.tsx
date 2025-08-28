@@ -442,9 +442,9 @@ const Index = () => {
                 </div>
               </div>
               <div className="space-y-2 text-sm text-gray-300">
-                <p className="flex items-center"><Phone className="h-4 w-4 mr-2 text-warm-teal" /> +91 9158566665</p>
-                <p className="flex items-center"><Mail className="h-4 w-4 mr-2 text-warm-teal" /> shatamcare@gmail.com</p>
-                <p className="flex items-center"><MapPin className="h-4 w-4 mr-2 text-warm-teal" /> Mumbai, India</p>
+                <p className="flex items-center"><Phone className="h-4 w-4 mr-2 text-warm-teal" /> {siteSettings?.contactPhone || '+91 9158566665'}</p>
+                <p className="flex items-center"><Mail className="h-4 w-4 mr-2 text-warm-teal" /> {siteSettings?.contactEmail || 'shatamcare@gmail.com'}</p>
+                <p className="flex items-center"><MapPin className="h-4 w-4 mr-2 text-warm-teal" /> {siteSettings?.address || 'Mumbai, India'}</p>
               </div>
             </div>
             <div>
