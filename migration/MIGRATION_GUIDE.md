@@ -3,6 +3,28 @@
 ## Overview
 This guide helps you migrate your Supabase project from one account to another. Since Supabase doesn't support direct project transfers, we'll migrate all data and configurations.
 
+## 🚀 Quick Start (Recommended)
+
+For most users, use our automated migration tools:
+
+```bash
+# 1. Export from current project
+./migration/migrate-project.sh
+
+# 2. Import to new project  
+./migration/migrate-project.sh
+
+# 3. Update environment variables
+./migration/migrate-project.sh
+
+# 4. Validate migration
+./migration/validate-migration.sh
+```
+
+**For detailed instructions, see:**
+- **📖 [Complete Migration Guide](../SUPABASE_MIGRATION_GUIDE.md)** - Comprehensive documentation
+- **⚡ [CLI Commands Guide](../SUPABASE_CLI_MIGRATION_GUIDE.md)** - Step-by-step CLI commands
+
 ## Current Project Details
 Replace placeholders with your actual values when running scripts.
 - **Source Project Ref**: `<SOURCE_REF>`
@@ -179,17 +201,35 @@ supabase functions deploy
 4. **Update Team Access**: Add team members to new project
 5. **Clean Up**: Remove old project once migration is confirmed successful
 
+## Migration Tools Available
+
+### Automated Scripts
+- `migration/migrate-project.sh` - Main migration orchestrator
+- `migration/validate-migration.sh` - Comprehensive validation
+- `migration/rollback.sh` - Rollback and cleanup utilities
+- `migration/update-env.sh` - Environment variable updates
+
+### Storage Scripts
+- `migration/export-storage.js` - Export all storage buckets and files
+- `migration/import-storage.js` - Import storage to new project
+
+### Helper Files
+- `migration/export-schema.sql` - Schema export queries
+- `migration/export-introspection.sql` - Database introspection
+
 ## Need Help?
 
 If you encounter issues during migration:
-1. Check Supabase documentation: https://supabase.com/docs
-2. Contact Supabase support: support@supabase.io
-3. Use Supabase Discord community for quick help
-4. Review migration logs for specific error messages
+1. Check comprehensive guides: [SUPABASE_MIGRATION_GUIDE.md](../SUPABASE_MIGRATION_GUIDE.md)
+2. Review validation reports in `migration/validation/`
+3. Use rollback utilities: `./migration/rollback.sh`
+4. Check Supabase documentation: https://supabase.com/docs
+5. Contact Supabase support: support@supabase.io
+6. Use Supabase Discord community for quick help
 
 ## Files Created for Migration:
 - `migration/migrate-project.sh` - Main migration script
 - `migration/export-schema.sql` - Schema export queries
 - `migration/database/` - Database exports
 - `migration/storage/` - Storage file backups
-- `migration/config/` - Configuration backups
+- `migration/validation/` - Migration validation reports
