@@ -55,11 +55,16 @@ async function exportStorageFiles() {
       fs.mkdirSync(storageDir, { recursive: true });
     }
 
-  // List all storage buckets
-  const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+    // List all storage buckets
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
     
     if (bucketsError) {
       console.error('❌ Error fetching buckets:', bucketsError);
+      return;
+    }
+
+    if (!buckets || buckets.length === 0) {
+      console.log('ℹ️ No storage buckets found in source project');
       return;
     }
 
@@ -84,22 +89,28 @@ async function exportStorageFiles() {
       }
       console.log(`📄 Found ${files.length} files (recursive) in bucket ${bucket.name}`);
 
+      let successCount = 0;
       for (const relativePath of files) {
         try {
             const { data, error } = await supabase.storage
               .from(bucket.name)
               .download(relativePath);
-            if (error) { console.error(`❌ Download error ${relativePath}:`, error); continue; }
+            if (error) { 
+              console.error(`❌ Download error ${relativePath}:`, error); 
+              continue; 
+            }
             const outPath = path.join(bucketDir, relativePath);
             const outDir = path.dirname(outPath);
             if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
             const buffer = Buffer.from(await data.arrayBuffer());
             fs.writeFileSync(outPath, buffer);
             console.log(`✅ ${relativePath}`);
+            successCount++;
         } catch (err) {
             console.error(`❌ Error processing file ${relativePath}:`, err);
         }
       }
+      console.log(`📊 Bucket ${bucket.name}: ${successCount}/${files.length} files exported successfully`);
     }
 
     // Create manifest file
@@ -122,9 +133,11 @@ async function exportStorageFiles() {
 
     console.log('\n✅ Storage export completed!');
     console.log(`📁 Files saved to: ${storageDir}`);
+    console.log(`📋 Manifest created: ${path.join(storageDir, 'manifest.json')}`);
     
   } catch (error) {
     console.error('❌ Export failed:', error);
+    throw error;
   }
 }
 

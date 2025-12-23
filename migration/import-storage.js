@@ -38,7 +38,8 @@ async function importStorageFiles() {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     console.log(`📋 Found manifest with ${manifest.buckets.length} buckets`);
 
-  for (const bucketInfo of manifest.buckets) {
+    let totalFilesImported = 0;
+    for (const bucketInfo of manifest.buckets) {
       console.log(`\n🪣 Creating bucket: ${bucketInfo.name}`);
       
       // Create bucket in new project
@@ -50,6 +51,8 @@ async function importStorageFiles() {
       if (bucketError && !bucketError.message.includes('already exists')) {
         console.error(`❌ Error creating bucket ${bucketInfo.name}:`, bucketError);
         continue;
+      } else if (bucketError && bucketError.message.includes('already exists')) {
+        console.log(`ℹ️ Bucket ${bucketInfo.name} already exists, continuing with file upload`);
       }
 
       const bucketDir = path.join(storageDir, bucketInfo.name);
@@ -76,25 +79,38 @@ async function importStorageFiles() {
       };
       const files = gatherFiles(bucketDir);
       console.log(`📁 Uploading ${files.length} files to bucket ${bucketInfo.name}`);
+      
+      let successCount = 0;
       for (const relPath of files) {
         try {
           const filePath = path.join(bucketDir, relPath);
           const fileBuffer = fs.readFileSync(filePath);
           const { error } = await supabase.storage
             .from(bucketInfo.name)
-            .upload(relPath, fileBuffer, { upsert: true, contentType: getContentType(relPath) });
-          if (error) { console.error(`❌ ${relPath}:`, error); continue; }
+            .upload(relPath, fileBuffer, { 
+              upsert: true, 
+              contentType: getContentType(relPath) 
+            });
+          if (error) { 
+            console.error(`❌ ${relPath}:`, error); 
+            continue; 
+          }
           console.log(`✅ ${relPath}`);
+          successCount++;
         } catch (err) {
           console.error(`❌ Error processing file ${relPath}:`, err);
         }
       }
+      console.log(`📊 Bucket ${bucketInfo.name}: ${successCount}/${files.length} files imported successfully`);
+      totalFilesImported += successCount;
     }
 
-    console.log('\n✅ Storage import completed!');
+    console.log(`\n✅ Storage import completed!`);
+    console.log(`📊 Total files imported: ${totalFilesImported}`);
     
   } catch (error) {
     console.error('❌ Import failed:', error);
+    throw error;
   }
 }
 
